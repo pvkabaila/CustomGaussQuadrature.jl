@@ -1,0 +1,13 @@
+name = "CustomGaussQuadrature"
+uuid = "443f1e71-1479-4740-9a7f-7f689cbb916a"
+authors = ["Paul Kabaila"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.6.7"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
