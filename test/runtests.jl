@@ -1,19 +1,5 @@
 using CustomGaussQuadrature
-using Test
-#=
-using Pkg
-Pkg.add("GaussQuadrature")
-Pkg.add("FastGaussQuadrature")
-Pkg.add("QuadGK")
-Pkg.add("SpecialFunctions")
-Pkg.add("OffsetArrays")
-Pkg.add("LinearAlgebra")
-Pkg.add("GenericLinearAlgebra")
-Pkg.add("DoubleFloats")
-Pkg.add("Distributions")
-Pkg.add("Polynomials")
-Pkg.add("Printf")
-=#
+
 
 
 @testset "CustomGaussQuadrature.jl" begin
