@@ -16,7 +16,7 @@ using Test
     μ_offsetvec = μ_offsetvec_fn(BigFloat, which_f, n);
 
     Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
-    Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n)
+    Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n);
 
     α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n);
     β_vec = β_vec_fn(Δ_offsetvec, n);
