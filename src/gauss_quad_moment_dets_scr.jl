@@ -55,9 +55,16 @@ function moment_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
     T_r = convert(T, r)
     term1 = (T_r/T_2) * log(T_2 / T_m)
     # 3 October 2024: loggamma was not recognised
-    # but lgamma was.
-    term2 = lgamma((T_r + T_m)/T_2)
-    term3 = lgamma(T_m/T_2)
+    # but lgamma was. So I used
+    # term2 = lgamma(((T_r + T_m)/T_2)))
+    # term3 = lgamma(T_m/T_2)
+    # However, when testing the package 
+    # CustomGaussQuadrature on 7 February 2025, 
+    # there was a warning that lgammm(x::Real) is
+    # deprecated and should be replaced
+    # by (logabsgamma(x))[1]
+    term2 = (logabsgamma((T_r + T_m)/T_2))[1]
+    term3 = (logabsgamma(T_m/T_2))[1]
     moment = exp(term1 + term2 - term3)
     return(moment)
 
