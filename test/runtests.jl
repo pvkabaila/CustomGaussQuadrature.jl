@@ -25,7 +25,7 @@ using Test
 # Try which_f = ["Generalized Laguerre", [0, Inf], α_GGL] 
 
 T = BigFloat;
-which_f = ["Generalized Laguerre", [0, Inf], 1] ; 
+which_f = ["Generalized Laguerre", [0, Inf], 1]; 
 n = 4;
 
 μ_offsetvec = μ_offsetvec_fn(T, which_f, n);
