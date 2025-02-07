@@ -268,7 +268,15 @@ function ln_scaled_chi_pdf_fn(T, x::AbstractFloat, m::Integer)
     T_2 = convert(T,2)
     T_m = convert(T,m)
     tmp1 = (T_m / T_2) * log(T_m)
-    tmp2 = lgamma(T_m / T_2)
+    # 3 October 2024: loggamma was not recognised
+    # but lgamma was. So I used
+    # tmp2 = lgamma(T_m / T_2)
+    # When testing the package 
+    # CustomGaussQuadrature on 7 February 2025, 
+    # there was a warning that lgamma(x::Real) is
+    # deprecated and should be replaced
+    # by (logabsgamma(x))[1]
+    tmp2 = (logabsgamma(T_m / T_2))[1]
     tmp3 = ((T_m/T_2) - T_1) * log(T_2)
     tmp4 = (T_m - T_1) * log(x)
     tmp5 = T_m * x^2 / T_2
