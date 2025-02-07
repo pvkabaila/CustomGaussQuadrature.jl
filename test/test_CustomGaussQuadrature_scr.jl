@@ -1,4 +1,5 @@
 using CustomGaussQuadrature
+
 using Printf
 using Plots
 using GaussQuadrature
@@ -402,9 +403,9 @@ which_f = ["scaled chi pdf", [0,Inf], m];
 n = 33;
 println("number of Gauss quadrature nodes n = ", n)
 
-@time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
+@time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-println("k = ", k)
+println("r = ", r)
 
 @time "step1_fn" a_vec, b_vec, μ₀, nbits = 
 step1_fn(which_f, n);
@@ -611,9 +612,9 @@ b = Inf;
 T = BigFloat;
 μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
 
-@time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
+@time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-println("k = ", k)
+println("r = ", r)
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
 
@@ -669,9 +670,9 @@ lnf_fn = x -> lnf_laguerre_fn(x, α);
 nodes_BigFloat, weights_BigFloat = laguerre(n, α);
 
 μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1); 
-@time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
+@time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-println("k = ", k)
+println("r = ", r)
 
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
