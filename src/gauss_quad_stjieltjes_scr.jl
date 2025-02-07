@@ -204,7 +204,7 @@ end
 
 
 """
-a_vec, b_vec, nbits, k = stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, k_max=20)
+a_vec, b_vec, nbits, r = stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
@@ -222,19 +222,22 @@ value of r that specifies the discrete approximation
  i=1                              a                        
 so that there is some assurance that the vectors [a₁, ..., aₙ] 
 and [b₁, ..., bₙ₋₁] are computed to sufficient accuracy for use
-in Step 2. The positive integer k = (final value of r) / n.
+in Step 2. To choose the final value of r, which is outputted,
+we consider k (offset + n) for k=3, k-4, up to a maximum 
+value k_max. The default values of offset and k_max are 7
+and 40, respectively. 
 """
-function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, k_max=50)
+function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
     k = 3
-    r = k * n
-    # println("r = k * n, where k = ", k)
+    r = k * (offset + n)
+    # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec, b_vec, nbits = 
     stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     
     k = k + 1
-    r = k * n
-    # println("r = k * n, where k = ", k)
+    r = k * (offset + n)
+    # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec_new, b_vec_new, nbits_new = 
     stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
@@ -256,9 +259,9 @@ function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, k_max=50)
         throw(DomainError(k, " needed value of k exceeds k_max"))
     end
     k = k + 1
-    r = k * n
+    r = k * (offset + n)
     # println(" ")
-    # println("r = k * n, where k = ", k)
+    # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec_new, b_vec_new, nbits_new = 
     stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
@@ -281,7 +284,7 @@ function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, k_max=50)
     setprecision(BigFloat, 256, base=2)
     # println("maximum(abs.(a_vec_new - a_vec)) = ", max_abs_error_a)
     # println("maximum(abs.(b_vec_new - b_vec) ./ b_vec_new)) = ", max_rel_error_b)
-    [a_vec_new, b_vec_new, nbits_new, k]
+    [a_vec_new, b_vec_new, nbits_new, r]
     
 end
 
