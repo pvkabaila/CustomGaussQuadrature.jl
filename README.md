@@ -14,37 +14,73 @@ $$
 $$
 where $\tau_1, \dots, \tau_n$ are called the nodes
 and $\lambda_1, \dots, \lambda_n$ are called the
-corresponding weights. The dependence on these 
+corresponding weights. The dependence of these 
 nodes and weights on $n$ is implicit.
 This approximation is exact
 whenever $g$ is a polynomial of degree less
 than or equal to $2n - 1$. 
+We call these nodes and weights, taken together, as the Gauss rule with $n$ nodes.
 
-If $f$ takes a form that leads to Gauss quadrature
+For the case that $f$ leads to Gauss 
 rules with nodes that are the roots of classical orthogonal
-polynomials of a continuous variable then these rules
-(such as Gauss Legendre, Gauss Hermite and Gauss Laguerre) are
-readily accessible via several Julia packages.
-If, however, $f$ does not take one of these
-particular forms then the Gauss quadrature nodes and weights
-need to be custom-made.
+polynomials of a continuous variable then these rules,
+such as Gauss Legendre, Gauss Hermite and Gauss Laguerre, are
+readily accessible via several Julia packages. We call this the 
+classical case. In the non-classical case, however, the Gauss rule needs to be custom-made.
 
-
-Usually Gauss quadrature nodes and weights are 
+Gauss rules are usually
 computed in the following two steps.
 
-$\quad$ **Step 1**: Compute the recursion coefficients in the three-step recurrence 
+**Step 1**: Compute the recursion coefficients in the three-step recurrence 
 relation (Gautschi, 2004).
 
-$\quad$ **Step 2**: Use these recursion coefficients to compute the Gauss quadrature nodes 
+**Step 2**: Use these recursion coefficients to compute the Gauss quadrature nodes 
 and weights.
 
-**Step 2** remains the same for any Gauss quadrature rule computation, 
-including custom-made. **Step 1** is particularly simple when $f$ takes a form that leads to 
-Gauss quadrature
-rules with nodes that are the roots of classical orthogonal
-polynomials of a continuous variable. However, for custom-made Gauss 
-quadrature this step is complicated, see e.g. Gautschi (2004).  
+In the classical case there are  simple formulae for the recursion coefficients, making **Step 1** trivial. In the non-classical case Step 1 is difficult. The treatise of Gautschi (2004) describes several methods for this computation that differ widely in both complexity and sensitivity to roundoff errors. However, **Step 2** remains the same for both classical and non-classical cases. We carry out **Step 2** by computing the eigenvalues and eigenvectors of a symmetric tridiagonal matrix using the package `GenericLinearAlgebra.jl`. 
+
+## **Three-term recurrence relation** 
+
+
+The norm of the function $u$ is denoted by $\|u\|$ and is defined to be the square root of 
+$$
+\int_{-\infty}^{\infty} u^2(x) f(x) dx,
+$$
+provided that this integral exists. For two functions $u$ and $v$ that satisfy $\|u\| <\infty$ and $\|v\| <\infty$, the inner product of these two functions is denoted $(u,v)$ and is defined to be
+$$
+\int_{-\infty}^{\infty} u(x) v(x) f(x) dx.
+$$
+If $(u,v) = 0$ then the functions $u$ and $v$ are said to be orthogonal. 
+
+We consider only polynomials whose coefficients are real numbers. 
+A polynomial in $x$ of degree $n$ is said to be monic if the coefficient of $x^n$ is 1. Let $\pi_k$ denote a monic polynomial of degree $k$. The monic polynomials $\pi_0, \pi_1, \pi_2, \dots$ are called monic orthogonal polynomials with respect to the weight function $f$ if 
+$$
+	(\pi_k, \pi_{\ell}) = 0 \ \ \text{for all} \ k \ne \ell, \ \text{where} \ k, \ell \in \{0, 1, 2, \dots\}
+$$
+and
+$$
+	\| \pi_k \| > 0 \ \ \text{for} \ k=0, 1, 2, \dots.
+$$
+The Gauss quadrature nodes $\tau_1, \dots, \tau_n$ are the $n$ distinct roots of the polynomial $\pi_n$. 
+
+The monic orthogonal polynomials with respect to the weight function $f$ satisfy the following three-term recurrence relation, see e.g.
+Theorem 1.27 on p.10 of Gautschi (2004). Let 
+$\pi_{-1} \equiv 0$ and $\pi_0 \equiv 1$. Then 
+$$
+	\pi_{k+1}(x) = 	\big(x - \alpha_k\big) \, \pi_k(x) - \beta_k \, \pi_{k-1}(x) \ \ \text{for} \ k = 0, 1, 2, \dots,
+$$
+where 
+$$	
+	\alpha_k 
+	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
+	\quad (k = 0, 1, 2, \dots) \quad \text{and} \quad
+	\beta_k 
+	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
+	\quad (k = 1, 2, \dots).
+$$
+
+
+## **Computation of the recursion coefficients in the three-term recurrence relation using moment determinants** 
 
 We carry out **Step 1** using moment determinants (Theorem 2.2 of Gautschi, 2004). Although this method
 is severely ill-conditioned, this 
@@ -59,7 +95,7 @@ must be inserted by the user into the code for the function `moment_fn`, as illu
 The function `custom_gauss_quad_all_fn` is then used to compute the Gauss quadrature nodes and weights. 
 
 The aim of the method implemented in `custom_gauss_quad_all_fn` is for (a) the *absolute errors* of each of the nodes to be less than
-$10^{-17}$ and (b) the *relative errors* of each of the weights to be less than $10^{-17}$. In other words, the nodes and weights are computed with the purpose of being used in further `Float64` computations.
+$10^{-17}$ and (b) the *relative errors* of each of the weights to be less than $10^{-17}$. In other words, the nodes and weights are computed with the purpose of being used in further extensive `Float64` computations.
 
 The inputs to   `custom_gauss_quad_all_fn` are
 `which_f`, `n`, `upto_n` and `extra_check`. We describe this function for the default values of `upto_n` and `extra_check`, so that the inputs to this function are as follows.
@@ -77,7 +113,7 @@ floating-point type using `parse()` and
 For `custom_gauss_quad_all_fn` the outputs are `nodes` and `weights`  in the form of `Double64` vectors (from the package `DoubleFloats`).
 
 
-## **Example 1** 
+### **Example 1** 
 Consider the "scaled chi pdf" weight function is
 $$
 	f(x) =
@@ -90,7 +126,7 @@ $$
 where $m$ is a positive integer parameter. 
 This weight function is specified by
 
-    which_f = ["scaled chi pdf", ["0.0",Inf], m]
+    which_f = ["scaled chi pdf", [0,Inf], m]
 
 for some assigned value of $m$. The first component is the name given to $f$, the second component is the support interval of $f$ specified by a 2-vector of the endpoints and the last component is the parameter $m$ 
 
@@ -113,8 +149,8 @@ This formula **has been implemented** in the function `moment_fn` which has inpu
     T_m = convert(T, m)
     T_r = convert(T, r)
     term1 = (T_r/T_2) * log(T_2 / T_m)
-    term2 = lgamma((T_r + T_m)/T_2)
-    term3 = lgamma(T_m/T_2)
+    term2 = (logabsgamma((T_r + T_m)/T_2))[1]
+    term3 = (logabsgamma(T_m/T_2))[1]
     moment = exp(term1 + term2 - term3)
 
 The following commands compute the nodes and weights, as 
@@ -135,7 +171,7 @@ The following commands compute the nodes and weights, as
     end
 
 
-## **Example 2**
+### **Example 2**
 
 The "chemistry example" weight function is
 $$
@@ -148,7 +184,7 @@ $$
 $$
 This weight function is considered by Gautschi (1983) and is specified by
 
-    which_f = ["chemistry example", ["0.0",Inf]]::Vector{Any};
+    which_f = ["chemistry example", [0,Inf]]::Vector{Any};
 
 The first component is the name given to $f$ and the second component is the support interval of $f$ specified by a 2-vector of the endpoints.
 
@@ -181,7 +217,7 @@ Gautschi (1983), using the `printf` function from the package `Printf`.
     nodes, weights = custom_gauss_quad_all_fn(which_f, n);  
     nodes = convert(Vector{BigFloat}, nodes);
     weights = convert(Vector{BigFloat}, weights);
-    println("              nodes                     weights")
+    @printf "              nodes                     weights"
     for i in 1:n
         @printf "%2d     " i
         @printf "%.15e     " nodes[i]
