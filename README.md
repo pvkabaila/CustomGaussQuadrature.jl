@@ -405,8 +405,8 @@ The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing or
 
 $$
 \lambda_i 
-= \frac{\mu_0 \, (\text{first component of }\bm{x}_i)^2}
-{(\bm{x}_i, \bm{x}_i)}.
+= \frac{\mu_0 \, (\text{first component of }\boldsymbol{x}_i)^2}
+{(\boldsymbol{x}_i, \boldsymbol{x}_i)}.
 $$
 
 The  matrix $J_n$ is tridiagonal i.e. its nonzero elements are only on the subdiagonal, diagonal and superdiagonal. It is also symmetric.
