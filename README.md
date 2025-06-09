@@ -3,7 +3,9 @@
 [![Build Status](https://github.com/pvkabaila/CustomGaussQuadrature.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/pvkabaila/CustomGaussQuadrature.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
 Suppose that we wish to evaluate
+
 $$\int_{-\infty}^{\infty} g(x) f(x) dx, $$
+
 where $f$ is a specified nonnegative integrable
 weight function. The $n$-point Gauss quadrature approximation to this
 integral is
