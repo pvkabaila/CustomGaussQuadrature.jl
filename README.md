@@ -3,15 +3,11 @@
 [![Build Status](https://github.com/pvkabaila/CustomGaussQuadrature.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/pvkabaila/CustomGaussQuadrature.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
 Suppose that we wish to evaluate
-$$
-\int_{-\infty}^{\infty} g(x) f(x) dx,
-$$
+$$\int_{-\infty}^{\infty} g(x) f(x) dx, $$
 where $f$ is a specified nonnegative integrable
 weight function. The $n$-point Gauss quadrature approximation to this
 integral is
-$$
-\sum_{i=1}^n \lambda_i \, g(\tau_i),
-$$
+$$\sum_{i=1}^n \lambda_i \, g(\tau_i),$$
 where $\tau_1, \dots, \tau_n$ are called the nodes
 and $\lambda_1, \dots, \lambda_n$ are called the
 corresponding weights. The dependence of these 
