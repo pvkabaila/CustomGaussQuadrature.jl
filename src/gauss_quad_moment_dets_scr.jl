@@ -1,13 +1,34 @@
 # This Julia script is part of the module 
 # CustomGaussQuadrature.jl
-# This script consists of
-# code to compute the custom-made Gauss quadrature 
-# nodes and weights using a moment-based method via 
-# moment determinants to compute the coefficients
-# in the three-term recurrence relation, using
-# the type T, which is specified by the user. 
-# This is followed by the use of the package
-# GenericLinearAlgebra.jl
+#
+# This script provideds Julia functions to compute 
+# the Gauss quadrature rule with n nodes using 
+# the following two steps:
+#
+# Step 1: Compute the recursion coefficients 
+# [α₀, α₁, ..., αₙ₋₁] and [β₁, ..., βₙ] of the 
+# three-term recurrence relation using a moment-based 
+# method via moment determinants. The aim of 
+# Step 1 is to compute approximations to the 
+# vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
+# [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁] with maximum
+# absolute errors and maximum relative errors,
+# respectively, bounded above by 10⁻¹⁸.
+# The map from the vector of moments
+# [μ₀, μ₁, ..., μ₂ₙ₋₁] to the vector 
+# [α₀, α₁, ..., αₙ₋₁,β₁, ..., βₙ] of recursion 
+# coefficients is severely ill-conditioned. 
+# This limitation is overcome by using BigFloat
+# arithmetic with carefully chosen precision.
+#
+# Step 2: Compute the Gauss quadrature rule with n nodes
+# from the eigenvalues and eigenvectors of the symmetric 
+# tridiagonal Jacobi matrix Jₙ with main diagonal
+# [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and subdiagonal 
+# [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], using  
+# Double64 arithmetic. The computation of these 
+# eigenvalues and eigenvectors is carried out using
+# the package GenericLinearAlgebra.jl
 
 
 """
