@@ -252,13 +252,13 @@ Gautschi (1983).
 
 The Stjeltjes procedure, given in subsections 2.2.2 and 2.2.3 of Gautschi (2004), applies the three-term recurrence relation (1) and (2) iteratively through the following sequence:
 
-$$\bigl\{\pi_{-1}, \pi_0 \bigr\} \rightarrow
+$\bigl\{\pi_{-1}, \pi_0 \bigr\} \rightarrow
 	\{\alpha_0, \pi_1\} \rightarrow
 	( \pi_1, \pi_1) \rightarrow
 \beta_1  \rightarrow
 	\{\alpha_1, \pi_2\} \rightarrow
 	( \pi_2, \pi_2) \rightarrow
-\beta_2  \rightarrow \dots$$
+\beta_2  \rightarrow \dots$
 
 The inner products used in the computation of the recursion coefficients are found using a high-quality quadrature rule with $r$ nodes. This is a discretization method that is expected to lead to
 approximations to the recursion coefficients $\alpha_0, \alpha_1, \dots, \alpha_{n-1}$ and $\beta_1, \beta_2, \dots, \beta_{n-1}$
