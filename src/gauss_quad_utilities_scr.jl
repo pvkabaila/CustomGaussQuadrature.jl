@@ -1,10 +1,15 @@
+# This Julia script is part of the module 
+# CustomGaussQuadrature.jl
+#
+# This script consists of some utility functions for the
+# Julia package CustomGaussQuadrature.jl
 
 """
 plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi)
 
 Returns a graph of the cumulative distribution function (cdf) of a 
 discrete random variable with point probability masses prob_vec
-at locations x_vec. This horizontal axis of this graph is for
+at locations x_vec. The horizontal axis of this graph is for
 x between x_lo and x_hi.
 """
 function plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi)
