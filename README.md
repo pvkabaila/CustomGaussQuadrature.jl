@@ -252,7 +252,7 @@ Gautschi (1983).
 
 The Stjeltjes procedure, given in subsections 2.2.2 and 2.2.3 of Gautschi (2004), applies the three-term recurrence relation (1) and (2) iteratively through the following sequence:
 
-$$\{\pi_{-1}, \pi_0 \} \rightarrow
+$$\bigl\{\pi_{-1}, \pi_0 \bigr\} \rightarrow
 	\{\alpha_0, \pi_1\} \rightarrow
 	( \pi_1, \pi_1) \rightarrow
 \beta_1  \rightarrow
