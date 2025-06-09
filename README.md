@@ -10,7 +10,7 @@ where $f$ is a specified nonnegative integrable
 weight function. The $n$-point Gauss quadrature approximation to this
 integral is
 
-$$\sum_{i=1}^n \lambda_i \, g(\tau_i),$$
+$$\sum_{i=1}^n \lambda_i \ g(\tau_i),$$
 
 where $\tau_1, \dots, \tau_n$ are called the nodes
 and $\lambda_1, \dots, \lambda_n$ are called the
@@ -76,10 +76,10 @@ where
 
 $$\alpha_k 
 	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
-	\quad (k = 0, 1, 2, \dots) \quad \text{and} \quad
+	(k = 0, 1, ...) \ \text{and} \
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
-	\quad (k = 1, 2, \dots).
+	(k = 1, 2, ...)
     \tag{2}$$
 
 
