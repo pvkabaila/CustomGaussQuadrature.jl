@@ -1,12 +1,30 @@
-
-# Computes the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
-# [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
-# of Gauss quadrature nodes and the recursion coefficients 
+# This Julia script is part of the module 
+# CustomGaussQuadrature.jl
+#
+# This script consists of Julia functions to compute 
+# the Gauss quadrature rule with n nodes using the 
+# following two steps:
+#
+# Step 1: Compute the recursion coefficients 
 # [α₀, α₁, ..., αₙ₋₁] and [β₁, ..., βₙ] of the 
-# three-term recurrence relation are computed using the 
-# Stjieltjes procedure, where the inner product of two 
-# functions is found using the script inner_prod_fns_scr.jl
-
+# three-term recurrence relation using the 
+# Stjieltjes procedure, where the inner product 
+# of two functions is found using the script 
+# inner_prod_fns_scr.jl. The aim of 
+# Step 1 is to compute approximations to the 
+# vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
+# [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁] with maximum
+# absolute errors and maximum relative errors,
+# respectively, bounded above by 10⁻¹⁸.
+#
+# Step 2: Compute the Gauss quadrature rule with n nodes
+# from the eigenvalues and eigenvectors of the symmetric 
+# tridiagonal Jacobi matrix Jₙ with main diagonal
+# [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and subdiagonal 
+# [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], using  
+# Double64 arithmetic. The computation of these 
+# eigenvalues and eigenvectors is carried out using
+# the package GenericLinearAlgebra.jl
 
 """
 a_vec, b_vec = stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_support, lnweights_support)
@@ -292,12 +310,17 @@ end
 """
 nodes, weights = stjieltjes_step2_fn(n, μ₀, a_vec, b_vec, a, b)
 
-This function carries our Step 2 which is the computation of the
-nodes and weights from the eigenvalues and eigenvectors
-of the symmetric tridiagonal Jacobi matrix Jₙ with main diagonal
-a_vec and subdiagonal b_vect. 
-This computation is carried out using the type Double64
-arithmetic. 
+This function carries our Step 2, which is the computation of 
+the Gauss quadrature nodes and weights from the eigenvalues 
+and eigenvectors of the symmetric tridiagonal Jacobi matrix 
+Jₙ with main diagonal a_vec = [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] 
+and subdiagonal b_vec = [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], 
+where n is the number of Gauss quadrature nodes and 
+[α₀, α₁, ..., αₙ₋₁] and [β₁, ..., βₙ] are the vectors of 
+recursion coefficients of the three-term recurrence relation. 
+The computation of these eigenvalues and eigenvectors is 
+carried out using Double64 arithmetic and the package 
+GenericLinearAlgebra.jl
 """
 function stjieltjes_step2_fn(n::Integer, μ₀, a_vec, b_vec, a, b)
   @assert n ≥ 2
