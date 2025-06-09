@@ -401,7 +401,7 @@ $$
 	\right].
 $$
 
-The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let $\bf{x}_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
+The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let ${\bf x}_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
 
 $$
 \lambda_i 
