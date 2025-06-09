@@ -1,4 +1,6 @@
-
+# This Julia script is part of the module 
+# CustomGaussQuadrature.jl
+#
 # This script provides Julia functions to compute an approximation
 # to the inner product of two functions u: ℝ → ℝ and v: ℝ → ℝ. 
 # Let f: ℝ → [0,∞) denote a specified nonnegative weight function. 
@@ -16,7 +18,8 @@
 #   -∞
 #
 # We also suppose that the support of the weight function f
-# is an interval [a,b], -∞ ≤ a < b ≤ ∞, so that this integral
+# is an interval with lower and upper endpoints a and b, 
+# respectively. Here -∞ ≤ a < b ≤ ∞. Therefore this integral
 # becomes
 # 
 #    b
@@ -25,7 +28,8 @@
 #
 # To compute this integral, we use the transformation described
 # on p.94 of Gautschi (2004). In other words, we transform the  
-# support interval [a,b] to the interval [-1,1] using the 
+# support interval with lower and upper endpoints a and b, 
+# respectively, to the interval [-1,1] using the 
 # transformation
 #
 #   b                1

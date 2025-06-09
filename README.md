@@ -37,7 +37,9 @@ relation (Gautschi, 2004).
 **Step 2**: Use these recursion coefficients to compute the Gauss quadrature nodes 
 and weights.
 
-In the classical case there are  simple formulae for the recursion coefficients, making **Step 1** trivial. In the non-classical case Step 1 is difficult. The treatise of Gautschi (2004) describes several methods for this computation that differ widely in both complexity and sensitivity to roundoff errors. However, **Step 2** remains the same for both classical and non-classical cases. We carry out **Step 2** by computing the eigenvalues and eigenvectors of a symmetric tridiagonal matrix using the package `GenericLinearAlgebra.jl`. 
+In the classical case there are  simple formulae for the recursion coefficients, making **Step 1** trivial. In the non-classical case Step 1 is difficult. The treatise of Gautschi (2004) describes several methods for this computation that differ widely in both complexity and sensitivity to roundoff errors. However, **Step 2** remains the same for both classical and non-classical cases. We carry out **Step 2** by computing the eigenvalues and eigenvectors of a symmetric tridiagonal matrix using the package `GenericLinearAlgebra.jl`.
+
+# Step 1 using either moment determinants or the Stjieltjes procedure
 
 ## **Three-term recurrence relation** 
 
@@ -68,6 +70,7 @@ Theorem 1.27 on p.10 of Gautschi (2004). Let
 $\pi_{-1} \equiv 0$ and $\pi_0 \equiv 1$. Then 
 $$
 	\pi_{k+1}(x) = 	\big(x - \alpha_k\big) \, \pi_k(x) - \beta_k \, \pi_{k-1}(x) \ \ \text{for} \ k = 0, 1, 2, \dots,
+    \tag{1}
 $$
 where 
 $$	
@@ -77,18 +80,24 @@ $$
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
 	\quad (k = 1, 2, \dots).
+    \tag{2}
 $$
 
 
 ## **Computation of the recursion coefficients in the three-term recurrence relation using moment determinants** 
 
-We carry out **Step 1** using moment determinants (Theorem 2.2 of Gautschi, 2004). Although this method
-is severely ill-conditioned, this 
-limitation is overcome by the use of `BigFloat` arithmetic. 
+We carry out **Step 1** using moment determinants (Theorem 2.2 of Gautschi, 2004).
+The map from the vector 
+$\big(\mu_0, \mu_1, \dots, \mu_{2n-1} \big)$ of moments to the vector $\big(\alpha_0, \dots, \alpha_{n-1},  \beta_1, \dots, \beta_{n-1}\big)$ of recursion coefficients is severely ill-conditioned (Gautschi, 1983, 2004). However, it has long been recognized that this limitation can be overcome by the use of high-precision arithmetic, see e.g. Gautschi (1983), when applying 
+ the method of moment determinants.
+We use `BigFloat` arithmetic, with arbitrary number of bits of precision `b`. For assurance that the chosen number of bits of precision `b` is sufficiently large, we use the following simple method. Suppose that $c$ and $\widetilde{c}$ are numerical approximations to the same quantity, where $\widetilde{c}$ is believed to be much more accurate. Then we take $\widetilde{c}$ as our final approximation and assess 
+the absolute error to be less than $|c - \widetilde{c}|$.
+
+
 We require that there is a formula, which can be computed in `BigFloat`
 arithmetic, for the $r$'th moment
 $$
-\int_{-\infty}^{\infty} x^r \, f(x) \, dx
+\mu_r = \int_{-\infty}^{\infty} x^r \, f(x) \, dx
 $$
 for all nonnegative integers $r \le 2 n - 1$. This formula 
 must be inserted by the user into the code for the function `moment_fn`, as illustrated in the examples below.
@@ -96,6 +105,8 @@ The function `custom_gauss_quad_all_fn` is then used to compute the Gauss quadra
 
 The aim of the method implemented in `custom_gauss_quad_all_fn` is for (a) the *absolute errors* of each of the nodes to be less than
 $10^{-17}$ and (b) the *relative errors* of each of the weights to be less than $10^{-17}$. In other words, the nodes and weights are computed with the purpose of being used in further extensive `Float64` computations.
+
+
 
 The inputs to   `custom_gauss_quad_all_fn` are
 `which_f`, `n`, `upto_n` and `extra_check`. We describe this function for the default values of `upto_n` and `extra_check`, so that the inputs to this function are as follows.
@@ -227,6 +238,150 @@ Gautschi (1983), using the `printf` function from the package `Printf`.
 These results agree with Table 2.2 of 
 Gautschi (1983).
 
+
+## **Computation of the recursion coefficients in the three-term recurrence relation using the Stjieltjes procedure**
+
+The Stjeltjes procedure, given in subsections 2.2.2 and 2.2.3 of Gautschi (2004), applies the three-term recurrence relation (1) and (2) iteratively through the following sequence:
+$$
+	\big\{\pi_{-1}, \pi_0 \big\} \rightarrow
+	\big\{\alpha_0, \pi_1 \big\} \rightarrow
+	\big(\pi_1, \pi_1\big) \rightarrow
+\beta_1  \rightarrow
+	\big\{\alpha_1, \pi_2 \big\} \rightarrow
+	\big(\pi_2, \pi_2\big) \rightarrow
+\beta_2  \rightarrow \dots.
+$$
+The inner products used in the computation of the recursion coefficients are found using a high-quality quadrature rule with $r$ nodes. This is a discretization method that is expected to lead to
+approximations to the recursion coefficients $\alpha_0, \alpha_1, \dots, \alpha_{n-1}$ and $\beta_1, \beta_2, \dots, \beta_{n-1}$
+that converge to their exact values as $r \rightarrow \infty$.
+
+### Implementation of the Stjieltjes procedure
+We describe the method used to compute the $w_i$'s and $x_i$'s in the $r$-node discrete approximation  
+$$
+\sum_{i =1}^r w_i \, g(x_i)
+$$
+to $(u,v)$.
+
+Suppose that $\{x: f(x) > 0\}$,  the support of the weight function $f$, is an interval with lower and upper endpoints $a$ and $b$, respectively. Here $-\infty \le a < b \le \infty$. The inner product of the functions $u$ and $v$ is therefore 
+$$
+	\int_a^b g(x) \, f(x) \, dx,
+$$
+where $g = u \, v$. To compute an approximation to this integral, we 
+we use the initial transformation described
+on p.94 of Gautschi (2004). In other words, we transform the support interval with lower and upper endpoints $a$ and $b$, respectively, to the interval with lower and upper endpoints $-1$ and $1$, respectively, using the 
+transformation
+$$
+	\int_a^b g(x) \, f(x) \, dx	 
+	= \int_{-1}^1 g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y) \, dy
+    \tag{3}
+$$
+where
+$$
+	\varphi(y) = 
+	\begin{cases}
+		(1/2) (b - a) y + (1/2) (b + a) &\text{if } -\infty < a < b < \infty
+		\\
+		b - (1 - y) / (1 + y) &\text{if } -\infty = a < b < \infty
+		\\
+		a + (1 + y) / (1 - y) &\text{if } -\infty < a < b = \infty
+		\\
+		y / (1 - y^2)  &\text{if } -\infty = a < b = \infty.
+	\end{cases}	
+$$
+
+
+A discrete approximation to the right-hand side of 	(3) can be found as follows.
+Let 
+$h(y) = g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)$, where
+$$
+	\varphi'(y) = 
+	\begin{cases}
+		(1/2) (b - a) &\text{if } -\infty < a < b < \infty
+		\\
+		2 / (1 + y)^2 &\text{if } -\infty = a < b < \infty
+		\\
+		2 / (1 - y)^2 &\text{if } -\infty < a < b = \infty
+		\\
+		(1 + y^2) / \big(1 - y^2 \big)^2  &\text{if } -\infty = a < b = \infty.
+	\end{cases}	
+$$
+A high-quality quadrature rule then provides a discrete approximation to the integral $\int_{-1}^1 h(y) \, dy$.
+Gautschi (2004) uses a Fejer quadrature rule.
+Instead, we use Gauss Legendre quadrature with $r$ nodes to approximate
+$$
+	\int_{-1}^1 h(y) \, dy \quad \text{by} \quad \sum_{i =1}^r \xi_i \, h(y_i),	
+$$
+where $y_1, \dots, y_r$ are the nodes and $\xi_1, \dots, \xi_r$ are the corresponding weights. Now 
+$$
+	\sum_{i =1}^r \xi_i \, h(y_i) = \sum_{i =1}^r w_i \, g(x_i),	
+    \tag{4}
+$$
+where $w_i =  \xi_i \, \varphi'(y_i) \, f\big(\varphi(y_i)\big)$
+and $x_i = \varphi(y_i)$. To summarize, we 
+approximate the inner product $(u, v)$ by
+(4).
+All that the user needs to provide is a Julia
+function to evaluate $f$.
+
+
+Consider the case that either $-\infty = a$ or $b = \infty$, or both.
+It was found that the computation of the $w_i$'s using 
+`Double64` arithmetic, from the package `DoubleFloats`,
+could result in some of these being `NaN`'s. To solve this problem, we compute the $\log(w_i)$'s instead using
+$$
+\log(w_i) = \log(\xi_i) + \log \big(\varphi'(y_i) \big) + \log\big(f\big(\varphi(y_i)\big) \big),
+$$
+where
+$$
+	\log\big(\varphi'(y)\big) = 
+	\begin{cases}
+		\log(2) - 2 \log(1 + y) &\text{if } -\infty = a < b < \infty
+		\\
+		\log(2) - 2 \log(1 - y) &\text{if } -\infty < a < b = \infty
+		\\
+		\log(1 + y^2) - 2 \log \big(1 - y^2 \big)  &\text{if } -\infty = a < b = \infty.
+	\end{cases}	
+$$
+All that the user needs to provide is a Julia
+function to evaluate $\log(f)$. Since $g = uv$, 
+$$
+w_i \, g(x_i)
+= w_i \, u(x_i) \, v(x_i)
+= \text{sign}\big(u(x_i)\big) \, \text{sign}\big(v(x_i)\big) \,
+w_i \, \big|u(x_i)\big| \, \big|v(x_i)\big|
+$$
+$$
+= \text{sign}\big(u(x_i)\big) \, \text{sign}\big(v(x_i)\big) \,
+\exp\Big(\log(w_i) + \log\big(\big|u(x_i)\big|\big) + \log\big(\big|v(x_i)\big|\big) \Big),
+$$
+which is used to compute (4).
+
+
+# Step 2 using the eigenvalues and eigenvectors of the Jacobi matrix
+
+Define the $n \times n$ Jacobi matrix 
+$$
+	J_n = \left[
+	\begin{array}{cccccc}
+		\alpha_0 & \sqrt{\beta_1} & 0 & 0 & \dots & 0 \\
+		\sqrt{\beta_1} & \alpha_1 & \sqrt{\beta_2} & 0 & \ddots & \vdots \\
+		0 & \sqrt{\beta_2} & \alpha_2 & \sqrt{\beta_3} & 0  & 0\\
+		0 & \ddots & \ddots & \ddots & \ddots & 0\\
+		\vdots & \ddots & & \sqrt{\beta_{n-1}} & \alpha_{n-2} & \sqrt{\beta_{n-1}} \\
+		0 & \dots & 0 & 0 & \sqrt{\beta_{n-1}} & \alpha_{n-1} 
+	\end{array}	
+	\right].
+$$
+The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let $\bm{x}_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
+$$
+\lambda_i 
+= \frac{\mu_0 \, (\text{first component of }\bm{x}_i)^2}
+{(\bm{x}_i, \bm{x}_i)}.
+$$
+The  matrix $J_n$ is tridiagonal i.e. its nonzero elements are only on the subdiagonal, diagonal and superdiagonal. It is also symmetric.
+
+We compute the eigenvalues and eigenvectors of a symmetric tridiagonal matrix using the package `GenericLinearAlgebra`.
+
 ---
 
 
@@ -236,4 +391,4 @@ Gautschi, W. (1983). How and how not to check Gaussian quadrature formulae. BIT,
 
 Gautschi, W. (2004). Orthogonal Polynomials, 
 Computation and Approximation. Oxford University Press, Oxford.
-Copied from earlier package
+
