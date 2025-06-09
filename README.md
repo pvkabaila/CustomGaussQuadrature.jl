@@ -9,7 +9,9 @@ $$\int_{-\infty}^{\infty} g(x) f(x) dx, $$
 where $f$ is a specified nonnegative integrable
 weight function. The $n$-point Gauss quadrature approximation to this
 integral is
+
 $$\sum_{i=1}^n \lambda_i \, g(\tau_i),$$
+
 where $\tau_1, \dots, \tau_n$ are called the nodes
 and $\lambda_1, \dots, \lambda_n$ are called the
 corresponding weights. The dependence of these 
@@ -43,43 +45,42 @@ In the classical case there are  simple formulae for the recursion coefficients,
 
 
 The norm of the function $u$ is denoted by $\|u\|$ and is defined to be the square root of 
-$$
-\int_{-\infty}^{\infty} u^2(x) f(x) dx,
-$$
+
+$$\int_{-\infty}^{\infty} u^2(x) f(x) dx,$$
+
 provided that this integral exists. For two functions $u$ and $v$ that satisfy $\|u\| <\infty$ and $\|v\| <\infty$, the inner product of these two functions is denoted $(u,v)$ and is defined to be
-$$
-\int_{-\infty}^{\infty} u(x) v(x) f(x) dx.
-$$
+
+$$\int_{-\infty}^{\infty} u(x) v(x) f(x) dx.$$
+
 If $(u,v) = 0$ then the functions $u$ and $v$ are said to be orthogonal. 
 
 We consider only polynomials whose coefficients are real numbers. 
 A polynomial in $x$ of degree $n$ is said to be monic if the coefficient of $x^n$ is 1. Let $\pi_k$ denote a monic polynomial of degree $k$. The monic polynomials $\pi_0, \pi_1, \pi_2, \dots$ are called monic orthogonal polynomials with respect to the weight function $f$ if 
-$$
-	(\pi_k, \pi_{\ell}) = 0 \ \ \text{for all} \ k \ne \ell, \ \text{where} \ k, \ell \in \{0, 1, 2, \dots\}
-$$
+
+$$(\pi_k, \pi_{\ell}) = 0 \ \ \text{for all} \ k \ne \ell, \ \text{where} \ k, \ell \in \{0, 1, 2, \dots\}$$
+
 and
-$$
-	\| \pi_k \| > 0 \ \ \text{for} \ k=0, 1, 2, \dots.
-$$
+
+$$\| \pi_k \| > 0 \ \ \text{for} \ k=0, 1, 2, \dots.$$
+
 The Gauss quadrature nodes $\tau_1, \dots, \tau_n$ are the $n$ distinct roots of the polynomial $\pi_n$. 
 
 The monic orthogonal polynomials with respect to the weight function $f$ satisfy the following three-term recurrence relation, see e.g.
 Theorem 1.27 on p.10 of Gautschi (2004). Let 
 $\pi_{-1} \equiv 0$ and $\pi_0 \equiv 1$. Then 
-$$
-	\pi_{k+1}(x) = 	\big(x - \alpha_k\big) \, \pi_k(x) - \beta_k \, \pi_{k-1}(x) \ \ \text{for} \ k = 0, 1, 2, \dots,
-    \tag{1}
-$$
+
+$$\pi_{k+1}(x) = 	\big(x - \alpha_k\big) \, \pi_k(x) - \beta_k \, \pi_{k-1}(x) \ \ \text{for} \ k = 0, 1, 2, \dots,
+    \tag{1}$$
+
 where 
-$$	
-	\alpha_k 
+
+$$\alpha_k 
 	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
 	\quad (k = 0, 1, 2, \dots) \quad \text{and} \quad
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
 	\quad (k = 1, 2, \dots).
-    \tag{2}
-$$
+    \tag{2}$$
 
 
 ## **Computation of the recursion coefficients in the three-term recurrence relation using moment determinants** 
@@ -94,9 +95,11 @@ the absolute error to be less than $|c - \widetilde{c}|$.
 
 We require that there is a formula, which can be computed in `BigFloat`
 arithmetic, for the $r$'th moment
+
 $$
 \mu_r = \int_{-\infty}^{\infty} x^r \, f(x) \, dx
 $$
+
 for all nonnegative integers $r \le 2 n - 1$. This formula 
 must be inserted by the user into the code for the function `moment_fn`, as illustrated in the examples below.
 The function `custom_gauss_quad_all_fn` is then used to compute the Gauss quadrature nodes and weights. 
@@ -124,6 +127,7 @@ For `custom_gauss_quad_all_fn` the outputs are `nodes` and `weights`  in the for
 
 ### **Example 1** 
 Consider the "scaled chi pdf" weight function is
+
 $$
 	f(x) =
 	\begin{cases}
@@ -132,6 +136,7 @@ $$
 		0 &\text{otherwise},
 	\end{cases}	
 $$
+
 where $m$ is a positive integer parameter. 
 This weight function is specified by
 
@@ -140,6 +145,7 @@ This weight function is specified by
 for some assigned value of $m$. The first component is the name given to $f$, the second component is the support interval of $f$ specified by a 2-vector of the endpoints and the last component is the parameter $m$ 
 
 For this weight function, the $r$'th moment is 
+
 $$
 	\left(\frac{2}{m} \right)^{r/2}
 	\frac{\Gamma\big((r+m)/2\big)}{\Gamma(m/2)}
@@ -147,6 +153,7 @@ $$
     \log \Gamma \left(\frac{r+m}{2}\right) 
     - \log \Gamma \left(\frac{m}{2}\right) \right)
 $$
+
 for $r = 0, 1, 2, \dots$.
 This formula **has been implemented** in the function `moment_fn` which has inputs `T` (Floating Point type), `which_f` and `r` (moment order), as follows.
 
@@ -183,6 +190,7 @@ The following commands compute the nodes and weights, as
 ### **Example 2**
 
 The "chemistry example" weight function is
+
 $$
 		f(x) =
 	\begin{cases}
@@ -191,6 +199,7 @@ $$
 		0  &\ \text{otherwise.}
 	\end{cases}	
 $$
+
 This weight function is considered by Gautschi (1983) and is specified by
 
     which_f = ["chemistry example", [0,Inf]]::Vector{Any};
@@ -198,9 +207,11 @@ This weight function is considered by Gautschi (1983) and is specified by
 The first component is the name given to $f$ and the second component is the support interval of $f$ specified by a 2-vector of the endpoints.
 
 For this weight function, the $r$'th moment is 
+
 $$
 	3^{(r - 2) / 3} \, \Gamma\big((r + 1) / 3\big)
 $$
+
 for $r = 0, 1, 2, \dots$.
 This formula **has been implemented** in the function `moment_fn` which has inputs `T` (Floating Point type), `which_f` and `r` (moment order), as follows.
 
@@ -240,6 +251,7 @@ Gautschi (1983).
 ## **Computation of the recursion coefficients in the three-term recurrence relation using the Stjieltjes procedure**
 
 The Stjeltjes procedure, given in subsections 2.2.2 and 2.2.3 of Gautschi (2004), applies the three-term recurrence relation (1) and (2) iteratively through the following sequence:
+
 $$
 	\big\{\pi_{-1}, \pi_0 \big\} \rightarrow
 	\big\{\alpha_0, \pi_1 \big\} \rightarrow
@@ -249,15 +261,18 @@ $$
 	\big(\pi_2, \pi_2\big) \rightarrow
 \beta_2  \rightarrow \dots.
 $$
+
 The inner products used in the computation of the recursion coefficients are found using a high-quality quadrature rule with $r$ nodes. This is a discretization method that is expected to lead to
 approximations to the recursion coefficients $\alpha_0, \alpha_1, \dots, \alpha_{n-1}$ and $\beta_1, \beta_2, \dots, \beta_{n-1}$
 that converge to their exact values as $r \rightarrow \infty$.
 
 ### Implementation of the Stjieltjes procedure
-We describe the method used to compute the $w_i$'s and $x_i$'s in the $r$-node discrete approximation  
+We describe the method used to compute the $w_i$'s and $x_i$'s in the $r$-node discrete approximation 
+
 $$
 \sum_{i =1}^r w_i \, g(x_i)
 $$
+
 to $(u,v)$.
 
 Suppose that $\{x: f(x) > 0\}$,  the support of the weight function $f$, is an interval with lower and upper endpoints $a$ and $b$, respectively. Here $-\infty \le a < b \le \infty$. The inner product of the functions $u$ and $v$ is therefore 
@@ -268,12 +283,15 @@ where $g = u \, v$. To compute an approximation to this integral, we
 we use the initial transformation described
 on p.94 of Gautschi (2004). In other words, we transform the support interval with lower and upper endpoints $a$ and $b$, respectively, to the interval with lower and upper endpoints $-1$ and $1$, respectively, using the 
 transformation
+
 $$
 	\int_a^b g(x) \, f(x) \, dx	 
 	= \int_{-1}^1 g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y) \, dy
     \tag{3}
 $$
+
 where
+
 $$
 	\varphi(y) = 
 	\begin{cases}
@@ -291,6 +309,7 @@ $$
 A discrete approximation to the right-hand side of 	(3) can be found as follows.
 Let 
 $h(y) = g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)$, where
+
 $$
 	\varphi'(y) = 
 	\begin{cases}
@@ -303,17 +322,22 @@ $$
 		(1 + y^2) / \big(1 - y^2 \big)^2  &\text{if } -\infty = a < b = \infty.
 	\end{cases}	
 $$
+
 A high-quality quadrature rule then provides a discrete approximation to the integral $\int_{-1}^1 h(y) \, dy$.
 Gautschi (2004) uses a Fejer quadrature rule.
 Instead, we use Gauss Legendre quadrature with $r$ nodes to approximate
+
 $$
 	\int_{-1}^1 h(y) \, dy \quad \text{by} \quad \sum_{i =1}^r \xi_i \, h(y_i),	
 $$
+
 where $y_1, \dots, y_r$ are the nodes and $\xi_1, \dots, \xi_r$ are the corresponding weights. Now 
+
 $$
 	\sum_{i =1}^r \xi_i \, h(y_i) = \sum_{i =1}^r w_i \, g(x_i),	
     \tag{4}
 $$
+
 where $w_i =  \xi_i \, \varphi'(y_i) \, f\big(\varphi(y_i)\big)$
 and $x_i = \varphi(y_i)$. To summarize, we 
 approximate the inner product $(u, v)$ by
@@ -326,10 +350,13 @@ Consider the case that either $-\infty = a$ or $b = \infty$, or both.
 It was found that the computation of the $w_i$'s using 
 `Double64` arithmetic, from the package `DoubleFloats`,
 could result in some of these being `NaN`'s. To solve this problem, we compute the $\log(w_i)$'s instead using
+
 $$
 \log(w_i) = \log(\xi_i) + \log \big(\varphi'(y_i) \big) + \log\big(f\big(\varphi(y_i)\big) \big),
 $$
+
 where
+
 $$
 	\log\big(\varphi'(y)\big) = 
 	\begin{cases}
@@ -340,24 +367,29 @@ $$
 		\log(1 + y^2) - 2 \log \big(1 - y^2 \big)  &\text{if } -\infty = a < b = \infty.
 	\end{cases}	
 $$
+
 All that the user needs to provide is a Julia
 function to evaluate $\log(f)$. Since $g = uv$, 
+
 $$
 w_i \, g(x_i)
 = w_i \, u(x_i) \, v(x_i)
 = \text{sign}\big(u(x_i)\big) \, \text{sign}\big(v(x_i)\big) \,
 w_i \, \big|u(x_i)\big| \, \big|v(x_i)\big|
 $$
+
 $$
 = \text{sign}\big(u(x_i)\big) \, \text{sign}\big(v(x_i)\big) \,
 \exp\Big(\log(w_i) + \log\big(\big|u(x_i)\big|\big) + \log\big(\big|v(x_i)\big|\big) \Big),
 $$
+
 which is used to compute (4).
 
 
 # Step 2 using the eigenvalues and eigenvectors of the Jacobi matrix
 
 Define the $n \times n$ Jacobi matrix 
+
 $$
 	J_n = \left[
 	\begin{array}{cccccc}
@@ -370,12 +402,15 @@ $$
 	\end{array}	
 	\right].
 $$
+
 The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let $\bm{x}_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
+
 $$
 \lambda_i 
 = \frac{\mu_0 \, (\text{first component of }\bm{x}_i)^2}
 {(\bm{x}_i, \bm{x}_i)}.
 $$
+
 The  matrix $J_n$ is tridiagonal i.e. its nonzero elements are only on the subdiagonal, diagonal and superdiagonal. It is also symmetric.
 
 We compute the eigenvalues and eigenvectors of a symmetric tridiagonal matrix using the package `GenericLinearAlgebra`.
