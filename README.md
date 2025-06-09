@@ -44,11 +44,11 @@ In the classical case there are  simple formulae for the recursion coefficients,
 ## **Three-term recurrence relation** 
 
 
-The norm of the function $u$ is denoted by $||u||$ and is defined to be the square root of 
+The norm of the function $u$ is denoted by $\|u\|$ and is defined to be the square root of 
 
 $$\int_{-\infty}^{\infty} u^2(x) f(x) dx,$$
 
-provided that this integral exists. For two functions $u$ and $v$ that satisfy $||u|| <\infty$ and $||v|| <\infty$, the inner product of these two functions is denoted $(u,v)$ and is defined to be
+provided that this integral exists. For two functions $u$ and $v$ that satisfy $\|u\| <\infty$ and $\|v\| <\infty$, the inner product of these two functions is denoted $(u,v)$ and is defined to be
 
 $$\int_{-\infty}^{\infty} u(x) v(x) f(x) dx.$$
 
