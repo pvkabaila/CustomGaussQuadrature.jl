@@ -252,13 +252,13 @@ Gautschi (1983).
 
 The Stjeltjes procedure, given in subsections 2.2.2 and 2.2.3 of Gautschi (2004), applies the three-term recurrence relation (1) and (2) iteratively through the following sequence:
 
-${\pi_{-1}, \pi_0} \rightarrow
+$$\{\pi_{-1}, \pi_0\} \rightarrow
 	\{\alpha_0, \pi_1\} \rightarrow
 	(\pi_1, \pi_1) \rightarrow
 \beta_1  \rightarrow
 	\{\alpha_1, \pi_2\} \rightarrow
 	(\pi_2, \pi_2) \rightarrow
-\beta_2  \rightarrow \dots$
+\beta_2  \rightarrow \dots$$
 
 The inner products used in the computation of the recursion coefficients are found using a high-quality quadrature rule with $r$ nodes. This is a discretization method that is expected to lead to
 approximations to the recursion coefficients $\alpha_0, \alpha_1, \dots, \alpha_{n-1}$ and $\beta_1, \beta_2, \dots, \beta_{n-1}$
@@ -401,12 +401,12 @@ $$
 	\right].
 $$
 
-The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let $\mathbf{x}_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
+The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let $x_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
 
 $$
 \lambda_i 
-= \frac{\mu_0 \, (\text{first component of }\bf{x}_i)^2}
-{(\bf{x}_i, \bf{x}_i)}.
+= \frac{\mu_0 \ (\text{first component of }x_i)^2}
+{(x_i, x_i)}.
 $$
 
 The  matrix $J_n$ is tridiagonal i.e. its nonzero elements are only on the subdiagonal, diagonal and superdiagonal. It is also symmetric.
