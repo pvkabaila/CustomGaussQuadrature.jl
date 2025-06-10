@@ -49,7 +49,7 @@ and is defined to be the square root of
 
 $$\int_{-\infty}^{\infty} u^2(x) f(x) dx,$$
 
-provided that this integral exists. For two functions $u$ and $v$ that satisfy $\|u\| <\infty$ and $\|v\| <\infty$, the inner product of these two functions is denoted $(u,v)$ and is defined to be
+provided that this integral exists. For two functions $u$ and $v$ that satisfy $\lVert u \rVert <\infty$ and $\lVert v \rVert <\infty$, the inner product of these two functions is denoted $(u,v)$ and is defined to be
 
 $$\int_{-\infty}^{\infty} u(x) v(x) f(x) dx.$$
 
@@ -60,9 +60,9 @@ A polynomial in $x$ of degree $n$ is said to be monic if the coefficient of $x^n
 
 $$(\pi_k, \pi_{\ell}) = 0 \ \ \text{for all} \ k \ne \ell, \ \text{where} \ k, \ell \in \{0, 1, 2, \dots\}$$
 
-and
+and 
 
-$$\| \pi_k \| > 0 \ \ \text{for} \ k=0, 1, 2, \dots.$$
+$$\lVert \pi_k \rVert > 0 \ \ \text{for} \ k=0, 1, 2, \dots.$$
 
 The Gauss quadrature nodes $\tau_1, \dots, \tau_n$ are the $n$ distinct roots of the polynomial $\pi_n$. 
 
