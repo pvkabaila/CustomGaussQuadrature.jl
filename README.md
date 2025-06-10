@@ -56,15 +56,15 @@ $$\int_{-\infty}^{\infty} u(x) v(x) f(x) dx.$$
 If $(u,v) = 0$ then the functions $u$ and $v$ are said to be orthogonal. 
 
 We consider only polynomials whose coefficients are real numbers. 
-A polynomial in $x$ of degree $n$ is said to be monic if the coefficient of $x^n$ is 1. Let $\pi_k$ denote a monic polynomial of degree $k$. The monic polynomials $\pi_0, \pi_1, \pi_2, \dots$ are called monic orthogonal polynomials with respect to the weight function $f$ if 
+A polynomial in $x$ of degree $n$ is said to be monic if the coefficient of $x^n$ is 1. Let $\pi_k$ denote a monic polynomial of degree $k$. The monic polynomials $\pi_0, \pi_1, \pi_2, \ldots$ are called monic orthogonal polynomials with respect to the weight function $f$ if 
 
-$$(\pi_k, \pi_{\ell}) = 0 \ \ \text{for all} \ k \ne \ell, \ \text{where} \ k, \ell \in \{0, 1, 2, \dots\}$$
+$$(\pi_k, \pi_{\ell}) = 0 \ \ \text{for all} \ k \ne \ell, \ \text{where} \ k, \ell \in \{0, 1, 2, \ldots\}$$
 
 and 
 
-$$\lVert \pi_k \rVert > 0 \ \ \text{for} \ k=0, 1, 2, \dots.$$
+$$\lVert \pi_k \rVert > 0 \ \ \text{for} \ k=0, 1, 2, \ldots.$$
 
-The Gauss quadrature nodes $\tau_1, \dots, \tau_n$ are the $n$ distinct roots of the polynomial $\pi_n$. 
+The Gauss quadrature nodes $\tau_1, \ldots, \tau_n$ are the $n$ distinct roots of the polynomial $\pi_n$. 
 
 The monic orthogonal polynomials with respect to the weight function $f$ satisfy the following three-term recurrence relation, see e.g.
 Theorem 1.27 on p.10 of Gautschi (2004). Let 
@@ -76,10 +76,10 @@ where
 
 $$\alpha_k 
 	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
-	(k = 0, 1, \dots) \ \text{and} \
+	(k = 0, 1, \ldots) \ \text{and} \ \
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
-	(k = 1, 2, \dots)
+	(k = 1, 2, \ldots)
     $$
 
 
