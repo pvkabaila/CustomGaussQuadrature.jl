@@ -70,7 +70,7 @@ The monic orthogonal polynomials with respect to the weight function $f$ satisfy
 Theorem 1.27 on p.10 of Gautschi (2004). Let 
 $\pi_{-1} \equiv 0$ and $\pi_0 \equiv 1$. Then 
 
-$$\pi_{k+1}(x) = 	(x - \alpha_k)  \pi_k(x) - \beta_k  \pi_{k-1}(x) \ \ \mathrm{for} \ k = 0, 1, 2, \ldots, \tag{1}$$
+$$\pi_{k+1}(x) = 	(x - \alpha_k)  \pi_k(x) - \beta_k  \pi_{k-1}(x) \ \ \mathrm{for} \ k = 0, 1, 2, \ldots, $$ 
 
 where 
 
@@ -80,7 +80,7 @@ $$\alpha_k
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
 	(k = 1, 2, ...)
-    \tag{2}$$
+    $$
 
 
 ## **Computation of the recursion coefficients in the three-term recurrence relation using moment determinants** 
