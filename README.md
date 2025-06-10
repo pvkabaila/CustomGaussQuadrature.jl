@@ -44,7 +44,8 @@ In the classical case there are  simple formulae for the recursion coefficients,
 ## **Three-term recurrence relation** 
 
 
-The norm of the function $u$ is denoted by $\|u\|$ and is defined to be the square root of 
+The norm of the function $u$ is denoted by $\lVert u \rVert$
+and is defined to be the square root of 
 
 $$\int_{-\infty}^{\infty} u^2(x) f(x) dx,$$
 
