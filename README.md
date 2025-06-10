@@ -285,7 +285,6 @@ transformation
 $$
 	\int_a^b g(x) \, f(x) \, dx	 
 	= \int_{-1}^1 g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y) \, dy
-    \tag{3}
 $$
 
 where
