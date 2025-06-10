@@ -76,10 +76,10 @@ where
 
 $$\alpha_k 
 	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
-	(k = 0, 1, ...) \ \text{and} \
+	(k = 0, 1, \dots) \ \text{and} \
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
-	(k = 1, 2, ...)
+	(k = 1, 2, \dots)
     $$
 
 
