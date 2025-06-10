@@ -402,12 +402,12 @@ $$
 	\right].
 $$
 
-The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let $x_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
+The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let $\mathbf{x}_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
 
 $$
 \lambda_i 
-= \frac{\mu_0 \ (\text{first component of }x_i)^2}
-{(x_i, x_i)}.
+= \frac{\mu_0 \ (\text{first component of }\mathbf{x}_i)^2}
+{(\mathbf{x}_i, \mathbf{x}_i)}.
 $$
 
 The  matrix $J_n$ is tridiagonal i.e. its nonzero elements are only on the subdiagonal, diagonal and superdiagonal. It is also symmetric.
