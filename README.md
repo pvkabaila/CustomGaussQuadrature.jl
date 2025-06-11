@@ -268,14 +268,14 @@ that converge to their exact values as $r \rightarrow \infty$.
 We describe the method used to compute the $w_i$'s and $x_i$'s in the $r$-node discrete approximation 
 
 $$
-\sum_{i =1}^r w_i \, g(x_i)
+\sum_{i =1}^r w_i  g(x_i)
 $$
 
 to $(u,v)$.
 
 Suppose that $\{x: f(x) > 0\}$,  the support of the weight function $f$, is an interval with lower and upper endpoints $a$ and $b$, respectively. Here $-\infty \le a < b \le \infty$. The inner product of the functions $u$ and $v$ is therefore 
 $$
-	\int_a^b g(x) \, f(x) \, dx,
+	\int_a^b g(x)  f(x)  dx,
 $$
 where $g = u \, v$. To compute an approximation to this integral, we 
 we use the initial transformation described
@@ -283,8 +283,8 @@ on p.94 of Gautschi (2004). In other words, we transform the support interval wi
 transformation
 
 $$
-	\int_a^b g(x) \, f(x) \, dx	 
-	= \int_{-1}^1 g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y) \, dy
+	\int_a^b g(x) f(x) dx	 
+	= \int_{-1}^1 g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)  dy
 $$
 
 where
@@ -369,10 +369,10 @@ All that the user needs to provide is a Julia
 function to evaluate $\log(f)$. Since $g = uv$, 
 
 $$
-w_i \, g(x_i)
-= w_i \, u(x_i) \, v(x_i)
-= \text{sign}\big(u(x_i)\big) \, \text{sign}\big(v(x_i)\big) \,
-w_i \, \big|u(x_i)\big| \, \big|v(x_i)\big|
+w_i g(x_i)
+= w_i  u(x_i)  v(x_i)
+= \text{sign}\big(u(x_i)\big)  \text{sign}\big(v(x_i)\big) 
+w_i  \big|u(x_i)\big|  \big|v(x_i)\big|
 $$
 
 $$
