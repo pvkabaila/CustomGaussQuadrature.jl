@@ -285,9 +285,11 @@ $$
 to $(u,v)$.
 
 Suppose that $\{x: f(x) > 0\}$,  the support of the weight function $f$, is an interval with lower and upper endpoints $a$ and $b$, respectively. Here $-\infty \le a < b \le \infty$. The inner product of the functions $u$ and $v$ is therefore 
+
 $$
 	\int_a^b g(x) \ f(x) \ dx,
 $$
+
 where $g = u  v$. To compute an approximation to this integral, we 
 we use the initial transformation described
 on p.94 of Gautschi (2004). In other words, we transform the support interval with lower and upper endpoints $a$ and $b$, respectively, to the interval with lower and upper endpoints $-1$ and $1$, respectively, using the 
