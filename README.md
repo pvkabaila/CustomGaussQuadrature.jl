@@ -71,18 +71,16 @@ Theorem 1.27 on p.10 of Gautschi (2004). Let
 $\pi_{-1} \equiv 0$ and $\pi_0 \equiv 1$. Then 
 
 $$
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
-\pi_{k+1}(x) = 	(x - \alpha_k)  \pi_k(x) - \beta_k  \pi_{k-1}(x) \ \ \mathrm{for} \ k = 0, 1, 2, \dots, 
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (1)
+\pi_{k+1}(x) = 	(x - \alpha_k)  \pi_k(x) - \beta_k  \pi_{k-1}(x) \ \ \text{for} \ k = 0, 1, 2, \dots, 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (1)
 $$ 
 
 where 
 
 $$
-\ \ \ \ \ \ \ \ \
 \alpha_k 
 	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
-	(k = 0, 1, \dots) \ \ \ \text{and} \ \ \
+	(k = 0, 1, \dots) \ \ \text{and} \ \ \
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
 	(k = 1, 2, \dots) 
@@ -108,7 +106,7 @@ We require that there is a formula, which can be computed in `BigFloat`
 arithmetic, for the $r$'th moment
 
 $$
-\mu_r = \int_{-\infty}^{\infty} x^r \, f(x) \, dx
+\mu_r = \int_{-\infty}^{\infty} x^r \ f(x) \ dx
 $$
 
 for all nonnegative integers $r \le 2 n - 1$. This formula 
@@ -344,11 +342,9 @@ $$
 
 where $y_1, \dots, y_r$ are the nodes and $\xi_1, \dots, \xi_r$ are the corresponding weights. Now 
 
-$$
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
-\ \ \ \ \ \ \ \ \ 	
+$$	
  \sum_{i =1}^r \ \xi_i \ h(y_i) = \sum_{i =1}^r \ w_i \ g(x_i),	
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (4)
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (4)
 $$
 
 where $w_i =  \xi_i \ \varphi'(y_i) \ f\big(\varphi(y_i)\big)$
