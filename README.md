@@ -142,7 +142,7 @@ Consider the "scaled chi pdf" weight function is
 $$
 	f(x) =
 	\begin{cases}
-		\dfrac{m^{m/2}}{\Gamma(m/2) \, 2^{(m/2) - 1}} \; x^{m-1} \, \exp\big(- m \, x^2 /2\big) &\text{for } x > 0
+		\dfrac{m^{m/2}}{\Gamma(m/2) \ 2^{(m/2) - 1}} \ x^{m-1} \, \exp\big(- m \ x^2 /2 \big) &\text{for } x > 0
 		\\
 		0 &\text{otherwise},
 	\end{cases}	
@@ -333,12 +333,12 @@ $$
 	\end{cases}	
 $$
 
-A high-quality quadrature rule then provides a discrete approximation to the integral $\int_{-1}^1 h(y) \, dy$.
+A high-quality quadrature rule then provides a discrete approximation to the integral $\int_{-1}^1 h(y) \ dy$.
 Gautschi (2004) uses a Fejer quadrature rule.
 Instead, we use Gauss Legendre quadrature with $r$ nodes to approximate
 
 $$
-	\int_{-1}^1 h(y) \, dy \quad \text{by} \quad \sum_{i =1}^r \xi_i \, h(y_i),	
+	\int_{-1}^1 h(y) \ dy \quad \text{by} \quad \sum_{i =1}^r \ \xi_i \ h(y_i),	
 $$
 
 where $y_1, \dots, y_r$ are the nodes and $\xi_1, \dots, \xi_r$ are the corresponding weights. Now 
@@ -346,11 +346,11 @@ where $y_1, \dots, y_r$ are the nodes and $\xi_1, \dots, \xi_r$ are the correspo
 $$
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
 \ \ \ \ \ \ \ \ \ 	
- \sum_{i =1}^r \xi_i \, h(y_i) = \sum_{i =1}^r w_i \, g(x_i),	
+ \sum_{i =1}^r \ \xi_i \ h(y_i) = \sum_{i =1}^r \ w_i \ g(x_i),	
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (4)
 $$
 
-where $w_i =  \xi_i \, \varphi'(y_i) \, f\big(\varphi(y_i)\big)$
+where $w_i =  \xi_i \ \varphi'(y_i) \ f\big(\varphi(y_i)\big)$
 and $x_i = \varphi(y_i)$. To summarize, we 
 approximate the inner product $(u, v)$ by
 (4).
@@ -391,6 +391,7 @@ w_i  \big|u(x_i)\big|  \big|v(x_i)\big|
 $$
 
 $$
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
 = \text{sign}\big(u(x_i)\big) \, \text{sign}\big(v(x_i)\big) \,
 \exp\Big(\log(w_i) + \log\big(\big|u(x_i)\big|\big) + \log\big(\big|v(x_i)\big|\big) \Big),
 $$
