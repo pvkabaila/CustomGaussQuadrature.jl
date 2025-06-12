@@ -72,7 +72,7 @@ $\pi_{-1} \equiv 0$ and $\pi_0 \equiv 1$. Then
 
 $$
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
-\pi_{k+1}(x) = 	(x - \alpha_k)  \pi_k(x) - \beta_k  \pi_{k-1}(x) \ \ \mathrm{for} \ k = 0, 1, 2, \ldots, 
+\pi_{k+1}(x) = 	(x - \alpha_k)  \pi_k(x) - \beta_k  \pi_{k-1}(x) \ \ \mathrm{for} \ k = 0, 1, 2, \dots, 
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (1)
 $$ 
 
@@ -82,10 +82,10 @@ $$
 \ \ \ \ \ \ \ \ \
 \alpha_k 
 	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
-	(k = 0, 1, \ldots) \ \ \ \text{and} \ \ \
+	(k = 0, 1, \dots) \ \ \ \text{and} \ \ \
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
-	(k = 1, 2, \ldots) 
+	(k = 1, 2, \dots) 
 \ \ \ \ \ \ \ \ \ (2)
 $$
 
