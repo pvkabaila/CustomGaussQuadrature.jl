@@ -70,17 +70,24 @@ The monic orthogonal polynomials with respect to the weight function $f$ satisfy
 Theorem 1.27 on p.10 of Gautschi (2004). Let 
 $\pi_{-1} \equiv 0$ and $\pi_0 \equiv 1$. Then 
 
-$$\pi_{k+1}(x) = 	(x - \alpha_k)  \pi_k(x) - \beta_k  \pi_{k-1}(x) \ \ \mathrm{for} \ k = 0, 1, 2, \ldots, \ \ \ \ \ \ \ \ \ \ \ \ (1)$$ 
+$$
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+\pi_{k+1}(x) = 	(x - \alpha_k)  \pi_k(x) - \beta_k  \pi_{k-1}(x) \ \ \mathrm{for} \ k = 0, 1, 2, \ldots, 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (1)
+$$ 
 
 where 
 
-$$\alpha_k 
+$$
+\ \ \ \ \ \ \ \ \
+\alpha_k 
 	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
-	(k = 0, 1, \ldots) \ \text{and} \ \
+	(k = 0, 1, \ldots) \ \ \ \text{and} \ \ \
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
-	(k = 1, 2, \ldots) \ \ (2)
-    $$
+	(k = 1, 2, \ldots) 
+\ \ \ \ \ \ \ \ \ (2)
+$$
 
 
 ## **Computation of the recursion coefficients in the three-term recurrence relation using moment determinants** 
@@ -283,8 +290,10 @@ on p.94 of Gautschi (2004). In other words, we transform the support interval wi
 transformation
 
 $$
-	\int_a^b g(x) f(x) dx	 
-	= \int_{-1}^1 g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)  dy \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (3)
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+\int_a^b g(x) f(x) dx	 
+	= \int_{-1}^1 g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)  dy 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \ \ \ \ (3)
 $$
 
 where
@@ -330,9 +339,11 @@ $$
 
 where $y_1, \dots, y_r$ are the nodes and $\xi_1, \dots, \xi_r$ are the corresponding weights. Now 
 
-$$\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
-	\sum_{i =1}^r \xi_i \, h(y_i) = \sum_{i =1}^r w_i \, g(x_i),	
-  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (4)
+$$
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+\ \ \ \ \ \ \ \ \ 	
+ \sum_{i =1}^r \xi_i \, h(y_i) = \sum_{i =1}^r w_i \, g(x_i),	
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (4)
 $$
 
 where $w_i =  \xi_i \, \varphi'(y_i) \, f\big(\varphi(y_i)\big)$
