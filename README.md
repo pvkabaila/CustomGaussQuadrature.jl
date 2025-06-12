@@ -96,8 +96,12 @@ We carry out **Step 1** using moment determinants (Theorem 2.2 of Gautschi, 2004
 The map from the vector 
 $\big(\mu_0, \mu_1, \dots, \mu_{2n-1} \big)$ of moments to the vector $\big(\alpha_0, \dots, \alpha_{n-1},  \beta_1, \dots, \beta_{n-1}\big)$ of recursion coefficients is severely ill-conditioned (Gautschi, 1983, 2004). However, it has long been recognized that this limitation can be overcome by the use of high-precision arithmetic, see e.g. Gautschi (1983), when applying 
  the method of moment determinants.
-We use `BigFloat` arithmetic, with arbitrary number of bits of precision `b`. For assurance that the chosen number of bits of precision `b` is sufficiently large, we use the following simple method. Suppose that $c$ and $\widetilde{c}$ are numerical approximations to the same quantity, where $\widetilde{c}$ is believed to be much more accurate. Then we take $\widetilde{c}$ as our final approximation and assess 
-the absolute error to be less than $|c - \widetilde{c}|$.
+
+We use `BigFloat` arithmetic, with number of bits of precision `b`. For assurance that the chosen number of bits of precision `b` is sufficiently large, we use the following simple method. Suppose that $c_1$ and $c_2$ are numerical approximations to the same quantity computed using the same Julia function
+that implements an ill-conditioned numerical method, 
+using `BigFloat` arithmetic with number of bits of precision `b1` and `b2`, respectively, where `b2` is substantially larger than `b1`.
+The approximation $c_2$ is therefore believed to be much more accurate than $c_1$. Then we take $c_2$ as our final approximation and assess 
+the absolute error to be less than $|c_1 - c_2|$.
 
 
 We require that there is a formula, which can be computed in `BigFloat`
