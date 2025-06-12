@@ -84,7 +84,7 @@ $$
 	\beta_k 
 	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
 	(k = 1, 2, \dots) 
-\ \ \ \ \ \ \ \ \ (2)
+\ \ \ \ \ \ (2)
 $$
 
 
@@ -344,7 +344,7 @@ where $y_1, \dots, y_r$ are the nodes and $\xi_1, \dots, \xi_r$ are the correspo
 
 $$	
  \sum_{i =1}^r \ \xi_i \ h(y_i) = \sum_{i =1}^r \ w_i \ g(x_i),	
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (4)
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  (4)
 $$
 
 where $w_i =  \xi_i \ \varphi'(y_i) \ f\big(\varphi(y_i)\big)$
