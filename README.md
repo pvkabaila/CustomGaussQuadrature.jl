@@ -349,7 +349,7 @@ $$
 
 where $w_i =  \xi_i \ \varphi'(y_i) \ f\big(\varphi(y_i)\big)$
 and $x_i = \varphi(y_i)$. To summarize, we 
-approximate the inner product $(u, v)$ by
+approximate the inner product $(u, v)$ by the right-hand side of
 (4).
 All that the user needs to provide is a Julia
 function to evaluate $f$.
@@ -381,19 +381,18 @@ All that the user needs to provide is a Julia
 function to evaluate $\log(f)$. Since $g = uv$, 
 
 $$
-w_i g(x_i)
-= w_i  u(x_i)  v(x_i)
-= \text{sign}\big(u(x_i)\big)  \text{sign}\big(v(x_i)\big) 
-w_i  \big|u(x_i)\big|  \big|v(x_i)\big|
+w_i \ g(x_i)
+= w_i \ u(x_i) \  v(x_i)
+= \text{sign}\big(u(x_i)\big) \ \text{sign}\big(v(x_i)\big) \
+w_i  \ \big|u(x_i)\big|  \ \big|v(x_i)\big|
 $$
 
 $$
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
-= \text{sign}\big(u(x_i)\big) \, \text{sign}\big(v(x_i)\big) \,
+= \text{sign}\big(u(x_i)\big) \ \text{sign}\big(v(x_i)\big) \
 \exp\Big(\log(w_i) + \log\big(\big|u(x_i)\big|\big) + \log\big(\big|v(x_i)\big|\big) \Big),
 $$
 
-which is used to compute (4).
+which is used to compute the right-hand side of (4).
 
 
 # Step 2 using the eigenvalues and eigenvectors of the Jacobi matrix
