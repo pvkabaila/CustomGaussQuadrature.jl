@@ -296,10 +296,9 @@ on p.94 of Gautschi (2004). In other words, we transform the support interval wi
 transformation
 
 $$
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
 \int_a^b g(x) f(x) dx	 
-	= \int_{-1}^1 g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)  dy 
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \ \ \ \ (3)
+	= \int_{-1}^1 g\big(\varphi(y)\big) \ f\big(\varphi(y)\big) \ \varphi'(y)  dy 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ (3)
 $$
 
 where
