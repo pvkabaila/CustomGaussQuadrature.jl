@@ -333,18 +333,6 @@ function β_vec_fn(Δ_offsetvec, n::Integer)
 end
 
 
-
-# 2 Oct 24: I should be able to delete the following
-# function at some stage.
-function α_offsetvec_β_vec_fn(T, which_f, n::Integer)
-  μ_offsetvec = μ_offsetvec_fn(T, which_f, n) 
-  Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n)
-  Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n)
-  α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n)
-  β_vec = β_vec_fn(μ_offsetvec, Δ_offsetvec, n)
-  [α_offsetvec, β_vec]
-end
-
 """
 a_vec, b_vec, μ₀ = a_vec_b_vec_μ₀_fn(T, which_f, n)
 
