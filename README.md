@@ -351,9 +351,6 @@ where $w_i =  \xi_i \ \varphi'(y_i) \ f\big(\varphi(y_i)\big)$
 and $x_i = \varphi(y_i)$. To summarize, we 
 approximate the inner product $(u, v)$ by the right-hand side of
 (4).
-All that the user needs to provide is a Julia
-function to evaluate $f$.
-
 
 Consider the case that either $-\infty = a$ or $b = \infty$, or both.
 It was found that the computation of the $w_i$'s using 
