@@ -182,7 +182,7 @@ The following commands compute the nodes and weights, as
 `Double64` vectors for a 5-point Gauss quadrature rule. This is followed by conversion to 
 `Float64` vectors and printing using  using the `printf` function from the package `Printf`.
 
-    using CustomGaussQuad
+    using CustomGaussQuadrature
     which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
     n = 5;
     nodes, weights = custom_gauss_quad_all_fn(which_f, n);
@@ -240,7 +240,7 @@ The following commands compute the nodes and weights, as
 `Double64` vectors for a 15-point Gauss quadrature rule. This is followed by printing these nodes and weights in the same format as Table 2.2 of 
 Gautschi (1983), using the `printf` function from the package `Printf`.
 
-    using CustomGaussQuad
+    using CustomGaussQuadrature
     which_f = ["chemistry example", [0, Inf]]::Vector{Any}
     n= 15;
     nodes, weights = custom_gauss_quad_all_fn(which_f, n);  
