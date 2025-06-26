@@ -1,7 +1,7 @@
 name = "CustomGaussQuadrature"
 uuid = "443f1e71-1479-4740-9a7f-7f689cbb916a"
 authors = ["Paul Kabaila"]
-version = "1.0.1"
+version = "1.0.2"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -28,7 +28,7 @@ LinearAlgebra = "<0.0.1, 1"
 OffsetArrays = "1.15.0"
 Plots = "1.40.9"
 Polynomials = "4.0.14"
-Printf = "1.11.0"
+Printf = "<0.0.1, 1"
 PyPlot = "2.11.5"
 QuadGK = "2.11.1"
 SpecialFunctions = "2.5.0"
