@@ -146,7 +146,7 @@ $$
 	\end{cases}	
 $$
 
-where $m$ is a positive integer parameter. 
+where $m$ is a positive integer parameter (the "degrees of freedom"). 
 This weight function is specified by
 
     which_f = ["scaled chi pdf", [0,Inf], m]
@@ -391,6 +391,59 @@ $$
 
 which is used to compute the right-hand side of (4).
 
+### **Remark**
+In the comments for his subroutine `qgp` (available at cs.purdue.edu/archives/2002/wxg/codes), Gautschi states of this method that
+"It takes no account of the special nature of the weight function involved and hence may result in slow convergence of the discretization procedure."
+
+For the "scaled chi pdf" weight function considered in **Example 1**, the weight function has a single peak which becomes narrower as the positive integer parameter $m$ (the "degrees of freedom") increases. This implies that the value of $r$, the number of nodes in the discrete approximation (4), required for sufficiently accurate computation increases rapidly with increasing $m$.  
+
+### **Example 3**
+
+Consider the same weight function as in **Example 1**. 
+The evaluation of the log-weight function $\log(f(x))$ **has been implemented** in the function `ln_scaled_chi_pdf_fn` which has inputs `T` (Floating Point type), `x` and `m` (positive integer parameter). 
+
+	using CustomGaussQuadrature
+	m = 160;
+	lnf_fn = x -> ln_scaled_chi_pdf_fn(T, x, m);
+
+This weight function is a probability density function. Therefore $\mu_0 = 1$. There is also a formula for $\mu_1$. We first compute $\mu_0$ and $\mu_1$ using
+
+	T = BigFloat;
+	which_f = ["scaled chi pdf", [0,Inf], m];
+	μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+
+Carry out **Step 1**, 
+the computation of the recursion coefficients in the three-step recurrence 
+relation,
+and print out the the chosen value of $r$, the number of nodes in the discrete approximation (4), using
+
+	n = 5;
+	a = convert(T,0);
+	b = Inf;
+	stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
+	stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+	println("r = ", r)
+
+
+Carry out **Step 2**, 
+the computation of the Gauss quadrature nodes and weights from the recursion coefficients, using
+
+	stjieltjes_nodes, stjieltjes_weights = 
+	stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
+
+Convert these nodes and weights to `Float64` vectors using
+
+	stjieltjes_nodes = convert(Vector{Float64}, stjieltjes_nodes);
+	stjieltjes_weights = convert(Vector{Float64}, stjieltjes_weights);
+
+Print these out in the same format as in **Example 1** using
+
+	@printf "           stjieltjes_nodes             stjieltjes_weights"
+	for i in 1:lastindex(stjieltjes_nodes)
+    	@printf "%2d     " i
+    	@printf "%.16e     " stjieltjes_nodes[i]
+    @printf "%.16e  \n" stjieltjes_weights[i]
+	end
 
 # Step 2 using the eigenvalues and eigenvectors of the Jacobi matrix
 
