@@ -1,7 +1,7 @@
 name = "CustomGaussQuadrature"
 uuid = "443f1e71-1479-4740-9a7f-7f689cbb916a"
 authors = ["Paul Kabaila"]
-version = "1.0.4"
+version = "1.0.5"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
