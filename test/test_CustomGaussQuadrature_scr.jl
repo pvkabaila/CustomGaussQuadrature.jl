@@ -400,7 +400,7 @@ a = convert(T,0);
 b = Inf;
 which_f = ["scaled chi pdf", [0,Inf], m];
 μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
-n = 33;
+n = 5;
 println("number of Gauss quadrature nodes n = ", n)
 
 @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
