@@ -395,7 +395,9 @@ which is used to compute the right-hand side of (4).
 In the comments for his subroutine `qgp` (available at cs.purdue.edu/archives/2002/wxg/codes), Gautschi states of this method that
 "It takes no account of the special nature of the weight function involved and hence may result in slow convergence of the discretization procedure."
 
-For the "scaled chi pdf" weight function considered in **Example 1**, the weight function has a single peak which becomes narrower as the positive integer parameter $m$ (the "degrees of freedom") increases. This implies that the value of $r$, the number of nodes in the discrete approximation (4), required for sufficiently accurate computation increases rapidly with increasing $m$.  
+For the "scaled chi pdf" weight function considered in **Example 1**, the graph of the weight function has a single peak which becomes narrower as the positive integer parameter $m$ (the "degrees of freedom") increases. For a given number $n$ of Gauss quadrature nodes, this implies that the value of $r$, the number of nodes in the discrete approximation (4), required for 
+sufficiently accurate results from the Stjieltjes procedure
+increases rapidly with increasing $m$.  
 
 ### **Example 3**
 
