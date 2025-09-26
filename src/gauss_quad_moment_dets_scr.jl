@@ -125,6 +125,10 @@ function moment_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
     moment = term1 * term2
     return(moment)
 
+  elseif which_f[1] == "new"
+    moment = moment_new_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+    return(moment)
+    
   else
     # DomainError means that the argument to a function
     # or constructor does not lie in the valid domain
