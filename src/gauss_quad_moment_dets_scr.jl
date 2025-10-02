@@ -69,7 +69,7 @@ for the computation of the r'th moment of the "new" weight function,
 with the given support interval and parameter vector (if any), using
 type T floating-point arithmetic
 """
-function moment_fn(T::AbstractFloat, which_f, r::Integer) 
+function moment_fn(::Type{T}, which_f, n::Integer) where {T<:AbstractFloat}
   @assert r ≥ 0
   T_2 = convert(T, 2)
 
@@ -141,7 +141,7 @@ function moment_fn(T::AbstractFloat, which_f, r::Integer)
     return(moment)
 
   elseif which_f[1] == "new"
-    moment = moment_new_fn(T::AbstractFloat, which_f, r::Integer) 
+    moment = moment_new_fn(::Type{T}, which_f, n::Integer) where {T<:AbstractFloat}
     return(moment)
     
   else
