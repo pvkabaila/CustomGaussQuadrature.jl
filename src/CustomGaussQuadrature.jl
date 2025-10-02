@@ -2,7 +2,13 @@ module CustomGaussQuadrature
 # Written by Dr. Paul Kabaila, 
 # Department of Mathematical and Physical Sciences,
 # La Trobe University, Melbourne, Australia.
-# June 2025.
+# October 2025.
+#
+# For the input of values belonging to the set of extended
+# real numbers, we employ the fact that the Julia function string 
+# uses the Julia function print. For Float64 values, the 
+# function print provides the shortest correctly rounded 
+# decimal producing identical binary on reparse.
 # 
 # This module consists of the following Julia scripts:
 #

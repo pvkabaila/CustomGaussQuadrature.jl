@@ -52,18 +52,24 @@ n nodes.
 The input which_f has the following 3 components:
 (i)  name
 (ii) support specified by a 2-vector of the endpoints 
-of the interval, with finite endpoints specified by 
-integers (which are later converted to the appropriate 
-floating-point type)
+of the interval. 
 (iii) parameter vector (if any)
 This function accepts the following what_if's as inputs:
-which_f = ["scaled chi pdf", [0,Inf], m]
-which_f = ["Hermite", [-Inf, Inf]]
-which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
-which_f = ["chemistry example", [0, Inf]]
-which_f = ["Legendre", [-1, 1]]
+   which_f = ["new", support interval, parameter vector (if any)]
+   which_f = ["scaled chi pdf", [0,Inf], m]
+   which_f = ["Hermite", [-Inf, Inf]]
+   which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
+   which_f = ["chemistry example", [0, Inf]]
+   which_f = ["Legendre", [-1, 1]]
+This function also accepts what_if's of the form
+   which_f = ["new", support interval, parameter vector (if any)] 
+provided that the user supplies the function
+   moment_new_fn(T::AbstractFloat, which_f, r::Integer)
+for the computation of the r'th moment of the "new" weight function, 
+with the given support interval and parameter vector (if any), using
+type T floating-point arithmetic
 """
-function moment_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+function moment_fn(T::AbstractFloat, which_f, r::Integer) 
   @assert r ≥ 0
   T_2 = convert(T, 2)
 
@@ -102,8 +108,17 @@ function moment_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
     return(moment)
 
   elseif which_f[1] == "Generalized Laguerre"
+    # The formula for the r'th moment is given
+    # e.g. on p.63 of 
+    # Gautschi, W. (2004) Orthogonal Polynomials, 
+    # Computation and Approximation. 
+    # Oxford University Press, Oxford.
     α_GGL = which_f[3]
-    term = convert(T, r + α_GGL + 1)
+    @assert α_GGL > -1
+    α_GGL_str = string(α_GGL)
+    T_α_GGL = parse(T, α_GGL_str)
+    T_rplus1 = convert(T, (r+1))
+    term = T_α_GGL + T_rplus1
     moment = gamma(term)
     return(moment)
     
@@ -126,7 +141,7 @@ function moment_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
     return(moment)
 
   elseif which_f[1] == "new"
-    moment = moment_new_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+    moment = moment_new_fn(T::AbstractFloat, which_f, r::Integer) 
     return(moment)
     
   else
