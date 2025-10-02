@@ -1,4 +1,5 @@
 using CustomGaussQuadrature
+pathof(CustomGaussQuadrature)
 
 using Printf
 using Plots
