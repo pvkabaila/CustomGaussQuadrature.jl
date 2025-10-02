@@ -1,6 +1,7 @@
 # choice_of_r_scr.jl
 
 using CustomGaussQuadrature
+pathof(CustomGaussQuadrature)
 using Plots
 
 
