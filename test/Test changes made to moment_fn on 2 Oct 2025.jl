@@ -205,4 +205,3 @@ stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
 
-end
