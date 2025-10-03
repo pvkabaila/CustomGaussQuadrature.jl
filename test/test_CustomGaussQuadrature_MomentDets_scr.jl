@@ -29,8 +29,9 @@ using GaussQuadrature
 # 256 bits i.e.
 # nbits <- 256
 # in my R code.
-println("Test code from my CustomGaussQuadrature package for computing")
-println("the Gauss quadrature rule using moment determinants.", "\n")
+println("Test of the version of the CustomGaussQuadrature package")
+println("on my computer, not the version in the Julia General Registry")
+println(" ")
 
 println("✔ means exact agreement with R computed results", "\n")
 
