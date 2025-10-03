@@ -141,7 +141,7 @@ function moment_fn(::Type{T}, which_f, n::Integer) where {T<:AbstractFloat}
     return(moment)
 
   elseif which_f[1] == "new"
-    moment = moment_new_fn(::Type{T}, which_f, n::Integer) where {T<:AbstractFloat}
+    moment = moment_new_fn(T, which_f, n::Integer) 
     return(moment)
     
   else
