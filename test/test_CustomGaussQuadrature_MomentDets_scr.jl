@@ -12,6 +12,8 @@
 # ugly extra spaces.
 
 using CustomGaussQuadrature
+# This script tests the version on my computer, not the
+# version in the Julia General Registry. See path.
 pathof(CustomGaussQuadrature)
 
 using Printf
