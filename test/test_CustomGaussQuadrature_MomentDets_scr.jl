@@ -30,7 +30,7 @@ using GaussQuadrature
 # nbits <- 256
 # in my R code.
 println("Test of the version of the CustomGaussQuadrature package")
-println("on my computer, not the version in the Julia General Registry")
+println("on my computer, not the version in the Julia General Registry.")
 println(" ")
 
 println("✔ means exact agreement with R computed results", "\n")
