@@ -3,12 +3,6 @@ module CustomGaussQuadrature
 # Department of Mathematical and Physical Sciences,
 # La Trobe University, Melbourne, Australia.
 # October 2025.
-#
-# For the input of values belonging to the set of extended
-# real numbers, we employ the fact that the Julia function string 
-# uses the Julia function print. For Float64 values, the 
-# function print provides the shortest correctly rounded 
-# decimal producing identical binary on reparse.
 # 
 # This module consists of the following Julia scripts:
 #
@@ -139,7 +133,7 @@ using Plots
 
 # (1) 
 include("gauss_quad_moment_dets_scr.jl")
-export moment_fn
+export moment_stored_fn
 export μ_offsetvec_fn 
 export Δ_fn
 export Δ′_fn
@@ -183,7 +177,31 @@ include("gauss_quad_utilities_scr.jl")
 export integrand_transf_integral_fn
 export plot_cdf_discrete_rv_fn
 export scaled_chi_cdf_fn
-export scaled_chi_cdf_fn
+
+# THE INPUT OF REAL-VALUED PARAMETERS 
+# Suppose that the exact value of a parameter λ is 3.1.
+# For convenience, we can use the following command
+# julia> λ = 3.1
+# which sets the value of λ to the Float64 approximation to 3.1. 
+# We use a range of AbstractFloat types T, including BigFloat,
+# for the computations in this package. Consequently, 
+# it is important to get the best approximation, of any given 
+# type T, to the exact value 3.1. Since λ is of 
+# type Float64, the following command results in an
+# approximation to 3.1 that has only Float64 precision
+# julia> convert(BigFloat, x)
+# This produces the result
+# 3.100000000000000088817841970012523233890533447265625
+# We obtain a more precise approximation to 3.1 (assumed 
+# to be the exact value) by using 
+# julia> parse(BigFloat, string(x))
+# which results in 
+# 3.099999999999999999999999999999999999999999999999999999999999999999999999999986
+# This is because the function string uses the function print. 
+# For Float64 values, print provides the shortest correctly 
+# rounded decimal producing identical binary on reparse. Consequently, 
+# julia> string(x)
+# produces the result "3.1".
 
 
 end

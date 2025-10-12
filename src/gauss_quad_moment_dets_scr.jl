@@ -32,7 +32,7 @@
 
 
 """
-moment = moment_fn(T, which_f, r)
+moment = moment_stored_fn(T, which_f, r)
 
 This function computes moment of order r
 for the weight function specified by which_f
@@ -54,22 +54,15 @@ The input which_f has the following 3 components:
 (ii) support specified by a 2-vector of the endpoints 
 of the interval. 
 (iii) parameter vector (if any)
-This function accepts the following what_if's as inputs:
+This function accepts the following which_f's as inputs:
    which_f = ["new", support interval, parameter vector (if any)]
    which_f = ["scaled chi pdf", [0,Inf], m]
    which_f = ["Hermite", [-Inf, Inf]]
    which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
    which_f = ["chemistry example", [0, Inf]]
    which_f = ["Legendre", [-1, 1]]
-This function also accepts what_if's of the form
-   which_f = ["new", support interval, parameter vector (if any)] 
-provided that the user supplies the function
-   moment_new_fn(T::AbstractFloat, which_f, r::Integer)
-for the computation of the r'th moment of the "new" weight function, 
-with the given support interval and parameter vector (if any), using
-type T floating-point arithmetic
 """
-function moment_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+function moment_stored_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
   @assert r ≥ 0
   T_2 = convert(T, 2)
 
@@ -115,8 +108,7 @@ function moment_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
     # Oxford University Press, Oxford.
     α_GGL = which_f[3]
     @assert α_GGL > -1
-    α_GGL_str = string(α_GGL)
-    T_α_GGL = parse(T, α_GGL_str)
+    T_α_GGL = parse(T, string(α_GGL))
     T_rplus1 = convert(T, (r+1))
     term = T_α_GGL + T_rplus1
     moment = gamma(term)
@@ -139,10 +131,6 @@ function moment_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
     term2 = gamma((T_r + T_1) / T_3)
     moment = term1 * term2
     return(moment)
-
-  elseif which_f[1] == "new"
-    moment = moment_new_fn(T, which_f, r) 
-    return(moment)
     
   else
     # DomainError means that the argument to a function
@@ -154,7 +142,7 @@ end
 
 
 """
-μ_offsetvec = μ_offsetvec_fn(T, which_f, n)
+μ_offsetvec = μ_offsetvec_fn(T, moment_fn, which_f, n)
 
 This function places the moments of orders
 0, ... , 2n - 1
@@ -176,12 +164,10 @@ n nodes.
 The input which_f has the following 3 components:
 (i)  name
 (ii) support specified by a 2-vector of the endpoints 
-of the interval, with finite endpoints specified by 
-integers (which are later converted to the appropriate 
-floating-point type)
+of the interval, with finite endpoints 
 (iii) parameter vector (if any)
 """
-function μ_offsetvec_fn(::Type{T}, which_f, n::Integer) where {T<:AbstractFloat}
+function μ_offsetvec_fn(::Type{T}, moment_fn, which_f, n::Integer) where {T<:AbstractFloat}
   @assert n ≥ 1
   μ_offsetvec = OffsetVector(zeros(T,2*n), 0:(2*n - 1))
   for r in 0:(2*n-1)
@@ -353,23 +339,22 @@ end
 
 
 """
-a_vec, b_vec, μ₀ = a_vec_b_vec_μ₀_fn(T, which_f, n)
+a_vec, b_vec, μ₀ = a_vec_b_vec_μ₀_fn(T, moment_fn, which_f, n)
 
 This function computes a_vec, b_vec and μ₀ using the
 type of arithmetic T (usually a BigFloat with a globally
-specified precision), which_f which has the following 
-3 components:
+specified precision), moment_fn (the function for computing
+the moments of the weight function), which_f which has the 
+following 3 components:
 (i)  name
 (ii) support specified by a 2-vector of the endpoints 
-of the interval, with finite endpoints specified by 
-integers (which are later converted to the appropriate 
-floating-point type)
+of the interval
 (iii) parameter vector (if any)
 and the number n of Gauss quadrature nodes.
 """
-function a_vec_b_vec_μ₀_fn(T, which_f, n::Integer)
+function a_vec_b_vec_μ₀_fn(T, moment_fn, which_f, n::Integer)
   @assert n ≥ 2
-  μ_offsetvec = μ_offsetvec_fn(T, which_f, n) 
+  μ_offsetvec = μ_offsetvec_fn(T, moment_fn, which_f, n) 
   μ₀ =  μ_offsetvec[0]
   Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n)
   β_vec = β_vec_fn(Δ_offsetvec, n)
@@ -387,7 +372,7 @@ end
 
 
 """
-a_vec, b_vec, μ₀, nbits = step1a_fn(which_f, n)
+a_vec, b_vec, μ₀, nbits = step1a_fn(moment_fn, which_f, n)
 
 This function is the first part of Step 1.
 It chooses the initial number of bits
@@ -398,56 +383,56 @@ b_vec are computed to sufficient precision for
 the computation of the Gauss quadrature 
 coefficients to sufficient precision.  
 """
-function step1a_fn(which_f, n::Integer)
+function step1a_fn(moment_fn, which_f, n::Integer)
   @assert n ≥ 2
   a_vec, b_vec, μ₀ =
   try 
       setprecision(BigFloat, 80, base=2)
-      a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+      a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
   catch 
       try
           setprecision(BigFloat, 106, base=2)
-          a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+          a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n)  
       catch
           try
               setprecision(BigFloat, 132, base=2)
-              a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+              a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
           catch
               try
                   setprecision(BigFloat, 158, base=2)
-                  a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                  a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
               catch
                   try
                       setprecision(BigFloat, 184, base=2)
-                      a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                      a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
                   catch
                       try
                           setprecision(BigFloat, 210, base=2)
-                          a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                          a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
                       catch
                           try
                               setprecision(BigFloat, 236, base=2)
-                              a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                              a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
                           catch
                               try
                                   setprecision(BigFloat, 262, base=2)
-                                  a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                                  a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
                               catch
                                   try
                                       setprecision(BigFloat, 288, base=2)
-                                      a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                                      a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
                                   catch
                                       try
                                           setprecision(BigFloat, 340, base=2)
-                                          a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                                          a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
                                       catch
                                           try
                                               setprecision(BigFloat, 366, base=2)
-                                              a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                                              a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
                                           catch
                                               try
                                               setprecision(BigFloat, 392, base=2)
-                                              a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+                                              a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n)  
                                               finally
                                               throw(DomainError(n, " too large"))
                                               end
@@ -476,7 +461,7 @@ end
 
 
 """
-a_vec, b_vec, μ₀, nbits = step1_fn(which_f, n)
+a_vec, b_vec, μ₀, nbits = step1_fn(moment_fn, which_f, n)
 
 This function carries our Step 1 which is
 the computation of a_vec, b_vec and μ₀
@@ -486,14 +471,14 @@ and weights can be carried out in Step 2 to
 full Float64 precision. This sufficient 
 BigFloat precision is given by nbits. 
 """
-function step1_fn(which_f, n::Integer, epsilon=1.0e-18)
+function step1_fn(moment_fn, which_f, n::Integer, epsilon=1.0e-18)
   @assert n ≥ 2
 
-  a_vec, b_vec, μ₀, nbits = step1a_fn(which_f, n)
+  a_vec, b_vec, μ₀, nbits = step1a_fn(moment_fn, which_f, n)
     
   nbits_new = nbits+26
   setprecision(BigFloat, nbits_new, base=2)
-  a_vec_new, b_vec_new, μ₀_new = a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+  a_vec_new, b_vec_new, μ₀_new = a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
  
   abs_error_a = convert(Vector{Float64}, abs.(a_vec - a_vec_new))
   max_abs_error_a = maximum(abs_error_a)
@@ -505,7 +490,7 @@ function step1_fn(which_f, n::Integer, epsilon=1.0e-18)
     a_vec, b_vec, μ₀ = a_vec_new, b_vec_new, μ₀_new
     nbits_new = nbits + 26
     setprecision(BigFloat, nbits_new, base=2)
-    a_vec_new, b_vec_new, μ₀_new = a_vec_b_vec_μ₀_fn(BigFloat, which_f, n) 
+    a_vec_new, b_vec_new, μ₀_new = a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n) 
     abs_error_a = convert(Vector{Float64}, abs.(a_vec - a_vec_new))
     max_abs_error_a = maximum(abs_error_a)
     rel_error_b = convert(Vector{Float64}, (abs.((b_vec - b_vec_new) ./ b_vec_new)))
@@ -524,7 +509,7 @@ end
 
 
 """
-nodes, weights = step2_fn(T, which_f, n, a_vec, b_vec, μ₀)
+nodes, weights = step2_fn(T, moment_fn, which_f, n, a_vec, b_vec, μ₀)
 
 This function carries our Step 2 which is the computation of the
 nodes and weights from the eigenvalues and eigenvectors
@@ -534,8 +519,8 @@ This computation is carried out using the type T of floating-point
 arithmetic. 
 For flexibility, the resulting nodes and weights are outputted
 as vectors whose elements are of the same type. 
-Usually the type T is Double64 or BigFloat with a globally set
-precision. 
+Usually the type T is Double64 or BigFloat (with a globally set
+precision). 
 """
 function step2_fn(T, which_f, n::Integer, a_vec, b_vec, μ₀)
   @assert n ≥ 2
@@ -545,9 +530,11 @@ function step2_fn(T, which_f, n::Integer, a_vec, b_vec, μ₀)
   Jₙ = SymTridiagonal(a_vec_converted, b_vec_converted)
   eigenvalues, eigenvectors = eigen(Jₙ)
   nodes = eigenvalues
-  endpts = which_f[2]
-  @assert convert(T, endpts[1]) ≤ nodes[1]
-  @assert nodes[n] ≤ convert(T, endpts[2])
+  l_endpt, u_endpt = which_f[2]
+  T_l_endpt = parse(T, string(l_endpt))
+  T_u_endpt = parse(T, string(u_endpt))
+  @assert T_l_endpt ≤ nodes[1]
+  @assert nodes[n] ≤ T_u_endpt
   weights = zeros(T,n)
   for j in 1:n
     weights[j] = eigenvectors[1, j]^2 / dot(eigenvectors[:,j], eigenvectors[:,j])
@@ -568,15 +555,15 @@ as vectors whose elements are of the same type.
 Usually the type T is Double64 or BigFloat with a globally set
 precision. 
 """
-function custom_gauss_quad_fn(T, which_f, n::Integer)
+function custom_gauss_quad_fn(T, moment_fn, which_f, n::Integer)
   @assert n ≥ 1
   if n ==1
-    μ₀, μ₁ = μ_offsetvec_fn(T, which_f, n)
+    μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, n)
     nodes = μ₁ / μ₀
     weights = μ₀
     return([nodes, weights])
   end
-  a_vec, b_vec, μ₀ = step1_fn(which_f, n)
+  a_vec, b_vec, μ₀ = step1_fn(moment_fn, which_f, n)
   nodes, weights = step2_fn(T, which_f, n, a_vec, b_vec, μ₀)
   [nodes, weights]
 end
@@ -584,23 +571,16 @@ end
 
 
 """
-nodes, weights = custom_gauss_quad_all_fn(which_f, n, upto_n=false, extra_check=false)
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n=false, extra_check=false)
 
 This function computes the custom-made Gauss quadrature nodes and 
-weights, for n nodes and the weight function specified by the input 
-which_f with the following 3 components:
+weights, for n nodes, moment_fn (the function for computing the 
+moments of the weight function specified by which_f) and 
+which_f which has the following 3 components:
 (i)  name
 (ii) support specified by a 2-vector of the endpoints 
-of the interval, with finite endpoints specified by 
-integers (which are later converted to the appropriate 
-floating-point type)
+of the interval
 (iii) parameter vector (if any)
-This function accepts the following what_if's as inputs:
-which_f = ["scaled chi pdf", [0,Inf], m]
-which_f = ["Hermite", [-Inf, Inf]]
-which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
-which_f = ["chemistry example", [0, Inf]]
-which_f = ["Legendre", [-1, 1]]
 The Boolean variable upto_n takes the value true if the Gauss quadrature 
 rules are computed for number of nodes q from 1 up and including n.
 By default, this variable is false, so that
@@ -612,21 +592,54 @@ more precise computation of the nodes and weights with the less
 precise computation of the nodes and weights.
 By default, this variable is false, so that this extra check on the
 precision of the nodes and weights is not carried out. 
+We obtain moment_fn as follows. For any of the following which_f's 
+  which_f = ["scaled chi pdf", [0,Inf], m]
+  which_f = ["Hermite", [-Inf, Inf]]
+  which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
+  which_f = ["chemistry example", [0, Inf]]
+  which_f = ["Legendre", [-1, 1]]
+at the Julia REPL we enter, for example, the following commands:
+  which_f = ["scaled chi pdf", [0,Inf], 5]
+  moment_fn = moment_stored_fn
+Suppose, on the other hand, we introduce a new weight function. 
+For example, suppose that this new weight is the Weibull pdf with 
+shape parameter k > 0 and scale parameter λ set to 1. Then we proceed
+as follows. Identify this new weight function by, for example, 
+entering the following commands at the Julia REPL: 
+  k = 3.1
+  which_f = ["weibull pdf", [0, Inf], k]
+Then we provide the function computing the r'th moment, by entering
+the following commands at the Julia REPL:
+  function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    k = which_f[3]
+    @assert k > 0
+    T_k = parse(T, string(k))
+    @assert r ≥ 0
+    if r == 0
+      return(convert(T, 1))
+    end
+    T_1 = convert(T, 1)
+    T_r = convert(T, r)
+    gamma(T_1 + (T_r/T_k))
+  end
+Then enter the following command at the Julia REPL:
+moment_fn = moment_weibull_pdf_fn
 """
-function custom_gauss_quad_all_fn(which_f, n::Integer, upto_n::Bool=false, extra_check::Bool=false)
+function custom_gauss_quad_all_fn(moment_fn, which_f, n::Integer, upto_n::Bool=false, extra_check::Bool=false)
   @assert n ≥ 1
   if n == 1
     T = Double64  
-    μ₀, μ₁ = μ_offsetvec_fn(T, which_f, n)
+    μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, n)
     nodes = μ₁ / μ₀
     weights = μ₀
     return([nodes, weights])
   end
-  a_vec, b_vec, μ₀, nbits = step1_fn(which_f, n)
+  a_vec, b_vec, μ₀, nbits = step1_fn(moment_fn, which_f, n)
   nodes, weights = step2_fn(Double64, which_f, n, a_vec, b_vec, μ₀)
   if extra_check == true
     setprecision(BigFloat, (nbits+26), base=2)
-    a_vec_better, b_vec_better, μ₀_better = step1_fn(which_f, n)
+    a_vec_better, b_vec_better, μ₀_better = step1_fn(moment_fn, which_f, n)
     setprecision(BigFloat, 132, base=2)
     nodes_better, weights_better = step2_fn(BigFloat, which_f, n, a_vec_better, b_vec_better, μ₀_better)
     nodes = convert(Vector{BigFloat}, nodes)
@@ -660,7 +673,7 @@ function custom_gauss_quad_all_fn(which_f, n::Integer, upto_n::Bool=false, extra
   nodes_upto_n = Any[]
   weights_upto_n = Any[]
   T = Double64
-  μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1)
+  μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1)
   nodes_1 = μ₁ / μ₀
   weights_1 = μ₀
   push!(nodes_upto_n, nodes_1)

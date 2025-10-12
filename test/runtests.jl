@@ -10,12 +10,12 @@ using Test
 
     T = BigFloat;
     m = 160;
-    which_f = ["scaled chi pdf", [0,Inf], m];
+    which_f = ["scaled chi pdf", [0,Inf], m]::Vector{Any};
 
     n = 4;
-    μ_offsetvec = μ_offsetvec_fn(BigFloat, which_f, n);
-
-    Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
+	μ_offsetvec = μ_offsetvec_fn(BigFloat, moment_fn, which_f, n);
+    
+	Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
     Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n);
 
     α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n);
@@ -28,7 +28,7 @@ T = BigFloat;
 which_f = ["Generalized Laguerre", [0, Inf], 1]; 
 n = 4;
 
-μ_offsetvec = μ_offsetvec_fn(T, which_f, n);
+μ_offsetvec = μ_offsetvec_fn(T, moment_fn, which_f, n);
 
 Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
 Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n);
@@ -46,31 +46,33 @@ sqrt.(β_vec);
 which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
 n = 4;
 
-nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(which_f, n);
+nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 nodes = convert(Vector{Float64}, nodes_Double64);
 weights = convert(Vector{Float64}, weights_Double64);
 
+# Test the function custom_gauss_quad_all_fn with 
+# Hermite weight function 
 
 setprecision(BigFloat, 256, base=2);
 n= 4;
 which_f = ["Hermite", [-Inf, Inf]]
-nodes, weights = custom_gauss_quad_all_fn(which_f, n);
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 #------------------------------------------------------------
 # Test the function custom_gauss_quad_all_fn with 
 # chemistry example for n = 4
 which_f = ["chemistry example", [0, Inf]]::Vector{Any};
 n = 4;
-nodes, weights = custom_gauss_quad_all_fn(which_f, n);
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 #------------------------------------------------------------
 # Test the function custom_gauss_quad_all_fn with 
 # Generalized Laguerre
 n= 4;
-α = convert(BigFloat, 3);
+α = 3.1;
 
-which_f = ["Generalized Laguerre", [0, Inf], 3]::Vector{Any};
-nodes, weights = custom_gauss_quad_all_fn(which_f, n);
+which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 nodes = convert(Vector{BigFloat}, nodes);
 weights = convert(Vector{BigFloat}, weights);
 
@@ -89,7 +91,7 @@ custom_gauss_quad_all_fn(which_f, n, false, true);
 
 which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
 n= 4;
-nodes, weights = custom_gauss_quad_all_fn(which_f, n, true);
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n, true);
 
 #------------------------------------------------------------
 # Test the function custom_gauss_quad_all_fn with 
@@ -98,8 +100,26 @@ nodes, weights = custom_gauss_quad_all_fn(which_f, n, true);
 which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
 n= 4;
 nodes, weights, max_abs_error_nodes, max_abs_rel_error_weights = 
-custom_gauss_quad_all_fn(which_f, n, true, true);
+custom_gauss_quad_all_fn(moment_fn, which_f, n, true, true);
 
+# Test using moment_fn = moment_weibull_pdf_fn
+function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+@assert which_f[1] == "weibull pdf"
+k = which_f[3]
+@assert k > 0
+T_k = parse(T, string(k))
+@assert r ≥ 0
+if r == 0
+    return(convert(T, 1))
+end
+T_1 = convert(T, 1)
+T_r = convert(T, r)
+gamma(T_1 + (T_r/T_k))
+end
+
+moment_fn = moment_weibull_pdf_fn
+
+Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 #****************************************************
 #  Test of gauss_quad_stjieltjes_scr.jl
