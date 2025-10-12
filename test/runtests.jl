@@ -104,7 +104,9 @@ n= 4;
 nodes, weights, max_abs_error_nodes, max_abs_rel_error_weights = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n, true, true);
 
+#----------------------------------------------
 # Test using moment_fn = moment_weibull_pdf_fn
+
 function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
 @assert which_f[1] == "weibull pdf"
 k = which_f[3]
@@ -120,6 +122,8 @@ gamma(T_1 + (T_r/T_k))
 end
 
 moment_fn = moment_weibull_pdf_fn
+
+which_f = ["weibull pdf", [0, Inf], 2.1]
 
 Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
