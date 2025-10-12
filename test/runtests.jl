@@ -8,18 +8,20 @@ using Test
 # Test of gauss_quad_moment_dets_scr.jl
 #****************************************************
 
-    T = BigFloat;
-    m = 160;
-    which_f = ["scaled chi pdf", [0,Inf], m]::Vector{Any};
+moment_fn = moment_stored_fn
 
-    n = 4;
-	μ_offsetvec = μ_offsetvec_fn(BigFloat, moment_fn, which_f, n);
+T = BigFloat;
+m = 160;
+which_f = ["scaled chi pdf", [0,Inf], m]::Vector{Any};
+
+n = 4;
+μ_offsetvec = μ_offsetvec_fn(BigFloat, moment_fn, which_f, n);
     
-	Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
-    Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n);
+Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
+Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n);
 
-    α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n);
-    β_vec = β_vec_fn(Δ_offsetvec, n);
+α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n);
+β_vec = β_vec_fn(Δ_offsetvec, n);
 
 #----------------------------------------------------
 # Try which_f = ["Generalized Laguerre", [0, Inf], α_GGL] 
