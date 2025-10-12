@@ -85,7 +85,7 @@ weights = convert(Vector{BigFloat}, weights);
 which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
 n= 4;
 nodes_Double64, weights_Double64, max_abs_error_nodes, max_abs_rel_error_weights = 
-custom_gauss_quad_all_fn(which_f, n, false, true);
+custom_gauss_quad_all_fn(moment_fn, which_f, n, false, true);
 
 #------------------------------------------------------------
 # Test the function custom_gauss_quad_all_fn with 
