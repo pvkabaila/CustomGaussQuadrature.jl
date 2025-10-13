@@ -148,7 +148,7 @@ stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits =
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
 a_vec, b_vec, μ₀, nbits = 
-step1_fn(which_f, n);
+step1_fn(moment_fn, which_f, n);
 
 # nodes and weights
 
