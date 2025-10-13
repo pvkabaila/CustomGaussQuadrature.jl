@@ -1,5 +1,6 @@
 using CustomGaussQuadrature
 using Test
+using SpecialFunctions
 
 
 @testset "CustomGaussQuadrature.jl" begin
@@ -137,7 +138,10 @@ T = BigFloat;
 a = convert(T,0);
 b = Inf;
 which_f = ["scaled chi pdf", [0,Inf], m];
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+
+moment_fn = moment_stored_fn
+
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 n = 5;
 
 stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits = 
@@ -152,7 +156,7 @@ stjieltjes_nodes, stjieltjes_weights =
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
 
 nodes, weights = 
-custom_gauss_quad_all_fn(which_f, n);
+custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 #------------------------------
 
@@ -166,7 +170,7 @@ stjieltjes_nodes_upto_n, stjieltjes_weights_upto_n =
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b, upto_n);
 
 nodes_upto_n, weights_upto_n = 
-custom_gauss_quad_all_fn(which_f, n, upto_n);
+custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n);
 
 #--------------------------------------------------
 # chemistry example with n = 5
@@ -174,7 +178,7 @@ custom_gauss_quad_all_fn(which_f, n, upto_n);
 n = 5;
 
 which_f = ["chemistry example", [0, Inf]];
-nodes, weights = custom_gauss_quad_all_fn(which_f, n);
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 lnf_fn = x -> lnf_chemistry_fn(T, x);
 T = BigFloat;
@@ -183,7 +187,7 @@ b = Inf;
 
 which_f = ["chemistry example", [0, Inf]];
 T = BigFloat;
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
@@ -203,7 +207,6 @@ lnf_fn = lnf_hermite_fn;
 a = -Inf;
 b = Inf;
 T = BigFloat;
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
 
 stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
@@ -225,7 +228,7 @@ a = convert(T,0);
 b = Inf;
 lnf_fn = x -> lnf_laguerre_fn(x, α);
 
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1); 
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
