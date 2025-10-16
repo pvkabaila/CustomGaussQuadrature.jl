@@ -101,7 +101,7 @@ end
 
 
 """
-a_vec, b_vec, nbits = stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+a_vec, b_vec, nbits = stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, which_f, r)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
@@ -349,7 +349,7 @@ end
 
 
 """
-nodes, weights = stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, a_vec, b_vec, a, b, upto_n)
+nodes, weights = stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, a_vec, b_vec, which_f, upto_n)
 
 This function computes the custom-made Gauss quadrature nodes and 
 weights, for n nodes and the weight function specified by the inputs 
@@ -360,7 +360,7 @@ By default, this variable is false, so that only the Gauss quadrature
 rule for number of nodes n is computed.
 """
 function stjieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_vec, 
-    a, b, upto_n::Bool=false)
+    which_f, upto_n::Bool=false)
   @assert n ≥ 1
   if n == 1
     μ₀ = convert(Double64, μ₀)
@@ -369,7 +369,7 @@ function stjieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_
     weights = μ₀
     return([nodes, weights])
   end
-  nodes, weights = stjieltjes_step2_fn(n, μ₀, a_vec, b_vec, a, b)
+  nodes, weights = stjieltjes_step2_fn(n, μ₀, a_vec, b_vec, which_f)
   if upto_n == false
     # The precision of BigFloat is set globally.
     # Consequently, this precision is reset to
@@ -389,7 +389,7 @@ function stjieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_
   for q in 2:(n-1)
     a_vec_q = a_vec[1:q]
     b_vec_q = b_vec[1:q]
-    nodes_q, weights_q =  stjieltjes_step2_fn(q, μ₀, a_vec_q, b_vec_q, a, b)
+    nodes_q, weights_q =  stjieltjes_step2_fn(q, μ₀, a_vec_q, b_vec_q, which_f)
     push!(nodes_upto_n, nodes_q)
     push!(weights_upto_n, weights_q)
   end
