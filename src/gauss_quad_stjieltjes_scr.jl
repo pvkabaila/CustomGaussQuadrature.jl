@@ -223,7 +223,7 @@ end
 
 
 """
-a_vec, b_vec, nbits, r = stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
+a_vec, b_vec, nbits, r = stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, which_f, offset=7, k_max=40)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
@@ -246,7 +246,7 @@ we consider k (offset + n) for k=3, k-4, up to a maximum
 value k_max. The default values of offset and k_max are 7
 and 40, respectively. 
 """
-function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
+function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, which_f, offset=7, k_max=40)
     k = 3
     r = k * (offset + n)
     # println("r = k * (offset + n), where k = ", k)
@@ -309,7 +309,7 @@ end
 
 
 """
-nodes, weights = stjieltjes_step2_fn(n, μ₀, a_vec, b_vec, a, b)
+nodes, weights = stjieltjes_step2_fn(n, μ₀, a_vec, b_vec, which_f)
 
 This function carries our Step 2, which is the computation of 
 the Gauss quadrature nodes and weights from the eigenvalues 
@@ -323,7 +323,10 @@ The computation of these eigenvalues and eigenvectors is
 carried out using Double64 arithmetic and the package 
 GenericLinearAlgebra.jl
 """
-function stjieltjes_step2_fn(n::Integer, μ₀, a_vec, b_vec, a, b)
+function stjieltjes_step2_fn(n::Integer, μ₀, a_vec, b_vec, which_f)
+  a, b = which_f[2]
+  T_a = parse(T, string(a))
+  T_b = parse(T, string(b))
   @assert n ≥ 2
   a_vec_converted = convert(Vector{Double64}, a_vec)
   b_vec_converted = convert(Vector{Double64}, b_vec)
@@ -332,8 +335,8 @@ function stjieltjes_step2_fn(n::Integer, μ₀, a_vec, b_vec, a, b)
   eigenvalues, eigenvectors = eigen(Jₙ)
   nodes = eigenvalues
   # println("nodes[1] = ",nodes[1] )
-  @assert a ≤ nodes[1]
-  @assert nodes[n] ≤ b
+  @assert T_a ≤ nodes[1]
+  @assert nodes[n] ≤ T_b
   weights = zeros(Double64,n)
   for j in 1:n
     weights[j] = eigenvectors[1, j]^2 / dot(eigenvectors[:,j], eigenvectors[:,j])
