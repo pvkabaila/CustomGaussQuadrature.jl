@@ -55,7 +55,6 @@ The input which_f has the following 3 components:
 of the interval. 
 (iii) parameter vector (if any)
 This function accepts the following which_f's as inputs:
-   which_f = ["new", support interval, parameter vector (if any)]
    which_f = ["scaled chi pdf", [0,Inf], m]
    which_f = ["Hermite", [-Inf, Inf]]
    which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
