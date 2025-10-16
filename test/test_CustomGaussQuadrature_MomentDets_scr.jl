@@ -567,70 +567,18 @@ end
 T_1 = convert(T, 1)
 T_r = convert(T, r)
 gamma(T_1 + (T_r/T_k))
-end
+end;
 
-moment_fn = moment_weibull_pdf_fn
+println("moment_fn = moment_weibull_pdf_fn;")
+moment_fn = moment_weibull_pdf_fn;
 
-
-k = 2.0
-which_f = ["weibull pdf", [0, Inf], k]
-k = which_f[3]
-println("k = ", k)
-
-T = Float64
-r = 4
-moment_fn(T, which_f, r)
-
-T = BigFloat
-moment_fn(T, which_f, r)
-
-n = 3;
-println("n = ", n, "\n")
-μ_offsetvec = μ_offsetvec_fn(BigFloat, moment_fn, which_f, n);
-println("μ_offsetvec = ")
-for element in μ_offsetvec
-    println(element)
-end
-print("\n")
-
-
-n = 10;
-println("n = ", n, "\n")
-μ_offsetvec = μ_offsetvec_fn(BigFloat, moment_fn, which_f, n);
-println("Δ_fn(μ_offsetvec, n, n) = ", "\n", Δ_fn(μ_offsetvec, n, n), "\n")
-
-println("Δ′_fn(μ_offsetvec, n, n) = ", "\n", Δ′_fn(μ_offsetvec, n, n), "\n")
-
-Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
-println("Δ_offsetvec = ")
-for element in Δ_offsetvec
-    println(element)
-end
-print("\n")
-
-Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n);
-println("Δ′_offsetvec = ")
-for element in Δ′_offsetvec
-    println(element)
-end
-print("\n")
-
-
-α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n);
-println("α_offsetvec = ")
-for element in α_offsetvec
-    println(element)
-end
-print("\n")
-
-β_vec = β_vec_fn(Δ_offsetvec, n)
-println("β_vec = ")
-for element in β_vec
-    println(element)
-end
+k = 2.0;
+which_f = ["weibull pdf", [0, Inf], k];
+println("which_f = ", which_f, ",  k=", k, "\n")
 
 #---------------------------------------------------------------
-n= 33;
+println("\n", "------------------------------------------------------")
+n= 63;
 println("n = ", n, "\n")
 
 println("@time nodes_Double64, weights_Double64 = ")
@@ -654,3 +602,19 @@ for row_number in 1:row_number_last
     @printf "%.16e \n" weights_Double64[3*(row_number-1) + 3]
 end
 
+#-------------------------------------------------
+# Plot the cdf corresponding to the Gauss quadrature 
+# rule and the actual cdf of a Weibull distribution 
+# with scale parameter λ = 1 and shape parameter k 
+# (k > 0)
+
+x_vec = nodes_Double64;
+prob_vec = weights_Double64;
+x_lo = 0.0;
+x_hi = 2.5;
+plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi) 
+x_grid = range(x_lo, x_hi, length=200);
+y_grid = weibull_cdf_fn.(x_grid, k);
+plot!(x_grid, y_grid, 
+title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
+ titlefont=font(10))
