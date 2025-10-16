@@ -117,14 +117,17 @@ that there is some assurance that the vectors [a₁, ..., aₙ]
 and [b₁, ..., bₙ₋₁] are computed to sufficient accuracy,
 for the specified value of r.
 """
-function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, which_f, r)
+  a, b = which_f[2]
+  T_a = parse(T, string(a))
+  T_b = parse(T, string(b))
     setprecision(BigFloat, 256, base=2)
     T = BigFloat
     nbits = 256
     # println("T = ", T, ",  nbits = ", precision(BigFloat))
     # @time "Compute nodes_256 & lnweights_256" 
     nodes_256, lnweights_256 = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+    nodes_lnweights_support_fn(T, lnf_fn::Function, which_f, r::Integer)
     # @time "Compute a_vec_256 & b_vec_256" 
     a_vec_256, b_vec_256 = 
     stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_256, lnweights_256)
@@ -135,7 +138,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     # println("T = ", T)
     # @time "Compute nodes_106 & lnweights_support_106" 
     nodes_106, lnweights_106 = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+    nodes_lnweights_support_fn(T, lnf_fn::Function, which_f, r::Integer)
     # @time "Compute a_vec & b_vec" 
     a_vec_106, b_vec_106 = 
     stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_106, lnweights_106)
@@ -157,7 +160,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     # println("T = ", T, ",  nbits = ", precision(BigFloat))
     # @time "Compute nodes_224 & lnweights_224" 
     nodes_224, lnweights_224 = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+    nodes_lnweights_support_fn(T, lnf_fn::Function, which_f, r::Integer)
     # @time "Compute a_vec & b_vec" 
     a_vec_224, b_vec_224 = 
     stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_224, lnweights_224) 
@@ -179,7 +182,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     # println("T = ", T, ",  nbits = ", precision(BigFloat))
     # @time "Compute nodes_512 & lnweights_512" 
     nodes_512 , lnweights_512  = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+    nodes_lnweights_support_fn(T, lnf_fn::Function, which_f, r::Integer)
     # @time "Compute a_vec & b_vec" 
     a_vec_512 , b_vec_512  = 
     stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_512 , lnweights_512 ) 
@@ -199,7 +202,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     # println("T = ", T, ",  nbits = ", precision(BigFloat))
     # @time "Compute nodes_480 & lnweights_480" 
     nodes_480, lnweights_480 = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+    nodes_lnweights_support_fn(T, lnf_fn::Function, which_f, r::Integer)
     # @time "Compute a_vec & b_vec" 
     a_vec_480, b_vec_480 = 
     stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_480, lnweights_480) 
@@ -251,14 +254,14 @@ function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max
     # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec, b_vec, nbits = 
-    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, which_f, r)
     
     k = k + 1
     r = k * (offset + n)
     # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec_new, b_vec_new, nbits_new = 
-    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, which_f, r)
     # println("nbits_new = ", nbits_new)
     
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
@@ -282,7 +285,7 @@ function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max
     # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec_new, b_vec_new, nbits_new = 
-    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, which_f, r)
     # println("nbits_new = ", nbits_new)
     
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
