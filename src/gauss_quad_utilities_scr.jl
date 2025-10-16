@@ -48,6 +48,22 @@ function scaled_chi_cdf_fn(x, m::Integer)
 end
 
 
+"""
+weibull_cdf = weibull_cdf_fn(x, k)
+
+Returns the cumulative distribution function (cdf)
+of a random variable with the the a Weibull distribution
+with scale parameter λ=1 and shape parameter k (k > 0).
+"""
+function weibull_cdf_fn(x, k)
+    @assert k > 0
+    if x < 0 
+        return(0)
+    end
+    1 - exp(-x^k)
+end
+
+
 
 """
 integrand_transf_integral = integrand_transf_integral_fn(T, y, k, f_fn, a, b)
