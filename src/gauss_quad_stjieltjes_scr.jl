@@ -118,9 +118,7 @@ and [b₁, ..., bₙ₋₁] are computed to sufficient accuracy,
 for the specified value of r.
 """
 function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, which_f, r)
-  a, b = which_f[2]
-  T_a = parse(T, string(a))
-  T_b = parse(T, string(b))
+ 
     setprecision(BigFloat, 256, base=2)
     T = BigFloat
     nbits = 256
