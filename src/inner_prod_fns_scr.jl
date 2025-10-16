@@ -197,7 +197,7 @@ end
 
 
 """
-nodes_support, lnweights_support = nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+nodes_support, lnweights_support = nodes_lnweights_support_fn(T, lnf_fn, which_f, r)
 
 This function is based on the function nodes_weights_support_fn,
 which can result in NaN's, when using Double64 arithmetic,
@@ -232,7 +232,7 @@ function nodes_lnweights_support_fn(T, lnf_fn::Function, which_f, r::Integer)
     if T == Float64
         y, w = gausslegendre(r)
     else
-        y, w = gauss(T, r)
+        y, w = legendre(T, r)
     end
     nodes_support = ϕ_fn.(T, y, T_a, T_b) 
     lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, T_a, T_b) + lnf_fn.(T, which_f, nodes_support) 
