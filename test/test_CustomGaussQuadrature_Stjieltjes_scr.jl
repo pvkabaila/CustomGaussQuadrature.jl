@@ -29,19 +29,17 @@ using SpecialFunctions
 # Final values of a_vec and b_vec
 
 m = 160;
-lnf_fn = lnf_stored_fn;
 println("scaled chi pdf weight function, with m = ", m)
-T = BigFloat;
-a = convert(T,0);
-b = Inf;
 which_f = ["scaled chi pdf", [0,Inf], m];
 moment_fn = moment_stored_fn
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 n = 5;
 println("number of Gauss quadrature nodes n = ", n)
 
+lnf_fn = lnf_stored_fn
+
 @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
-stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, which_f);
 println("r = ", r)
 
 @time "step1_fn" a_vec, b_vec, μ₀, nbits = 
@@ -57,7 +55,7 @@ println("maximum(abs.((stjieltjes_b_vec - b_vec) ./ b_vec)) = ", convert(Float64
 # nodes and weights
 
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes, stjieltjes_weights = 
-stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
+stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, which_f);
 
 @time "custom_gauss_quad_all_fn" nodes, weights = 
 custom_gauss_quad_all_fn(which_f, n);
@@ -87,7 +85,7 @@ a = convert(T,0);
 b = Inf;
 
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes_upto_n, stjieltjes_weights_upto_n = 
-stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b, upto_n);
+stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, which_f, upto_n);
 
 @time "custom_gauss_quad_all_fn" nodes_upto_n, weights_upto_n = 
 custom_gauss_quad_all_fn(which_f, n, upto_n);
@@ -178,10 +176,13 @@ show(stdout, "text/plain", stjieltjes_weights_Float64 - weights_Float64)
 n = 15;
 println("number of Gauss quadrature nodes n = ", n)
 
+lnf_fn = lnf_stored_fn
+moment_fn = moment_stored_fn
 which_f = ["chemistry example", [0, Inf]];
-nodes, weights = custom_gauss_quad_all_fn(which_f, n);
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
-lnf_fn = x -> lnf_chemistry_fn(T, x);
+lnf_fn = lnf_stored_fn;
+
 println("chemistry example weight function")
 T = BigFloat;
 a = convert(T,0);
