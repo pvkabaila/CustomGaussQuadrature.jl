@@ -197,7 +197,7 @@ end
 
 
 """
-nodes_support, lnweights_support = nodes_lnweights_support_fn(T, f_fn, a, b, r)
+nodes_support, lnweights_support = nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
 
 This function is based on the function nodes_weights_support_fn,
 which can result in NaN's, when using Double64 arithmetic,
@@ -225,14 +225,14 @@ this leads us to approximate
 where 
    wᵢ = ξᵢ ϕ′(yᵢ) f(ϕ(yᵢ)) and xᵢ = ϕ(yᵢ) (i=1,...,r).
 """
-function nodes_lnweights_support_fn(T, lnf_fn::Function, a, b, r::Integer)
+function nodes_lnweights_support_fn(T, lnf_fn::Function, which_f, r::Integer)
     if T == Float64
         y, w = gausslegendre(r)
     else
         y, w = gauss(T, r)
     end
     nodes_support = ϕ_fn.(T, y, a, b) 
-    lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, a, b) + lnf_fn.(nodes_support) 
+    lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, a, b) + lnf_fn.(T, which_f, nodes_support) 
     [nodes_support, lnweights_support] 
 end
 
@@ -255,7 +255,68 @@ function scaled_chi_pdf_fn(T, x::AbstractFloat, m::Integer)
     term * x^(m-1) * exp(- m * x^2 / T_2)
 end
 
+"""
+lnf_stored_fn(T, which_f, x)
 
+Returns log of the weight function, identified by
+which_f, evaluated at x. The input which_f has the 
+following 3 components:
+(i)  name
+(ii) support specified by a 2-vector of the endpoints 
+of the interval. 
+(iii) parameter vector (if any)
+This function accepts the following which_f's as inputs:
+   which_f = ["scaled chi pdf", [0,Inf], m]
+   which_f = ["Hermite", [-Inf, Inf]]
+   which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
+   which_f = ["chemistry example", [0, Inf]]
+"""
+function lnf_stored_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
+
+  if which_f[1] == "scaled chi pdf"
+    @assert x ≥ 0
+    m = which_f[3]
+    @assert m > 0
+    T_1 = convert(T,1)
+    T_2 = convert(T,2)
+    T_m = convert(T,m)
+    tmp1 = (T_m / T_2) * log(T_m)
+    # 3 October 2024: loggamma was not recognised
+    # but lgamma was. So I used
+    # tmp2 = lgamma(T_m / T_2)
+    # When testing the package 
+    # CustomGaussQuadrature on 7 February 2025, 
+    # there was a warning that lgamma(x::Real) is
+    # deprecated and should be replaced
+    # by (logabsgamma(x))[1]
+    tmp2 = (logabsgamma(T_m / T_2))[1]
+    tmp3 = ((T_m/T_2) - T_1) * log(T_2)
+    tmp4 = (T_m - T_1) * log(x)
+    tmp5 = T_m * x^2 / T_2
+    return(tmp1 - tmp2 - tmp3 + tmp4 - tmp5)
+
+  elseif which_f[1] == "Hermite"
+    return(- x * x)
+
+  elseif which_f[1] == "Generalized Laguerre"
+    @assert x ≥ 0
+    α_GGL = which_f[3]
+    @assert α_GGL > -1
+    T_α_GGL = parse(T, string(α_GGL))
+    return(T_α_GGL * log(x) - x)
+
+  elseif which_f[1] ==  "chemistry example"
+    @assert x ≥ 0
+    T_3 = convert(T,3)
+    - convert(T, x)^T_3 / T_3
+    return(moment)
+    
+  else
+    # DomainError means that the argument to a function
+    # or constructor does not lie in the valid domain
+    throw(DomainError(which_f, "invalid argument"))
+  end
+end
 
 
 """
