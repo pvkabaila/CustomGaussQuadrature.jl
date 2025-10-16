@@ -174,33 +174,35 @@ export stjieltjes_custom_gauss_quad_all_fn
 
 # (4)
 include("gauss_quad_utilities_scr.jl")
+export lnf_stored_fn
 export integrand_transf_integral_fn
 export plot_cdf_discrete_rv_fn
 export scaled_chi_cdf_fn
+export weibull_cdf_fn
 
 # THE INPUT OF REAL-VALUED PARAMETERS 
-# Suppose that the exact value of a parameter λ is 3.1.
+# Suppose that the exact value of a parameter k is 3.1.
 # For convenience, we can use the following command
-# julia> λ = 3.1
-# which sets the value of λ to the Float64 approximation to 3.1. 
+# julia> k = 3.1
+# which sets the value of k to the Float64 approximation to 3.1. 
 # We use a range of AbstractFloat types T, including BigFloat,
 # for the computations in this package. Consequently, 
 # it is important to get the best approximation, of any given 
-# type T, to the exact value 3.1. Since λ is of 
+# type T, to the exact value 3.1. Since k is of 
 # type Float64, the following command results in an
 # approximation to 3.1 that has only Float64 precision
-# julia> convert(BigFloat, x)
+# julia> convert(BigFloat, k)
 # This produces the result
 # 3.100000000000000088817841970012523233890533447265625
 # We obtain a more precise approximation to 3.1 (assumed 
 # to be the exact value) by using 
-# julia> parse(BigFloat, string(x))
+# julia> parse(BigFloat, string(k))
 # which results in 
 # 3.099999999999999999999999999999999999999999999999999999999999999999999999999986
 # This is because the function string uses the function print. 
 # For Float64 values, print provides the shortest correctly 
 # rounded decimal producing identical binary on reparse. Consequently, 
-# julia> string(x)
+# julia> string(k)
 # produces the result "3.1".
 
 
