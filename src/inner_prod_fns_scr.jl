@@ -226,13 +226,16 @@ where
    wᵢ = ξᵢ ϕ′(yᵢ) f(ϕ(yᵢ)) and xᵢ = ϕ(yᵢ) (i=1,...,r).
 """
 function nodes_lnweights_support_fn(T, lnf_fn::Function, which_f, r::Integer)
+    a, b = which_f[2]
+    T_a = parse(T, string(a))
+    T_b = parse(T, string(b))
     if T == Float64
         y, w = gausslegendre(r)
     else
         y, w = gauss(T, r)
     end
-    nodes_support = ϕ_fn.(T, y, a, b) 
-    lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, a, b) + lnf_fn.(T, which_f, nodes_support) 
+    nodes_support = ϕ_fn.(T, y, T_a, T_b) 
+    lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, T_a, T_b) + lnf_fn.(T, which_f, nodes_support) 
     [nodes_support, lnweights_support] 
 end
 
