@@ -117,25 +117,17 @@ The aim of the method implemented in `custom_gauss_quad_all_fn` is for (a) the *
 $10^{-17}$ and (b) the *relative errors* of each of the weights to be less than $10^{-17}$. In other words, the nodes and weights are computed with the purpose of being used in further extensive `Float64` computations.
 
 
-
-The inputs to   `custom_gauss_quad_all_fn` are
-`which_f`, `n`, `upto_n` and `extra_check`. We describe this function for the default values of `upto_n` and `extra_check`, so that the inputs to this function are as follows.
-
-- `which_f` specifies the weight function $f$. It has the following 
-components:  (i)  name,
-(ii) support specified by a two-vector of the endpoints 
-of the interval, with finite endpoints specified by strings of numbers
-that are later converted to the appropriate 
-floating-point type using `parse()` and 
+We identify the weight function $f$ by the array 
+`which_f` with components:\
+(i) the name given to $f$ (a character string),\
+(ii) support interval of $f$ specified by a 2-vector of the endpointsand \
 (iii) parameter vector (if any).
 
-- `n` is the number of nodes. 
+Two examples of this identification are the following:
 
-For `custom_gauss_quad_all_fn` the outputs are `nodes` and `weights`  in the form of `Double64` vectors (from the package `DoubleFloats`).
+### **Scaled chi pdf weight function**
 
-
-### **Example 1** 
-Consider the "scaled chi pdf" weight function is
+Consider, for example,  the "scaled chi pdf" weight function given by the probability density function (pdf)
 
 $$
 	f(x) =
@@ -147,11 +139,98 @@ $$
 $$
 
 where $m$ is a positive integer parameter (the "degrees of freedom"). 
-This weight function is specified by
+This weight function is identified by
 
     which_f = ["scaled chi pdf", [0,Inf], m]
 
-for some assigned value of $m$. The first component is the name given to $f$, the second component is the support interval of $f$ specified by a 2-vector of the endpoints and the last component is the parameter $m$ 
+for some assigned value of the parameter m. 
+
+### **Chemistry example weight function**
+
+The "chemistry example" weight function is
+
+$$
+		f(x) =
+	\begin{cases}
+		\exp(-x^3 / 3) &\ \text{for} \ x > 0
+		\\
+		0  &\ \text{otherwise.}
+	\end{cases}	
+$$
+
+This weight function is considered by Gautschi (1983) and is identified by
+
+    which_f = ["chemistry example", [0,Inf]]
+
+The first component is the name given to $f$ and the second component is the support interval of $f$ specified by a 2-vector of the endpoints.
+
+### The inputs to `custom_gauss_quad_all_fn`
+
+This function has the following inputs:
+- `moment_fn`
+
+has inputs `T` (Floating Point type), `which_f` and `r` (moment order) and is obtained as follows.
+For any of the following which_f's 
+
+which_f = ["scaled chi pdf", [0,Inf], m]\
+which_f = ["chemistry example", [0, Inf]]\
+which_f = ["Hermite", [-Inf, Inf]]\
+which_f = ["Generalized Laguerre", [0, Inf], α_GGL]\
+which_f = ["Legendre", [-1, 1]],
+
+say which_f = ["scaled chi pdf", [0,Inf], m],
+we assign the value of positive integer parameter m and then use
+```julia
+	which_f = ["scaled chi pdf", [0,Inf], m]
+	moment_fn = moment_stored_fn
+```
+If, on the other hand, we want to specify a new weight function, say the Weibull pdf with 
+shape parameter k > 0 and scale parameter λ set to 1, then we proceed
+as follows. Identify this new weight function by
+```julia	
+	which_f = ["weibull pdf", [0, Inf], k]
+```
+for some assigned value of the positive parameter $k$. 
+
+Then we provide the function computing the r'th moment using 
+```julia
+  using SpecialFunctions
+  function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    k = which_f[3]
+    @assert k > 0
+    T_k = parse(T, string(k))
+    @assert r ≥ 0
+    if r == 0
+      return(convert(T, 1))
+    end
+    T_1 = convert(T, 1)
+    T_r = convert(T, r)
+    gamma(T_1 + (T_r/T_k))
+  end
+```
+Then use
+
+	moment_fn = moment_weibull_pdf_fn
+
+- `which_f` identifies the weight function $f$. 
+
+- `n` is the number of Gauss quadrature nodes. 
+
+- `upto_n` is a Boolean variable with default value `false`
+
+- `extra_check` is a Boolean variable with default value `false`
+
+For `custom_gauss_quad_all_fn` the outputs are `nodes` and `weights`  in the form of `Double64` vectors (from the package `DoubleFloats`).
+
+
+### **Example 1** 
+
+Consider the weight function specified by
+
+    which_f = ["scaled chi pdf", [0,Inf], m]
+
+for some assigned value of the positive integer parameter $m$. 
 
 For this weight function, the $r$'th moment is 
 
@@ -164,26 +243,14 @@ $$
 $$
 
 for $r = 0, 1, 2, \dots$.
-This formula **has been implemented** in the function `moment_fn` which has inputs `T` (Floating Point type), `which_f` and `r` (moment order), as follows.
-
-    if r == 0
-        return(convert(T, 1))
-    end
-    T_2 = convert(T, 2)
-    m = which_f[3]
-    T_m = convert(T, m)
-    T_r = convert(T, r)
-    term1 = (T_r/T_2) * log(T_2 / T_m)
-    term2 = (logabsgamma((T_r + T_m)/T_2))[1]
-    term3 = (logabsgamma(T_m/T_2))[1]
-    moment = exp(term1 + term2 - term3)
-
+This formula has been implemented in the function `moment_stored_fn`.
 The following commands compute the nodes and weights, as 
 `Double64` vectors for a 5-point Gauss quadrature rule. This is followed by conversion to 
 `Float64` vectors and printing using  using the `printf` function from the package `Printf`.
 
     using CustomGaussQuadrature
-    which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
+	which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
+	moment_fn = moment_stored_fn;
     n = 5;
     nodes, weights = custom_gauss_quad_all_fn(which_f, n);
     nodes = convert(Vector{Float64}, nodes);
@@ -197,23 +264,11 @@ The following commands compute the nodes and weights, as
 
 
 ### **Example 2**
+Consider the weight function identified by
 
-The "chemistry example" weight function is
+    which_f = ["chemistry example", [0,Inf], k]
 
-$$
-		f(x) =
-	\begin{cases}
-		\exp(-x^3 / 3) &\ \text{for} \ x > 0
-		\\
-		0  &\ \text{otherwise.}
-	\end{cases}	
-$$
-
-This weight function is considered by Gautschi (1983) and is specified by
-
-    which_f = ["chemistry example", [0,Inf]]::Vector{Any};
-
-The first component is the name given to $f$ and the second component is the support interval of $f$ specified by a 2-vector of the endpoints.
+for some assigned value of the positive parameter k. 
 
 For this weight function, the $r$'th moment is 
 
@@ -222,18 +277,7 @@ $$
 $$
 
 for $r = 0, 1, 2, \dots$.
-This formula **has been implemented** in the function `moment_fn` which has inputs `T` (Floating Point type), `which_f` and `r` (moment order), as follows.
-
-
-
-
-    T_1 = convert(T, 1)
-    T_2 = convert(T, 2)
-    T_3 = convert(T, 3)
-    T_r = convert(T, r)
-    term1 = T_3^((T_r - T_2) / T_3)
-    term2 = gamma((T_r + T_1) / T_3)
-    moment = term1 * term2
+This formula has been implemented in the function `moment_stored_fn`.
 
 
 The following commands compute the nodes and weights, as 
@@ -242,6 +286,7 @@ Gautschi (1983), using the `printf` function from the package `Printf`.
 
     using CustomGaussQuadrature
     which_f = ["chemistry example", [0, Inf]]::Vector{Any}
+	moment_fn = moment_stored_fn;
     n= 15;
     nodes, weights = custom_gauss_quad_all_fn(which_f, n);  
     nodes = convert(Vector{BigFloat}, nodes);
