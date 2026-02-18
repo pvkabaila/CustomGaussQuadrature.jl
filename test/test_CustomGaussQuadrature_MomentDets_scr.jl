@@ -41,8 +41,7 @@ println("Test of the version of the CustomGaussQuadrature package")
 println("on my computer, not the version in the Julia General Registry.")
 println(" ")
 
-println("✔ means exact agreement with R computed results", "\n")
-
+println("moment_fn = moment_stored_fn;")
 moment_fn = moment_stored_fn
 
 T = BigFloat;
@@ -59,16 +58,13 @@ for element in μ_offsetvec
     println(element)
 end
 print("\n")
-# μ_offsetvec_fn(BigFloat, which_f, n) matches the result of my R code  ✔
 
 n = 10;
 println("n = ", n, "\n")
 μ_offsetvec = μ_offsetvec_fn(BigFloat, moment_fn, which_f, n);
 println("Δ_fn(μ_offsetvec, n, n) = ", "\n", Δ_fn(μ_offsetvec, n, n), "\n")
-# Δ_fn(μ_offsetvec, n, n) matches the results of my R code  ✔
 
 println("Δ′_fn(μ_offsetvec, n, n) = ", "\n", Δ′_fn(μ_offsetvec, n, n), "\n")
-# Δ′_fn(μ_offsetvec, n, n) matches the results of my R code ✔
 
 Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
 println("Δ_offsetvec = ")
@@ -102,10 +98,10 @@ end
 
 println("\n", "------------------------------------------------------")
 #----------------------------------------------------
-# Try which_f = ["Generalized Laguerre", [0, Inf], α_GGL] 
+# Try which_f = ["Generalized Laguerre", [0, Inf], α_GGL], where α_GGL=1.0
 
 T = BigFloat;
-which_f = ["Generalized Laguerre", [0, Inf], 1]::Vector{Any}; 
+which_f = ["Generalized Laguerre", [0, Inf], string(1.0)]::Vector{Any}; 
 println("T = ", T, ",   which_f = ", which_f, "\n")
 
 n = 10;
@@ -393,9 +389,10 @@ println("\n", "------------------------------------------------------")
 # Test the function custom_gauss_quad_all_fn
 # Generalized Laguerre
 
-which_f = ["Generalized Laguerre", [0, Inf], 3]::Vector{Any};
+α = string(3.1);
+which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
 println("which_f = ", which_f)
-α = 3.1;
+
 println("α = ", α, "\n")
 
 n= 5;
