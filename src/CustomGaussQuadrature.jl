@@ -2,7 +2,7 @@ module CustomGaussQuadrature
 # Written by Dr. Paul Kabaila, 
 # Department of Mathematical and Physical Sciences,
 # La Trobe University, Melbourne, Australia.
-# October 2025.
+# February 2026.
 # 
 # This module consists of the following Julia scripts:
 #
