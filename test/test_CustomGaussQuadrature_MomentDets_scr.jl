@@ -7,7 +7,7 @@
 
 # Make this file active and execute it in REPL.
 # Then copy the output at the REPL into a 
-# Notepad++ text document. Do NOT execute this 
+# text document. Do NOT execute this 
 # code line-by-line in the REPL, as this introduces
 # ugly extra spaces.
 
@@ -98,10 +98,10 @@ end
 
 println("\n", "------------------------------------------------------")
 #----------------------------------------------------
-# Try which_f = ["Generalized Laguerre", [0, Inf], α_GGL], where α_GGL=1.0
+# Try which_f = ["Generalized Laguerre", [0, Inf], α_GGL], where α_GGL=1
 
 T = BigFloat;
-which_f = ["Generalized Laguerre", [0, Inf], string(1.0)]::Vector{Any}; 
+which_f = ["Generalized Laguerre", [0, Inf], 1]::Vector{Any}; 
 println("T = ", T, ",   which_f = ", which_f, "\n")
 
 n = 10;
@@ -205,8 +205,6 @@ weights = convert(Vector{Float64}, weights_Double64);
 # from my R package custom.gauss.quad
 print("\n")
 row_number_last = ceil(Int64, length(nodes)/3);
-
-println("✔ means exact agreement with R computed results")
 
 println("Double64 nodes after conversion to Float64:")
 for row_number in 1:row_number_last
@@ -312,9 +310,6 @@ println("@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 @time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 print("\n")
 
-# println("✔ means exact agreement with R computed results:")
-println("✔ means exact agreement with Table 2.2 of Gautschi (1983):")
-
 # Beware!
 # If @printf is applied to a Double64 number then it
 # first converts it to a Float64 number before
@@ -389,7 +384,7 @@ println("\n", "------------------------------------------------------")
 # Test the function custom_gauss_quad_all_fn
 # Generalized Laguerre
 
-α = string(3.1);
+α = 3.1;
 which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
 println("which_f = ", which_f)
 
