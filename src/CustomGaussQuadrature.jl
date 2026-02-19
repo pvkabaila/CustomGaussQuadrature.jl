@@ -204,6 +204,10 @@ export weibull_cdf_fn
 # rounded decimal producing identical binary on reparse. Consequently, 
 # julia> string(k)
 # produces the result "3.1".
+# The function string is only used within this package. 
+# The user of this package does not need to use this function.
+# This user can simply use
+# julia> k = 3.1
 
 
 end
