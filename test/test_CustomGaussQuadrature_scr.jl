@@ -15,70 +15,126 @@ using GaussQuadrature
 # nbits <- 256
 # in my R code.
 
-T = BigFloat
-m = 160
-which_f = ["scaled chi pdf", [0,Inf], m]
+println("Test of the version of the CustomGaussQuadrature package")
+println("on my computer, not the version in the Julia General Registry.")
+println(" ")
 
-n = 3
-@time μ_offsetvec = μ_offsetvec_fn(BigFloat, which_f, n)
-# μ_offsetvec_fn(BigFloat, which_f, n) matches the result of my R code  ✔
+println("moment_fn = moment_stored_fn;")
+moment_fn = moment_stored_fn;
 
-n = 10
-@time μ_offsetvec = μ_offsetvec_fn(BigFloat, which_f, n)
-@time Δ_fn(μ_offsetvec, n, n) 
-# Δ_fn(μ_offsetvec, n, n) matches the results of my R code  ✔
+T = BigFloat;
+m = 160;
+which_f = ["scaled chi pdf", [0,Inf], m]::Vector{Any};
+println("T = ", T, ",    which_f = ", which_f, "\n")
 
-@time Δ′_fn(μ_offsetvec, n, n) 
-# Δ′_fn(μ_offsetvec, n, n) matches the results of my R code ✔
+n = 3;
+println("n = ", n, "\n")
+μ_offsetvec = μ_offsetvec_fn(BigFloat, moment_fn, which_f, n);
+println("μ_offsetvec = ")
+for element in μ_offsetvec
+    println(element)
+end
+print("\n")
 
-@time Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n)
-@time Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n)
+n = 10;
+println("n = ", n, "\n")
+μ_offsetvec = μ_offsetvec_fn(BigFloat, moment_fn, which_f, n);
+println("Δ_fn(μ_offsetvec, n, n) = ", "\n", Δ_fn(μ_offsetvec, n, n), "\n")
 
-@time α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n)
+println("Δ′_fn(μ_offsetvec, n, n) = ", "\n", Δ′_fn(μ_offsetvec, n, n), "\n")
+
+Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
+println("Δ_offsetvec = ")
+for element in Δ_offsetvec
+    println(element)
+end
+print("\n")
+
+Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n);
+println("Δ′_offsetvec = ")
+for element in Δ′_offsetvec
+    println(element)
+end
+print("\n")
+
+
+α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n);
+println("α_offsetvec = ")
+for element in α_offsetvec
+    println(element)
+end
+print("\n")
 # α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n) matches the results of my R code  ✔
 
-@time β_vec = β_vec_fn(Δ_offsetvec, n)
+β_vec = β_vec_fn(Δ_offsetvec, n)
+println("β_vec = ")
+for element in β_vec
+    println(element)
+end
 # β_vec_fn(Δ_offsetvec, n) matches the results of my R code  ✔
 
-
+println("\n", "------------------------------------------------------")
 #----------------------------------------------------
-# Try which_f = ["Generalized Laguerre", [0, Inf], α_GGL] 
+# Try which_f = ["Generalized Laguerre", [0, Inf], α_GGL], where α_GGL=1
 
-T = BigFloat
-which_f = ["Generalized Laguerre", [0, Inf], 1]  
-n = 10
+T = BigFloat;
+which_f = ["Generalized Laguerre", [0, Inf], 1]::Vector{Any}; 
+println("T = ", T, ",   which_f = ", which_f, "\n")
 
-μ_offsetvec = μ_offsetvec_fn(T, which_f, n)
+n = 10;
+println("n = ", n, "\n")
 
-Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n)
-Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n)
+μ_offsetvec = μ_offsetvec_fn(T, moment_fn, which_f, n);
 
-α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n)
-β_vec =  β_vec_fn(Δ_offsetvec, n)
+Δ_offsetvec = Δ_offsetvec_fn(μ_offsetvec, n);
+Δ′_offsetvec = Δ′_offsetvec_fn(μ_offsetvec, n);
 
-a, b = laguerre_coefs(n, convert(T, 1))
+α_offsetvec= α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n);
+β_vec =  β_vec_fn(Δ_offsetvec, n);
 
+println("Use the command laguerre_coefs from the GaussQuadrature package:")
+println("a, b = laguerre_coefs(n, convert(T, 1))", "\n")
+a, b = laguerre_coefs(n, convert(T, 1));
+
+println("The parent function converts an Offset Array into an ordinary Array")
+println("parent(α_offsetvec) - a = ")
 # The parent function converts an Offset Array into an ordinary Array
-parent(α_offsetvec) - a
+for element in (parent(α_offsetvec) - a)
+    println(element)
+end
+print("\n")
 
-# The parent function converts an Offset Array into an ordinary Array
-sqrt.(β_vec)- b[2:n]
+println("sqrt.(β_vec)- b[2:n] = ")
+for element in (sqrt.(β_vec)- b[2:n])
+    println(element)
+end
 
-
+println("\n", "------------------------------------------------------")
 #--------------------------------------------------------------
 # Test of the function custom_gauss_quad_fn and print the nodes
 # and weights in the same format as that used for the output
 # from my R package custom.gauss.quad
 
-which_f = ["scaled chi pdf", [0,Inf], 160]
-n= 33;
-println("n = ", n)
+println("Test of the function custom_gauss_quad_fn and print the nodes")
+println("and weights in the same format as that used for the output")
+println("from my R package custom.gauss.quad.", "\n")
 
-@time nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(which_f, n);
+which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
+println("which_f = ", which_f, "\n")
+
+n= 33;
+println("n = ", n, "\n")
+
+
+println("@time nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);")
+@time nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+print("\n")
 
 setprecision(BigFloat, 132, base=2);
-println("T = BigFloat with 132 bit significand")
-@time nodes_BigFloat132, weights_BigFloat132 = custom_gauss_quad_fn(BigFloat, which_f, n);
+println("BigFloat precision set to 132 bit significand")
+println("@time nodes_BigFloat132, weights_BigFloat132 = custom_gauss_quad_fn(BigFloat, moment_fn, which_f, n);")
+@time nodes_BigFloat132, weights_BigFloat132 = custom_gauss_quad_fn(BigFloat, moment_fn, which_f, n);
+print("\n")
 
 abs_error_nodes = convert(Vector{Float64}, abs.(nodes_Double64 - nodes_BigFloat132));
 max_abs_error_nodes = maximum(abs_error_nodes);
@@ -90,17 +146,18 @@ println("max_abs_rel_error_nodes = ", max_abs_rel_error_nodes)
 
 abs_rel_error_weights = convert(Vector{Float64}, (abs.((weights_Double64 - weights_BigFloat132) ./ weights_BigFloat132)));
 max_abs_rel_error_weights = maximum(abs_rel_error_weights);
-println("max_abs_rel_error_weights = ", max_abs_rel_error_weights)
+println("max_abs_rel_error_weights = ", max_abs_rel_error_weights, "\n")
 
 row_number_last = ceil(Int64, length(nodes_Double64)/3);
-@printf("Double64 nodes:")
+println("Double64 nodes:")
 for row_number in 1:row_number_last
     @printf "[%i] " 3*(row_number-1) + 1
     @printf "%.17f " nodes_Double64[3*(row_number-1) + 1]
     @printf "%.17f " nodes_Double64[3*(row_number-1) + 2]
     @printf "%.17f \n" nodes_Double64[3*(row_number-1) + 3]
 end
-@printf("Double64 weights:")
+print("\n")
+println("Double64 weights:")
 for row_number in 1:row_number_last
     @printf "[%i] " 3*(row_number-1) + 1
     @printf "%.16e " weights_Double64[3*(row_number-1) + 1]
@@ -108,24 +165,26 @@ for row_number in 1:row_number_last
     @printf "%.16e \n" weights_Double64[3*(row_number-1) + 3]
 end
 
-
+println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function custom_gauss_quad_all_fn
 # scaled chi pdf
-which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any}
+which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
+println("which_f = ", which_f, "\n")
+
 n = 33;
-println("n = ", n)
-@time nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(which_f, n);
+println("n = ", n, "\n")
+
+println("@time nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(which_f, n);")
+@time nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 nodes = convert(Vector{Float64}, nodes_Double64);
 weights = convert(Vector{Float64}, weights_Double64);
 # Print the nodes and weights in the same format as that used for the output
 # from my R package custom.gauss.quad
-
+print("\n")
 row_number_last = ceil(Int64, length(nodes)/3);
 
-println("✔ means exact agreement with R computed results")
-
-@printf("Double64 nodes after conversion to Float64:")
+println("Double64 nodes after conversion to Float64:")
 for row_number in 1:row_number_last
     @printf "[%i] " 3*(row_number-1) + 1
     @printf "%.17f " nodes[3*(row_number-1) + 1]
@@ -139,8 +198,9 @@ end
 if 3*(row_number_last-1) + 3 !== n
     println("")
 end
+print("\n")
 
-@printf("Double64 weights after conversion to Float64:")
+println("Double64 weights after conversion to Float64:")
 for row_number in 1:row_number_last
     @printf "[%i] " 3*(row_number-1) + 1
     @printf "%.16e " weights[3*(row_number-1) + 1]
@@ -155,23 +215,36 @@ if 3*(row_number_last-1) + 3 !== n
     println("")
 end
 
-
+println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function custom_gauss_quad_all_fn
 # Hermite
-precision(BigFloat)
-setprecision(BigFloat, 256, base=2) 
+which_f = ["Hermite", [-Inf, Inf]];
+println("which_f = ", which_f)
+
+println("precision(BigFloat) = ",precision(BigFloat))
+println("setprecision(BigFloat, 256, base=2) ", "\n")
+setprecision(BigFloat, 256, base=2);
+
 n= 5;
-println("n = ", n)
+println("n = ", n, "\n")
+
+println("Use the command hermite from the GaussQuadrature package:")
+println("@time nodes_BigFloat, weights_BigFloat = hermite(BigFloat, n);")
 @time nodes_BigFloat, weights_BigFloat = hermite(BigFloat, n);
-which_f = ["Hermite", [-Inf, Inf]]
-@time nodes, weights = custom_gauss_quad_all_fn(which_f, n);
-@printf "                nodes_BigFloat                         weights_BigFloat"
+print("\n")
+
+println("@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);")
+@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+print("\n")
+
+println("        nodes_BigFloat (GaussQuadrature)               weights_BigFloat (GaussQuadrature)")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes_BigFloat[i]
     @printf "%.33e  \n" weights_BigFloat[i]
 end
+print("\n")
 
 # Beware!
 # If @printf is applied to a Double64 number then it
@@ -181,13 +254,14 @@ end
 # BigFloat, before printing using @printf.
 nodes = convert(Vector{BigFloat}, nodes);
 weights = convert(Vector{BigFloat}, weights);
-@printf "                   nodes                                  weights"
+
+println("         nodes (CustomGaussQuadrature)                weights (CustomGaussQuadrature)")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes[i]
     @printf "%.33e  \n" weights[i]
 end
-
+print("\n")
 
 error_nodes = nodes - nodes_BigFloat;
 abs_error_nodes = abs.(error_nodes);
@@ -199,19 +273,18 @@ abs_rel_error_weights = abs.(rel_error_weights);
 max_abs_rel_error_weights = maximum(abs_rel_error_weights);
 println("max_abs_rel_error_weights = ", convert(Float64, max_abs_rel_error_weights))
 
-
-
-
+println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function custom_gauss_quad_all_fn
 # chemistry example
-which_f = ["chemistry example", [0, Inf]]::Vector{Any}
-n= 15;
-println("n = ", n)
-@time nodes, weights = custom_gauss_quad_all_fn(which_f, n);
+which_f = ["chemistry example", [0, Inf]]::Vector{Any};
+println("which_f = ", which_f, "\n")
 
-# println("✔ means exact agreement with R computed results:")
-println("✔ means exact agreement with Table 2.2 of Gautschi (1983):")
+n= 15;
+println("n = ", n, "\n")
+println("@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);")
+@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+print("\n")
 
 # Beware!
 # If @printf is applied to a Double64 number then it
@@ -225,40 +298,51 @@ weights = convert(Vector{BigFloat}, weights);
 #---------------------------------------------------------------------------
 # Print the nodes and weights in the same format as that used in Table 2.2
 # of Gautschi (1983)
+println("Print the nodes and weights in the same format as that used in")
+println("Table 2.2 of Gautschi (1983):")
 for i in 1:n
     @printf "%2d     " i
     @printf "%.15e     " nodes[i]
     @printf "%.15e  \n" weights[i]
 end
 
-#-----------------------------------------------------------------------------
-
+println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function custom_gauss_quad_all_fn
 # Legendre
+nwhich_f = ["Legendre", [-1, 1]];
+println("which_f = ", which_f, "\n")
+
 n= 5;
-println("n = ", n)
+println("n = ", n, "\n")
+
+println("Use the command legendre from the GaussQuadrature package:")
+println("@time nodes_BigFloat, weights_BigFloat = legendre(BigFloat, n);")
 @time nodes_BigFloat, weights_BigFloat = legendre(BigFloat, n);
-which_f = ["Legendre", [-1, 1]]
-@time nodes, weights = custom_gauss_quad_all_fn(which_f, n);
-precision(BigFloat)
+print("\n")
+
+println("@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);")
+@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+println("precision(BigFloat) = ", precision(BigFloat))
 nodes = convert(Vector{BigFloat}, nodes);
 weights = convert(Vector{BigFloat}, weights);
+print("\n")
 
-@printf "                nodes_BigFloat                         weights_BigFloat"
+println("        nodes_BigFloat (GaussQuadrature)               weights_BigFloat (GaussQuadrature)")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes_BigFloat[i]
     @printf "%.33e  \n" weights_BigFloat[i]
 end
+print("\n")
 
-
-@printf "                   nodes                                  weights"
+println("         nodes (CustomGaussQuadrature)                weights (CustomGaussQuadrature)")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes[i]
     @printf "%.33e  \n" weights[i]
 end
+print("\n")
 
 error_nodes = nodes - nodes_BigFloat;
 abs_error_nodes = abs.(error_nodes);
@@ -270,37 +354,45 @@ abs_rel_error_weights = abs.(rel_error_weights);
 max_abs_rel_error_weights = maximum(abs_rel_error_weights);
 println("max_abs_rel_error_weights = ", convert(Float64, max_abs_rel_error_weights))
 
-#------------------------------------------------
-
-
+println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function custom_gauss_quad_all_fn
 # Generalized Laguerre
-n= 5;
-println("n = ", n)
-α = convert(BigFloat, 3);
-println("α = ", α)
-@time nodes_BigFloat, weights_BigFloat = laguerre(n, α);
+α = 3.1;
+which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
+println("which_f = ", which_f)
 
-which_f = ["Generalized Laguerre", [0, Inf], 3]::Vector{Any}  
-@time nodes, weights = custom_gauss_quad_all_fn(which_f, n);
+println("α = ", α, "\n")
+
+n= 5;
+println("n = ", n, "\n")
+
+println("Use the command laguerre from the GaussQuadrature package:")
+println("@time nodes_BigFloat, weights_BigFloat = laguerre(n, α);")
+@time nodes_BigFloat, weights_BigFloat = laguerre(n, α);
+print("\n")
+
+println("@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);")
+@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 nodes = convert(Vector{BigFloat}, nodes);
 weights = convert(Vector{BigFloat}, weights);
+print("\n")
 
-@printf "                nodes_BigFloat                         weights_BigFloat"
+println("        nodes_BigFloat (GaussQuadrature)               weights_BigFloat (GaussQuadrature)")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes_BigFloat[i]
     @printf "%.33e  \n" weights_BigFloat[i]
 end
+print("\n")
 
-
-@printf "                   nodes                                  weights"
+println("         nodes (CustomGaussQuadrature)                weights (CustomGaussQuadrature)")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes[i]
     @printf "%.33e  \n" weights[i]
 end
+print("\n")
 
 error_nodes = nodes - nodes_BigFloat;
 abs_error_nodes = abs.(error_nodes);
@@ -312,34 +404,58 @@ abs_rel_error_weights = abs.(rel_error_weights);
 max_abs_rel_error_weights = maximum(abs_rel_error_weights);
 println("max_abs_rel_error_weights = ", convert(Float64, max_abs_rel_error_weights))
 
+println("\n", "------------------------------------------------------")
 #------------------------------------------------------------
 # Test the function custom_gauss_quad_all_fn with 
 # upto_n=false and extra_check=true
 
-which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any}
+which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
+println("which_f = ", which_f, "\n")
+
 n= 5;
-println("n = ", n)
+println("n = ", n, "\n")
+
+println("@time nodes_Double64, weights_Double64, max_abs_error_nodes, max_abs_rel_error_weights =")
+println("custom_gauss_quad_all_fn(which_f, n, false, true);")
 @time nodes_Double64, weights_Double64, max_abs_error_nodes, max_abs_rel_error_weights = 
-custom_gauss_quad_all_fn(which_f, n, false, true);
-nodes_Double64
-weights_Double64
-max_abs_error_nodes
-max_abs_rel_error_weights
+custom_gauss_quad_all_fn(moment_fn, which_f, n, false, true);
+print("\n")
 
+println("nodes_Double64 = ")
+for element in nodes_Double64
+    println(element)
+end
+print("\n")
 
+println("weights_Double64 = ")
+for element in weights_Double64
+    println(element)
+end
+print("\n")
+
+println("max_abs_error_nodes = ", max_abs_error_nodes)
+println("max_abs_rel_error_weights = ", max_abs_rel_error_weights)
+
+println("\n", "------------------------------------------------------")
 #------------------------------------------------------------
 # Test the function custom_gauss_quad_all_fn with 
 # upto_n=true and extra_check=false
 
-which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any}
+which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
+println("which_f = ", which_f, "\n")
+
 n= 5;
-println("n = ", n)
-@time nodes, weights = custom_gauss_quad_all_fn(which_f, n, true);
+println("n = ", n, "\n")
+
+println("@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n, true);")
+@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n, true);
+print("\n")
 
 
 @printf "%2d     " 1
     @printf "node:   %.17f     " convert(BigFloat, nodes[1])
     @printf "weight: %.17f  \n" convert(BigFloat, weights[1])
+    @printf "\n"
 for i in 2:n
     @printf "%2d     \n" i
     @printf "nodes:   "
@@ -354,21 +470,31 @@ for i in 2:n
     @printf "\n \n"
 end
 
-
+println("\n", "------------------------------------------------------")
 #------------------------------------------------------------
 # Test the function custom_gauss_quad_all_fn with 
 # upto_n=true and extra_check=true
 
-which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any}
+println("Test the function custom_gauss_quad_all_fn with") 
+println("upto_n=true and extra_check=true", "\n")
+
+which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
+println("which_f = ", which_f, "\n")
+
 n= 5;
-println("n = ", n)
+println("n = ", n, "\n")
+
+println("@time nodes, weights, max_abs_error_nodes, max_abs_rel_error_weights =")
+println("custom_gauss_quad_all_fn(which_f, n, true, true);")
 @time nodes, weights, max_abs_error_nodes, max_abs_rel_error_weights = 
-custom_gauss_quad_all_fn(which_f, n, true, true);
+custom_gauss_quad_all_fn(moment_fn, which_f, n, true, true);
+print("\n")
 
 
 @printf "%2d     " 1
     @printf "node:   %.17f     " convert(BigFloat, nodes[1])
     @printf "weight: %.17f  \n" convert(BigFloat, weights[1])
+    @printf "\n"
 for i in 2:n
     @printf "%2d     \n" i
     @printf "nodes:   "
@@ -383,9 +509,81 @@ for i in 2:n
     @printf "\n \n"
 end
 
-max_abs_error_nodes 
+println("max_abs_error_nodes = ",  max_abs_error_nodes)
+println("max_abs_rel_error_weights = ", max_abs_rel_error_weights)
 
-max_abs_rel_error_weights
+###################################################
+# Use, for example,
+# moment_fn = moment_weibull_pdf_fn
+###################################################
+println("\n", "------------------------------------------------------")
+println("Test the idea using the Weibull pdf, with scale parameter 1")
+println("and shape parameter k > 0, weight function")
+
+function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+@assert which_f[1] == "weibull pdf"
+k = which_f[3]
+@assert k > 0
+T_k = parse(T, string(k))
+@assert r ≥ 0
+if r == 0
+    return(convert(T, 1))
+end
+T_1 = convert(T, 1)
+T_r = convert(T, r)
+gamma(T_1 + (T_r/T_k))
+end;
+
+println("moment_fn = moment_weibull_pdf_fn;")
+moment_fn = moment_weibull_pdf_fn;
+
+k = 2.0;
+which_f = ["weibull pdf", [0, Inf], k];
+println("which_f = ", which_f, ",  k=", k, "\n")
+
+#---------------------------------------------------------------
+println("\n", "------------------------------------------------------")
+n= 63;
+println("n = ", n, "\n")
+
+println("@time nodes_Double64, weights_Double64 = ")
+println("custom_gauss_quad_all_fn(moment_fn, which_f, n);")
+@time nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+print("\n")
+row_number_last = ceil(Int64, length(nodes_Double64)/3);
+println("Double64 nodes:")
+for row_number in 1:row_number_last
+    @printf "[%i] " 3*(row_number-1) + 1
+    @printf "%.17f " nodes_Double64[3*(row_number-1) + 1]
+    @printf "%.17f " nodes_Double64[3*(row_number-1) + 2]
+    @printf "%.17f \n" nodes_Double64[3*(row_number-1) + 3]
+end
+print("\n")
+println("Double64 weights:")
+for row_number in 1:row_number_last
+    @printf "[%i] " 3*(row_number-1) + 1
+    @printf "%.16e " weights_Double64[3*(row_number-1) + 1]
+    @printf "%.16e " weights_Double64[3*(row_number-1) + 2]
+    @printf "%.16e \n" weights_Double64[3*(row_number-1) + 3]
+end
+
+#-------------------------------------------------
+# Plot the cdf corresponding to the Gauss quadrature 
+# rule and the actual cdf of a Weibull distribution 
+# with scale parameter λ = 1 and shape parameter k 
+# (k > 0)
+
+x_vec = nodes_Double64;
+prob_vec = weights_Double64;
+x_lo = 0.0;
+x_hi = 2.5;
+plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi) 
+x_grid = range(x_lo, x_hi, length=200);
+y_grid = weibull_cdf_fn.(x_grid, k);
+plot!(x_grid, y_grid, 
+title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
+ titlefont=font(10))
+
 
 
 #****************************************************
@@ -400,7 +598,7 @@ T = BigFloat;
 a = convert(T,0);
 b = Inf;
 which_f = ["scaled chi pdf", [0,Inf], m];
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 n = 5;
 println("number of Gauss quadrature nodes n = ", n)
 
@@ -409,8 +607,7 @@ stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 println("r = ", r)
 
 @time "step1_fn" a_vec, b_vec, μ₀, nbits = 
-step1_fn(which_f, n);
-
+step1_fn(moment_fn, which_f, n);
 
 max_abs_diff_a_vec = maximum(abs.(stjieltjes_a_vec - a_vec));
 println("maximum(abs.(stjieltjes_a_vec - a_vec)) = ", convert(Float64, max_abs_diff_a_vec))
@@ -424,7 +621,8 @@ println("maximum(abs.((stjieltjes_b_vec - b_vec) ./ b_vec)) = ", convert(Float64
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
 
 @time "custom_gauss_quad_all_fn" nodes, weights = 
-custom_gauss_quad_all_fn(which_f, n);
+custom_gauss_quad_all_fn(moment_fn, which_f, n);
+
 
 println("maximum(abs.(stjieltjes_nodes - nodes) = ", 
 convert(Float64, maximum(abs.(stjieltjes_nodes - nodes))))
@@ -454,7 +652,7 @@ b = Inf;
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b, upto_n);
 
 @time "custom_gauss_quad_all_fn" nodes_upto_n, weights_upto_n = 
-custom_gauss_quad_all_fn(which_f, n, upto_n);
+custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n);
 
 max_abs_diff_nodes = zeros(n);
 for q in 1:n
@@ -553,7 +751,7 @@ b = Inf;
 
 which_f = ["chemistry example", [0, Inf]];
 T = BigFloat;
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
@@ -611,7 +809,7 @@ println("Hermite weight function")
 a = -Inf;
 b = Inf;
 T = BigFloat;
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1); 
 
 @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
@@ -670,7 +868,7 @@ lnf_fn = x -> lnf_laguerre_fn(x, α);
 
 nodes_BigFloat, weights_BigFloat = laguerre(n, α);
 
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1); 
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1); 
 @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 println("r = ", r)
