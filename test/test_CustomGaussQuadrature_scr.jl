@@ -512,6 +512,7 @@ end
 println("max_abs_error_nodes = ",  max_abs_error_nodes)
 println("max_abs_rel_error_weights = ", max_abs_rel_error_weights)
 
+#=
 ###################################################
 # Use, for example,
 # moment_fn = moment_weibull_pdf_fn
@@ -583,7 +584,7 @@ y_grid = weibull_cdf_fn.(x_grid, k);
 plot!(x_grid, y_grid, 
 title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
  titlefont=font(10))
-
+=#
 
 
 #****************************************************
@@ -741,7 +742,7 @@ n = 15;
 println("number of Gauss quadrature nodes n = ", n)
 
 which_f = ["chemistry example", [0, Inf]];
-nodes, weights = custom_gauss_quad_all_fn(which_f, n);
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 lnf_fn = x -> lnf_chemistry_fn(T, x);
 println("chemistry example weight function")
