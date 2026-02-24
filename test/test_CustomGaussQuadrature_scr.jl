@@ -786,9 +786,10 @@ stjieltjes_weights_Float64 = convert(Vector{Float64}, weights);
 
 show(stdout, "text/plain", stjieltjes_weights_Float64 - weights_Float64)
 
-
+println("\n", "------------------------------------------------------")
 #--------------------------------------------------
 # The weight function considered by Gautschi (1983)
+println("The weight function considered by Gautschi (1983)")
 
 n = 15;
 println("number of Gauss quadrature nodes n = ", n)
@@ -823,6 +824,8 @@ stjieltjes_weights_bf = convert(Vector{BigFloat}, stjieltjes_weights);
 #---------------------------------------------------------------------------
 # Print the nodes and weights in the same format as that used in Table 2.2
 # of Gautschi (1983)
+println("Print the nodes and weights in the same format as that used in")
+println("Table 2.2 of Gautschi (1983):")
 
 println("       stjieltjes_nodes_bf        stjieltjes_weights_bf")
 for i in 1:n
@@ -848,10 +851,12 @@ end
 
 
 
-
+println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function stjieltjes_custom_gauss_quad_all_fn
 # Hermite
+println("Hermite weight function")
+
 setprecision(BigFloat, 256, base=2);
  
 n = 15;
@@ -903,10 +908,11 @@ max_abs_rel_error_weights = maximum(abs.((stjieltjes_weights_bf - weights_BigFlo
 println("maximum(abs.((stjieltjes_weights_bf - weights_BigFloat) ./ weights_BigFloat)) = ", 
 convert(Float64, max_abs_rel_error_weights))
 
-
+println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function stjieltjes_custom_gauss_quad_all_fn
 # Generalized Laguerre
+println("Generalized Laguerre weight function")
 
 setprecision(BigFloat, 256, base=2);
 n= 15;
