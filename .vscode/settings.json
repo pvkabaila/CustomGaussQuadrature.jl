@@ -1,0 +1,13 @@
+{
+    "textmarker.savedHighlights": [
+        {
+            "pattern": {
+                "type": "string",
+                "expression": "All digits are in agreement with the R program results",
+                "ignoreCase": false,
+                "wholeMatch": false
+            },
+            "color": "yellow"
+        }
+    ]
+}

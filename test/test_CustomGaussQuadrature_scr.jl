@@ -893,7 +893,7 @@ end
 # BigFloat, before printing using @printf.
 stjieltjes_nodes_bf = convert(Vector{BigFloat}, stjieltjes_nodes);
 stjieltjes_weights_bf = convert(Vector{BigFloat}, stjieltjes_weights);
-@printf "             stjieltjes_nodes_bf                             stjieltjes_weights_bf"
+println("             stjieltjes_nodes_bf                             stjieltjes_weights_bf")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " stjieltjes_nodes_bf[i]
