@@ -833,6 +833,7 @@ for i in 1:n
     @printf "%.15e     " stjieltjes_nodes_bf[i]
     @printf "%.15e  \n" stjieltjes_weights_bf[i]
 end
+print("\n")
 
 #---------
 stjieltjes_nodes_Float64 = convert(Vector{Float64}, stjieltjes_nodes);
@@ -884,6 +885,7 @@ for i in 1:n
     @printf "%.33e   " nodes_BigFloat[i]
     @printf "%.33e  \n" weights_BigFloat[i]
 end
+print("\n")
 
 # Beware!
 # If @printf is applied to a Double64 number then it
@@ -942,6 +944,7 @@ for i in 1:n
     @printf "%.33e   " nodes_BigFloat[i]
     @printf "%.33e  \n" weights_BigFloat[i]
 end
+print("\n")
 
 # Beware!
 # If @printf is applied to a Double64 number then it
