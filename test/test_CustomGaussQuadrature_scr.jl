@@ -627,7 +627,6 @@ title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
  titlefont=font(10))
 
 
-
 #****************************************************
 #  Test of gauss_quad_stjieltjes_scr.jl
 #****************************************************
