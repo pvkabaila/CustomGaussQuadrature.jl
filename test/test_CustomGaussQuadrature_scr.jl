@@ -43,7 +43,9 @@ pathof(CustomGaussQuadrature)
 using Printf
 using Plots
 using GaussQuadrature
-
+using SpecialFunctions
+using QuadGK
+using DoubleFloats
 
 #****************************************************
 # Test of gauss_quad_moment_dets_scr.jl
