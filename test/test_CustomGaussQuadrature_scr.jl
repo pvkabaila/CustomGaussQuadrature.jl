@@ -615,6 +615,11 @@ end
 # with scale parameter λ = 1 and shape parameter k 
 # (k > 0)
 
+# To include a plot pane within the VS code editor window,
+# open the command palette with Ctrl + Shift + P
+# and enter the command
+# Julia: Enable Plot Pane
+
 x_vec = nodes_Double64;
 prob_vec = weights_Double64;
 x_lo = 0.0;
