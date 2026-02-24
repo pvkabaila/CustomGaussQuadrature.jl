@@ -631,11 +631,13 @@ plot!(x_grid, y_grid,
 title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
  titlefont=font(10))
 
-
+println("\n", "------------------------------------------------------")
 #****************************************************
 #  Test of gauss_quad_stjieltjes_scr.jl
-#****************************************************
+#***************************************************
+println("Test gauss_quad_stjieltjes_scr.jl") 
 # Final values of a_vec and b_vec
+println("Final values of a_vec and b_vec", "\n") 
 
 println("moment_fn = moment_stored_fn;")
 moment_fn = moment_stored_fn;
@@ -664,7 +666,9 @@ println("maximum(abs.(stjieltjes_a_vec - a_vec)) = ", convert(Float64, max_abs_d
 max_abs_rel_diff_b_vec = maximum(abs.((stjieltjes_b_vec - b_vec) ./ b_vec));
 println("maximum(abs.((stjieltjes_b_vec - b_vec) ./ b_vec)) = ", convert(Float64, max_abs_rel_diff_b_vec))
 
+println("\n") 
 # nodes and weights
+println("nodes and weights", "\n") 
 
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
@@ -681,7 +685,7 @@ convert(Float64, maximum(abs.((stjieltjes_weights - weights) ./ weights))))
 stjieltjes_nodes = convert(Vector{Float64}, stjieltjes_nodes);
 stjieltjes_weights = convert(Vector{Float64}, stjieltjes_weights);
 # println(" ")
-@printf "           stjieltjes_nodes             stjieltjes_weights"
+println("           stjieltjes_nodes             stjieltjes_weights")
 for i in 1:lastindex(stjieltjes_nodes)
     @printf "%2d     " i
     @printf "%.16e     " stjieltjes_nodes[i]
@@ -819,7 +823,8 @@ stjieltjes_weights_bf = convert(Vector{BigFloat}, stjieltjes_weights);
 #---------------------------------------------------------------------------
 # Print the nodes and weights in the same format as that used in Table 2.2
 # of Gautschi (1983)
-@printf "       stjieltjes_nodes_bf        stjieltjes_weights_bf"
+
+println("       stjieltjes_nodes_bf        stjieltjes_weights_bf")
 for i in 1:n
     @printf "%2d     " i
     @printf "%.15e     " stjieltjes_nodes_bf[i]
@@ -832,7 +837,7 @@ stjieltjes_weights_Float64 = convert(Vector{Float64}, stjieltjes_weights);
 #---------------------------------------------------------------------------
 # Print the nodes and weights in the same format as that used in Table 2.2
 # of Gautschi (1983)
-@printf "       stjieltjes_nodes_Float64   stjieltjes_weights_Float64"
+println("       stjieltjes_nodes_Float64   stjieltjes_weights_Float64")
 for i in 1:n
     @printf "%2d     " i
     @printf "%.15e     " stjieltjes_nodes_Float64[i]
@@ -868,7 +873,7 @@ stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltje
 
 
 nodes_BigFloat, weights_BigFloat = hermite(BigFloat, n);
-@printf "                nodes_BigFloat                         weights_BigFloat"
+println("                nodes_BigFloat                         weights_BigFloat")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes_BigFloat[i]
@@ -925,7 +930,7 @@ println("r = ", r)
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
 
-@printf "                nodes_BigFloat                         weights_BigFloat"
+println("                nodes_BigFloat                         weights_BigFloat")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes_BigFloat[i]
@@ -940,7 +945,7 @@ end
 # BigFloat, before printing using @printf.
 stjieltjes_nodes_bf = convert(Vector{BigFloat}, stjieltjes_nodes);
 stjieltjes_weights_bf = convert(Vector{BigFloat}, stjieltjes_weights);
-@printf "             stjieltjes_nodes_bf                             stjieltjes_weights_bf"
+println("             stjieltjes_nodes_bf                             stjieltjes_weights_bf")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " stjieltjes_nodes_bf[i]
