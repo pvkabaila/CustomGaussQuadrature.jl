@@ -6,11 +6,34 @@
 # RESEARCH - NUMERICAL METHODS/QUADRATURE - Custom Gauss/
 # CustomGaussQuadrature - Julia package/CustomGaussQuadrature
 
-# Make this file active and execute it in REPL.
-# Then copy the output at the REPL into a 
-# Notepad++ text document. Do NOT execute this 
+# The latest version of my Julia package CustomGaussQuadrature is in the folder:
+# \RESEARCH - NUMERICAL METHODS\QUADRATURE\Custom GAUSS\CustomGaussQuadrature - Julia package\
+# CustomGaussQuadrature\
+
+# To run the code in this package, the first step in VS code is 
+# File > Open Folder... > open the above folder
+
+# Use CTRL + Shift + P to get to the Command Palette in VS code and choose
+# Julia: Start REPL
+# to start the Julia REPL.
+
+# Use 
+# Go to package mode by typing ]
+# Activate the package environment by running the 
+# activate . command
+# to activate the package. Exit package mode using Ctrl + C
+
+# Then use the following command to run this script:
+# julia> include("test/test_CustomGaussQuadrature_Stjieltjes_scr.jl")
+
+# Copy the output at the REPL into a 
+# text document. Do NOT execute this 
 # code line-by-line in the REPL, as this introduces
 # ugly extra spaces.
+
+# Have a look at the README.md file by opening this file in VS code and then using
+# CTRL + K      V 
+# to get a preview of this file.
 
 using CustomGaussQuadrature
 # This script tests the version on my computer, not the
@@ -21,6 +44,94 @@ using Printf
 using Plots
 using GaussQuadrature
 using SpecialFunctions
+using QuadGK
+using DoubleFloats
+
+
+# First try older method known to work
+
+m = 160;
+which_f = ["scaled chi pdf", [0,Inf], m];
+lnf_fn = x -> ln_scaled_chi_pdf_fn(T, x, m);
+
+moment_fn = moment_stored_fn
+
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
+n = 5;
+
+stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits = 
+stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, which_f);
+
+a_vec, b_vec, μ₀, nbits = 
+step1_fn(moment_fn, which_f, n);
+
+# nodes and weights
+
+stjieltjes_nodes, stjieltjes_weights = 
+stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, which_f);
+
+nodes, weights = 
+custom_gauss_quad_all_fn(moment_fn, which_f, n);
+
+
+
+
+
+# Now try a new approach
+
+
+
+
+# Check assertion error
+x = convert(Double64, -2)
+x ≥ 0
+
+function silly(which_f, x)
+if which_f[1] == "scaled chi pdf"
+    @assert x ≥ 0
+elseif which_f[1] == "silly"
+    @assert x > -1
+end
+x^2
+end
+
+
+which_f = ["silly", [0,Inf]];
+x = convert(Double64, -2)
+silly(which_f, x)
+
+#-------------------------------------------------------------
+# Check rules for broadcasting in nodes_lnweights_support_fn
+#
+
+lnf_fn = lnf_stored_fn
+
+m = 160;
+which_f = ["scaled chi pdf", [0,Inf], m];
+println("scaled chi pdf weight function, with m = ", m)
+T = BigFloat
+a, b = which_f[2]
+T_a = parse(T, string(a))
+T_b = parse(T, string(b))
+r = 400
+if T == Float64
+    y, w = gausslegendre(r)
+else
+    y, w = gauss(T, r)
+end
+y, w = gauss(T, r)
+
+y
+w
+nodes_support = ϕ_fn.(T, y, T_a, T_b) 
+log.(w)
+ln_ϕ′_fn.(T, y, T_a, T_b)
+lnf_vec = zeros(T, r)
+for i in 1:r
+    lnf_vec[i] = lnf_fn(T, which_f, nodes_support[i])
+end
+lnf_vec
+lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, T_a, T_b) + lnf_vec 
 
 
 #****************************************************
@@ -32,6 +143,7 @@ m = 160;
 println("scaled chi pdf weight function, with m = ", m)
 which_f = ["scaled chi pdf", [0,Inf], m];
 moment_fn = moment_stored_fn
+T = BigFloat
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 n = 5;
 println("number of Gauss quadrature nodes n = ", n)
