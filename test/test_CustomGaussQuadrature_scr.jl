@@ -633,6 +633,9 @@ title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
 #****************************************************
 # Final values of a_vec and b_vec
 
+println("moment_fn = moment_stored_fn;")
+moment_fn = moment_stored_fn;
+
 m = 160;
 lnf_fn = x -> ln_scaled_chi_pdf_fn(T, x, m);
 println("scaled chi pdf weight function, with m = ", m)
