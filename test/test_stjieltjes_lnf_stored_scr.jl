@@ -35,7 +35,8 @@ println("on my computer, not the version in the Julia General Registry.")
 
 using CustomGaussQuadrature
 # This script tests the version on my computer, not the
-# version in the Julia General Registry. 
+# version in the Julia General Registry. See path.
+pathof(CustomGaussQuadrature)
 
 using Printf
 using Plots
