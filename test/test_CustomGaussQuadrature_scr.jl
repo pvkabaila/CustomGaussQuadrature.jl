@@ -558,7 +558,8 @@ println("max_abs_rel_error_weights = ", max_abs_rel_error_weights)
 # moment_fn = moment_weibull_pdf_fn
 ###################################################
 println("\n", "------------------------------------------------------")
-println("Test the idea using the Weibull pdf, with scale parameter 1")
+println("Try out using a new weight function, namely,") 
+println("the Weibull pdf, with scale parameter 1")
 println("and shape parameter k > 0, weight function")
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
@@ -582,9 +583,7 @@ k = 2.0;
 which_f = ["weibull pdf", [0, Inf], k];
 println("which_f = ", which_f, ",  k=", k, "\n")
 
-#---------------------------------------------------------------
-println("\n", "------------------------------------------------------")
-n= 63;
+n = 63;
 println("n = ", n, "\n")
 
 println("@time nodes_Double64, weights_Double64 = ")
