@@ -291,7 +291,7 @@ Gautschi (1983), using the `printf` function from the package `Printf`.
     nodes, weights = custom_gauss_quad_all_fn(which_f, n);  
     nodes = convert(Vector{BigFloat}, nodes);
     weights = convert(Vector{BigFloat}, weights);
-    @printf "              nodes                     weights"
+    println("              nodes                     weights")
     for i in 1:n
         @printf "%2d     " i
         @printf "%.15e     " nodes[i]
@@ -485,7 +485,7 @@ Convert these nodes and weights to `Float64` vectors using
 
 Print these out in the same format as in **Example 1** using
 
-	@printf "           stjieltjes_nodes             stjieltjes_weights"
+	println("           stjieltjes_nodes             stjieltjes_weights")
 	for i in 1:lastindex(stjieltjes_nodes)
     	@printf "%2d     " i
     	@printf "%.16e     " stjieltjes_nodes[i]
