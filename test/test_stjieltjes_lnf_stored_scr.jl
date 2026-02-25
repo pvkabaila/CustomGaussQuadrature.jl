@@ -1,22 +1,67 @@
+# The latest version of my Julia package CustomGaussQuadrature is in the folder:
+# \RESEARCH - NUMERICAL METHODS\QUADRATURE\Custom GAUSS\CustomGaussQuadrature - Julia package\
+# CustomGaussQuadrature\
+
+# This script tests the version on my computer, not the
+# version in the Julia General Registry.
+
+# To run the code in this package, the first step in VS code is 
+# File > Open Folder... > open the above folder
+
+# Use CTRL + Shift + P to get to the Command Palette in VS code and choose
+# Julia: Start REPL
+# to start the Julia REPL.
+
+# Use 
+# Go to package mode by typing ]
+# Activate the package environment by running the 
+# activate . command
+# to activate the package. Exit package mode using Ctrl + C
+
+# Then use the following command to run this script:
+# julia> include("test/test_CustomGaussQuadrature_scr.jl")
+
+# Copy the output at the REPL into a 
+# text document. Do NOT execute this 
+# code line-by-line in the REPL, as this introduces
+# ugly extra spaces.
+
+# Have a look at the README.md file by opening this file in VS code and then using
+# CTRL + K      V 
+# to get a preview of this file.
+
+println("Test of the version of the CustomGaussQuadrature package")
+println("on my computer, not the version in the Julia General Registry.")
 
 using CustomGaussQuadrature
+# This script tests the version on my computer, not the
+# version in the Julia General Registry. 
+
 using Printf
 using Plots
 using GaussQuadrature
 using SpecialFunctions
 
-
+println("\n", "------------------------------------------------------")
+#-------------------------------
+# scaled chi pdf weight function
+#-------------------------------
 
 m = 160;
 which_f = ["scaled chi pdf", [0,Inf], m];
 n = 33;
 
+println("which_f = ", which_f)
+println("n = ", n, "\n")
 
 #  @__DIR__ gives the folder of the file currently being executed
 #  .. = parent folder (package root),
 #  then into src,
 #  then to stjieltjes_lnf_stored_scr.jl
 include(joinpath(@__DIR__, "..", "src", "stjieltjes_lnf_stored_scr.jl"));
+
+# Once the package has been activated, one uses 
+# include("src/stjieltjes_lnf_stored_scr.jl");
 
 #-----------------------------------------------------------------
 # Compare nodes and weight obtained using the Stjieltjes procedure
@@ -37,10 +82,17 @@ for i in 1:lastindex(diff_nodes)
     @printf "%.16e  \n" rel_diff_weights[i]
 end
 
-
+println("\n", "------------------------------------------------------")
+#-------------------------------
+# Hermite weight function
+#-------------------------------
 
 which_f = ["Hermite", [-Inf,Inf]];
 n = 10;
+
+println("which_f = ", which_f)
+println("n = ", n, "\n")
+
 #  @__DIR__ gives the folder of the file currently being executed
 #  .. = parent folder (package root),
 #  then into src,
