@@ -614,6 +614,7 @@ end
 # (k > 0)
 
 # To include a plot pane within the VS code editor window,
+# when one is entering commands at the Julia REPL,
 # open the command palette with Ctrl + Shift + P
 # and enter the command
 # Julia: Enable Plot Pane
