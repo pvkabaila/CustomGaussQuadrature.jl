@@ -2,10 +2,6 @@
 # for computing the Gauss rule using the Stjieltjes
 # procedure.
 
-# The path to this package is the following:
-# RESEARCH - NUMERICAL METHODS/QUADRATURE - Custom Gauss/
-# CustomGaussQuadrature - Julia package/CustomGaussQuadrature
-
 # The latest version of my Julia package CustomGaussQuadrature is in the folder:
 # \RESEARCH - NUMERICAL METHODS\QUADRATURE\Custom GAUSS\CustomGaussQuadrature - Julia package\
 # CustomGaussQuadrature\
@@ -351,7 +347,7 @@ println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function custom_gauss_quad_all_fn
 # Legendre
-nwhich_f = ["Legendre", [-1, 1]];
+which_f = ["Legendre", [-1, 1]];
 println("which_f = ", which_f, "\n")
 
 n= 5;
@@ -635,7 +631,7 @@ println("\n", "------------------------------------------------------")
 #****************************************************
 #  Test of gauss_quad_stjieltjes_scr.jl
 #***************************************************
-println("Test gauss_quad_stjieltjes_scr.jl") 
+println("Test gauss_quad_stjieltjes_scr.jl", "\n") 
 # Final values of a_vec and b_vec
 println("Final values of a_vec and b_vec", "\n") 
 
@@ -675,16 +671,17 @@ stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltje
 
 @time "custom_gauss_quad_all_fn" nodes, weights = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n);
-
+print("\n")
 
 println("maximum(abs.(stjieltjes_nodes - nodes) = ", 
 convert(Float64, maximum(abs.(stjieltjes_nodes - nodes))))
 println("maximum(abs.((stjieltjes_weights - weights) ./ weights) = ", 
 convert(Float64, maximum(abs.((stjieltjes_weights - weights) ./ weights))))
+print("\n")
 
 stjieltjes_nodes = convert(Vector{Float64}, stjieltjes_nodes);
 stjieltjes_weights = convert(Vector{Float64}, stjieltjes_weights);
-# println(" ")
+
 println("           stjieltjes_nodes             stjieltjes_weights")
 for i in 1:lastindex(stjieltjes_nodes)
     @printf "%2d     " i
@@ -692,10 +689,16 @@ for i in 1:lastindex(stjieltjes_nodes)
     @printf "%.16e  \n" stjieltjes_weights[i]
 end
 
-#------------------------------
+println("\n", "------------------------------------------------------")
+#-----------------------------------------
+# Test stjieltjes_custom_gauss_quad_all_fn
+# with upto_n = true
+#-----------------------------------------
+println("Test stjieltjes_custom_gauss_quad_all_fn")
+println("with upto_n = true", "\n")
 
 upto_n = true;
-println("upto_n = ", upto_n)
+println("upto_n = ", upto_n, "\n")
 
 T = BigFloat;
 a = convert(T,0);
@@ -703,9 +706,10 @@ b = Inf;
 
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes_upto_n, stjieltjes_weights_upto_n = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b, upto_n);
-
+print("\n")
 @time "custom_gauss_quad_all_fn" nodes_upto_n, weights_upto_n = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n);
+print("\n")
 
 max_abs_diff_nodes = zeros(n);
 for q in 1:n
@@ -718,7 +722,7 @@ for q in 1:n
     max_abs_reldiff_weights[q] = 
     maximum(abs.((stjieltjes_nodes_upto_n[q] - nodes_upto_n[q]) ./ nodes_upto_n[q]));
 end
-println("maximum(max_abs_reldiff_weights) = ", maximum(max_abs_reldiff_weights))
+println("maximum(max_abs_reldiff_weights) = ", maximum(max_abs_reldiff_weights), "\n")
 
 #---------------------------------------------------------
 # Conversion of nodes_upto_n into a vector of Float64 vectors
@@ -728,8 +732,8 @@ nodes_upto_n_Float64[1] = [convert(Float64, nodes_upto_n[1])];
 for q in 2:n
     nodes_upto_n_Float64[q] = convert(Vector{Float64}, nodes_upto_n[q]);
 end
-println("nodes_upto_n_Float64")
-nodes_upto_n_Float64
+# println("nodes_upto_n_Float64")
+# nodes_upto_n_Float64
 
 #---------------------------------------------------------
 # Conversion of stjieltjes_nodes_upto_n into a vector of Float64 vectors
@@ -739,11 +743,12 @@ stjieltjes_nodes_upto_n_Float64[1] = [convert(Float64, stjieltjes_nodes_upto_n[1
 for q in 2:n
     stjieltjes_nodes_upto_n_Float64[q] = convert(Vector{Float64}, stjieltjes_nodes_upto_n[q]);
 end
-println("stjieltjes_nodes_upto_n_Float64")
-stjieltjes_nodes_upto_n_Float64
+# println("stjieltjes_nodes_upto_n_Float64")
+# stjieltjes_nodes_upto_n_Float64
 
-@printf "stjieltjes_nodes_upto_n_Float64 .- nodes_upto_n_Float64"
+println("stjieltjes_nodes_upto_n_Float64 .- nodes_upto_n_Float64")
 show(stdout, "text/plain", stjieltjes_nodes_upto_n_Float64 .- nodes_upto_n_Float64)
+println("\n")
 
 #---------------------------------------------------------
 # Conversion of weights_upto_n into a vector of Float64 vectors
@@ -753,8 +758,8 @@ weights_upto_n_Float64[1] = [convert(Float64, weights_upto_n[1])];
 for q in 2:n
     weights_upto_n_Float64[q] = convert(Vector{Float64}, weights_upto_n[q]);
 end
-println("weights_upto_n_Float64")
-weights_upto_n_Float64
+# println("weights_upto_n_Float64")
+# weights_upto_n_Float64
 
 
 #---------------------------------------------------------
@@ -765,31 +770,18 @@ stjieltjes_weights_upto_n_Float64[1] = [convert(Float64, stjieltjes_weights_upto
 for q in 2:n
     stjieltjes_weights_upto_n_Float64[q] = convert(Vector{Float64}, stjieltjes_weights_upto_n[q]);
 end
-println("stjieltjes_weights_upto_n_Float64")
-stjieltjes_weights_upto_n_Float64
+# println("stjieltjes_weights_upto_n_Float64")
+# stjieltjes_weights_upto_n_Float64
 
-@printf "stjieltjes_weights_upto_n_Float64 .- weights_upto_n_Float64"
+println("stjieltjes_weights_upto_n_Float64 .- weights_upto_n_Float64")
 show(stdout, "text/plain", stjieltjes_weights_upto_n_Float64 .- weights_upto_n_Float64)
 
-
-#--------------------------------------------------
-# Convert nodes and weights to Vector{Float64} and Vector{Float64},
-# respectively.
-# Convert stjieltjes_nodes and stjieltjes_weights to Vector{Float64}
-# and Vector{Float64}, respectively
-
-nodes_Float64 = convert(Vector{Float64}, nodes);
-weights_Float64 = convert(Vector{Float64}, weights);
-
-stjieltjes_nodes_Float64 = convert(Vector{Float64}, nodes);
-stjieltjes_weights_Float64 = convert(Vector{Float64}, weights);
-
-show(stdout, "text/plain", stjieltjes_weights_Float64 - weights_Float64)
 
 println("\n", "------------------------------------------------------")
 #--------------------------------------------------
 # The weight function considered by Gautschi (1983)
-println("The weight function considered by Gautschi (1983)")
+println("The weight function considered by Gautschi (1983).")
+println("In other words, the chemistry example weight function.", "\n")
 
 n = 15;
 println("number of Gauss quadrature nodes n = ", n)
@@ -798,7 +790,6 @@ which_f = ["chemistry example", [0, Inf]];
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 lnf_fn = x -> lnf_chemistry_fn(T, x);
-println("chemistry example weight function")
 T = BigFloat;
 a = convert(T,0);
 b = Inf;
@@ -807,10 +798,12 @@ which_f = ["chemistry example", [0, Inf]];
 T = BigFloat;
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
+print("\n")
 @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
+print("\n")
 
 # Beware!
 # If @printf is applied to a Double64 number then it
@@ -825,7 +818,7 @@ stjieltjes_weights_bf = convert(Vector{BigFloat}, stjieltjes_weights);
 # Print the nodes and weights in the same format as that used in Table 2.2
 # of Gautschi (1983)
 println("Print the nodes and weights in the same format as that used in")
-println("Table 2.2 of Gautschi (1983):")
+println("Table 2.2 of Gautschi (1983):", "\n")
 
 println("       stjieltjes_nodes_bf        stjieltjes_weights_bf")
 for i in 1:n
@@ -861,11 +854,10 @@ println("Hermite weight function")
 setprecision(BigFloat, 256, base=2);
  
 n = 15;
-println("number of Gauss quadrature nodes n = ", n)
+println("number of Gauss quadrature nodes n = ", n, "\n")
 
 which_f = ["Hermite", [-Inf, Inf]];
 lnf_fn = lnf_hermite_fn;
-println("Hermite weight function")
 a = -Inf;
 b = Inf;
 T = BigFloat;
@@ -873,13 +865,13 @@ T = BigFloat;
 
 @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-println("r = ", r)
+println("r = ", r, "\n")
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
 
 
 nodes_BigFloat, weights_BigFloat = hermite(BigFloat, n);
-println("                nodes_BigFloat                         weights_BigFloat")
+println("\n", "                nodes_BigFloat                         weights_BigFloat")
 for i in 1:n
     @printf "%2d   " i
     @printf "%.33e   " nodes_BigFloat[i]
@@ -902,7 +894,7 @@ for i in 1:n
     @printf "%.33e  \n" stjieltjes_weights_bf[i]
 end
 
-
+print("\n")
 max_abs_error_nodes = maximum(abs.(stjieltjes_nodes_bf - nodes_BigFloat));
 println("maximum(abs.(stjieltjes_nodes_bf - nodes_BigFloat)) = ", convert(Float64, max_abs_error_nodes))
 
@@ -914,7 +906,7 @@ println("\n", "------------------------------------------------------")
 #------------------------------------------------
 # Test the function stjieltjes_custom_gauss_quad_all_fn
 # Generalized Laguerre
-println("Generalized Laguerre weight function")
+println("Generalized Laguerre weight function", "\n")
 
 setprecision(BigFloat, 256, base=2);
 n= 15;
@@ -925,7 +917,7 @@ T = BigFloat;
 which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
 a = convert(T,0);
 b = Inf;
-println("Generalized Laguerre, with α = ", α)
+println("Generalized Laguerre, with α = ", α, "\n")
 lnf_fn = x -> lnf_laguerre_fn(x, α);
 
 nodes_BigFloat, weights_BigFloat = laguerre(n, α);
@@ -933,11 +925,12 @@ nodes_BigFloat, weights_BigFloat = laguerre(n, α);
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1); 
 @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-println("r = ", r)
+println("r = ", r, "\n")
 
 @time "stjieltjes_custom_gauss_quad_all_fn" stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
 
+print("\n")
 println("                nodes_BigFloat                         weights_BigFloat")
 for i in 1:n
     @printf "%2d   " i
@@ -960,6 +953,7 @@ for i in 1:n
     @printf "%.33e   " stjieltjes_nodes_bf[i]
     @printf "%.33e  \n" stjieltjes_weights_bf[i]
 end
+print("\n")
 
 max_abs_error_nodes = maximum(abs.(stjieltjes_nodes_bf - nodes_BigFloat));
 println("maximum(abs.(stjieltjes_nodes_bf - nodes_BigFloat)) = ", convert(Float64, max_abs_error_nodes))
