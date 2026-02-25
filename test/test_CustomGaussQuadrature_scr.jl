@@ -53,8 +53,11 @@ using DoubleFloats
 # in my R code.
 
 println("Test of the version of the CustomGaussQuadrature package")
-println("on my computer, not the version in the Julia General Registry.")
-println(" ")
+println("on my computer, not the version in the Julia General Registry.", "\n")
+
+println("------------------------------------------------------")
+println("Test the moment determinants method")
+println("------------------------------------------------------", "\n")
 
 println("moment_fn = moment_stored_fn;")
 moment_fn = moment_stored_fn;
@@ -628,6 +631,8 @@ title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
  titlefont=font(10))
 
 println("\n", "------------------------------------------------------")
+println("Test the Stjieltjes procedure method")
+println("------------------------------------------------------", "\n")
 #****************************************************
 #  Test of gauss_quad_stjieltjes_scr.jl
 #***************************************************
