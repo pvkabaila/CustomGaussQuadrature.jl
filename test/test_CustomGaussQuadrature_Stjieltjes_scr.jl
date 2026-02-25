@@ -2,10 +2,6 @@
 # for computing the Gauss rule using the Stjieltjes
 # procedure.
 
-# The path to this package is the following:
-# RESEARCH - NUMERICAL METHODS/QUADRATURE - Custom Gauss/
-# CustomGaussQuadrature - Julia package/CustomGaussQuadrature
-
 # The latest version of my Julia package CustomGaussQuadrature is in the folder:
 # \RESEARCH - NUMERICAL METHODS\QUADRATURE\Custom GAUSS\CustomGaussQuadrature - Julia package\
 # CustomGaussQuadrature\
