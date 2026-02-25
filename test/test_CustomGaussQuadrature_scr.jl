@@ -6,6 +6,9 @@
 # \RESEARCH - NUMERICAL METHODS\QUADRATURE\Custom GAUSS\CustomGaussQuadrature - Julia package\
 # CustomGaussQuadrature\
 
+# This script tests the version on my computer, not the
+# version in the Julia General Registry.
+
 # To run the code in this package, the first step in VS code is 
 # File > Open Folder... > open the above folder
 
