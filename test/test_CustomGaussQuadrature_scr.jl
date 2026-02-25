@@ -614,7 +614,6 @@ end
 # (k > 0)
 
 # To include a plot pane within the VS code editor window,
-# when one is entering commands at the Julia REPL,
 # open the command palette with Ctrl + Shift + P
 # and enter the command
 # Julia: Enable Plot Pane
@@ -623,12 +622,13 @@ x_vec = nodes_Double64;
 prob_vec = weights_Double64;
 x_lo = 0.0;
 x_hi = 2.5;
-plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi) 
+p = plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi) 
 x_grid = range(x_lo, x_hi, length=200);
 y_grid = weibull_cdf_fn.(x_grid, k);
 plot!(x_grid, y_grid, 
 title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
  titlefont=font(10))
+display(p)
 
 println("\n", "------------------------------------------------------")
 println("Test the Stjieltjes procedure method")
