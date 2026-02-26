@@ -94,17 +94,25 @@ n = 10;
 println("which_f = ", which_f)
 println("n = ", n, "\n")
 
-#  @__DIR__ gives the folder of the file currently being executed
-#  .. = parent folder (package root),
-#  then into src,
+#  @__DIR__   gives the folder of the file currently being executed
+#  ..         takes us up one directory to the parent directory of this folder
+#  src        takes us into the src folder
 #  then to stjieltjes_lnf_stored_scr.jl
-include(joinpath(@__DIR__, "..", "src", "stjieltjes_lnf_stored_scr.jl"));
-#-----------------------------------------------------------------
-# Compare nodes and weight obtained using the Stjieltjes procedure
-# with those obtained using moment determinants
 
+#  The following command results in values for 
+#  stjieltjes_nodes and stjieltjes_weights
+
+include(joinpath(@__DIR__, "..", "src", "stjieltjes_lnf_stored_scr.jl"));
+
+#-----------------------------------------------------------------
+# Compute the custom Gauss quadrature nodes and weights
+# using the moment determinant method
+moment_fn = moment_weibull_pdf_fn
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
+# Compare the nodes and weights computed by the Stjieltjes
+# procedure with the nodes and weights computed using the
+# moment determinant method
 diff_nodes = stjieltjes_nodes - nodes;
 rel_diff_weights = (stjieltjes_weights - weights) ./ weights;
 
