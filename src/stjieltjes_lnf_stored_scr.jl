@@ -67,7 +67,7 @@ elseif which_f[1] == "Generalized Laguerre"
     l_endpt, u_endpt = which_f[2];
     T_l_endpt = parse(T, string(l_endpt));
     T_u_endpt = parse(T, string(u_endpt)); 
-  elseif which_f[1] ==  "chemistry example"
+elseif which_f[1] ==  "chemistry example"
     moment_fn = moment_stored_fn;
     lnf_fn = x -> lnf_chemistry_fn(T, x);
     T = BigFloat;
@@ -85,6 +85,6 @@ a = T_l_endpt;
 b = T_u_endpt;
 stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
 stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-# println("r = ", r)
+println("r = ", r)
 stjieltjes_nodes, stjieltjes_weights = 
 stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
