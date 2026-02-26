@@ -102,13 +102,14 @@ lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x);
 μ₀, μ₁ = μ₀_μ₁_weibull_pdf_fn(T, which_f);
 
 
-#  @__DIR__ gives the folder of the file currently being executed
-#  .. = parent folder (package root),
-#  then into src,
+#  @__DIR__   gives the folder of the file currently being executed
+#  ..         takes us up one directory to the parent directory of this folder
+#  src        takes us into the src folder
 #  then to stjieltjes_lnf_stored_scr.jl
 
 #  The following command results in values for 
 #  stjieltjes_nodes and stjieltjes_weights
+
 include(joinpath(@__DIR__, "..", "src", "stjieltjes_lnf_new_scr.jl"));
 
 using SpecialFunctions
