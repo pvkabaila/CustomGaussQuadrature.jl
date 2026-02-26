@@ -19,7 +19,7 @@
 # to activate the package. Exit package mode using Ctrl + C
 
 # Then use the following command to run this script:
-# julia> include("test/test_CustomGaussQuadrature_scr.jl")
+# julia> include("test/test_stjieltjes_lnf_stored_scr.jl")
 
 # Copy the output at the REPL into a 
 # text document. Do NOT execute this 
@@ -59,17 +59,17 @@ println("n = ", n, "\n")
 #  .. = parent folder (package root),
 #  then into src,
 #  then to stjieltjes_lnf_stored_scr.jl
+
 include(joinpath(@__DIR__, "..", "src", "stjieltjes_lnf_stored_scr.jl"));
 
-# Once the package has been activated, one uses 
-# include("src/stjieltjes_lnf_stored_scr.jl");
-
 #-----------------------------------------------------------------
-# Compare nodes and weight obtained using the Stjieltjes procedure
-# with those obtained using moment determinants
-
+# Compute the custom Gauss quadrature nodes and weights
+# using the moment determinant method
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
+# Compare the nodes and weights computed by the Stjieltjes
+# procedure with the nodes and weights computed using the
+# moment determinant method
 diff_nodes = stjieltjes_nodes - nodes;
 rel_diff_weights = (stjieltjes_weights - weights) ./ weights;
 
@@ -117,3 +117,6 @@ for i in 1:lastindex(diff_nodes)
 	@printf "%.16e     " diff_nodes[i]
     @printf "%.16e  \n" rel_diff_weights[i]
 end
+
+
+
