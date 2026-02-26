@@ -106,7 +106,7 @@ We require that there is a formula, which can be computed in `BigFloat`
 arithmetic, for the $r$'th moment
 
 $$
-\mu_r = \int_{-\infty}^{\infty} x^r \ f(x) \ dx
+\mu_r = \int_{-\infty}^{\infty} x^k \ f(x) \ dx
 $$
 
 for all nonnegative integers $r \le 2 n - 1$. This formula 
@@ -164,13 +164,18 @@ This weight function is considered by Gautschi (1983) and is identified by
 
 The first component is the name given to $f$ and the second component is the support interval of $f$ specified by a 2-vector of the endpoints.
 
-### The inputs to `custom_gauss_quad_all_fn`
+### **The inputs to `custom_gauss_quad_all_fn`**
 
-This function has the following inputs:
+Suppose that we want to compute the custom Gauss quadrature rule with n nodes for the weight function specified by `which_f`. The function `custom_gauss_quad_all_fn` does this by carrying out both 
+**Step 1** and **Step 2**. It has the following inputs:
 - `moment_fn`
+- `which_f`
+- `n`
 
-has inputs `T` (Floating Point type), `which_f` and `r` (moment order) and is obtained as follows.
+The function `moment_fn` which has inputs `T` (Floating Point type), `which_f` and `r` (moment order). It computes the `r`'th moment for the weight function specified by `which_f`.
+
 For any of the following which_f's 
+
 
 which_f = ["scaled chi pdf", [0,Inf], m]\
 which_f = ["chemistry example", [0, Inf]]\
@@ -178,12 +183,95 @@ which_f = ["Hermite", [-Inf, Inf]]\
 which_f = ["Generalized Laguerre", [0, Inf], α_GGL]\
 which_f = ["Legendre", [-1, 1]],
 
-say which_f = ["scaled chi pdf", [0,Inf], m],
+we proceed as illustrated by the following two examples.
+
+<!--say which_f = ["scaled chi pdf", [0,Inf], m],
 we assign the value of positive integer parameter m and then use
 ```julia
 	which_f = ["scaled chi pdf", [0,Inf], m]
 	moment_fn = moment_stored_fn
-```
+-->
+
+
+### **Example 1** 
+
+Consider the weight function specified by
+
+    which_f = ["scaled chi pdf", [0,Inf], m]
+
+for some assigned value of the positive integer parameter $m$. 
+
+For this weight function, the $r$'th moment is 
+
+$$
+	\left(\frac{2}{m} \right)^{r/2}
+	\frac{\Gamma\big((r+m)/2\big)}{\Gamma(m/2)}
+    = \exp \left(\frac{r}{2} \log\left(\frac{2}{m} \right)  +
+    \log \Gamma \left(\frac{r+m}{2}\right) 
+    - \log \Gamma \left(\frac{m}{2}\right) \right)
+$$
+
+for $r = 0, 1, 2, \dots$.
+This formula has been implemented in the function `moment_stored_fn`.
+The following commands compute the nodes and weights, as 
+`Double64` vectors for a 5-point Gauss quadrature rule. This is followed by conversion to 
+`Float64` vectors and printing using  using the `printf` function from the package `Printf`.
+
+    using CustomGaussQuadrature
+	which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
+	moment_fn = moment_stored_fn;
+    n = 5;
+    nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+    nodes = convert(Vector{Float64}, nodes);
+    weights = convert(Vector{Float64}, nodes);
+    println("              nodes                     weights")
+    for i in 1:n
+        @printf "%2d     " i
+        @printf "%.16e     " nodes[i]
+        @printf "%.16e  \n" weights[i]
+    end
+
+
+### **Example 2**
+Consider the weight function identified by
+
+    which_f = ["chemistry example", [0,Inf], k]
+
+for some assigned value of the positive parameter k. 
+
+For this weight function, the $r$'th moment is 
+
+$$
+	3^{(r - 2) / 3}  \ \Gamma\big((r + 1) / 3\big)
+$$
+
+for $r = 0, 1, 2, \dots$.
+This formula has been implemented in the function `moment_stored_fn`.
+
+
+The following commands compute the nodes and weights, as 
+`Double64` vectors for a 15-point Gauss quadrature rule. This is followed by printing these nodes and weights in the same format as Table 2.2 of 
+Gautschi (1983), using the `printf` function from the package `Printf`.
+
+    using CustomGaussQuadrature
+    which_f = ["chemistry example", [0, Inf]]::Vector{Any}
+	moment_fn = moment_stored_fn;
+    n= 15;
+    nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);  
+    nodes = convert(Vector{BigFloat}, nodes);
+    weights = convert(Vector{BigFloat}, weights);
+    println("              nodes                     weights")
+    for i in 1:n
+        @printf "%2d     " i
+        @printf "%.15e     " nodes[i]
+        @printf "%.15e  \n" weights[i]
+    end
+
+These results agree with Table 2.2 of 
+Gautschi (1983).
+
+###?????###
+
 If, on the other hand, we want to specify a new weight function, say the Weibull pdf with 
 shape parameter k > 0 and scale parameter λ set to 1, then we proceed
 as follows. Identify this new weight function by
@@ -223,83 +311,6 @@ Then use
 
 For `custom_gauss_quad_all_fn` the outputs are `nodes` and `weights`  in the form of `Double64` vectors (from the package `DoubleFloats`).
 
-
-### **Example 1** 
-
-Consider the weight function specified by
-
-    which_f = ["scaled chi pdf", [0,Inf], m]
-
-for some assigned value of the positive integer parameter $m$. 
-
-For this weight function, the $r$'th moment is 
-
-$$
-	\left(\frac{2}{m} \right)^{r/2}
-	\frac{\Gamma\big((r+m)/2\big)}{\Gamma(m/2)}
-    = \exp \left(\frac{r}{2} \log\left(\frac{2}{m} \right)  +
-    \log \Gamma \left(\frac{r+m}{2}\right) 
-    - \log \Gamma \left(\frac{m}{2}\right) \right)
-$$
-
-for $r = 0, 1, 2, \dots$.
-This formula has been implemented in the function `moment_stored_fn`.
-The following commands compute the nodes and weights, as 
-`Double64` vectors for a 5-point Gauss quadrature rule. This is followed by conversion to 
-`Float64` vectors and printing using  using the `printf` function from the package `Printf`.
-
-    using CustomGaussQuadrature
-	which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
-	moment_fn = moment_stored_fn;
-    n = 5;
-    nodes, weights = custom_gauss_quad_all_fn(which_f, n);
-    nodes = convert(Vector{Float64}, nodes);
-    weights = convert(Vector{Float64}, nodes);
-    println("              nodes                     weights")
-    for i in 1:n
-        @printf "%2d     " i
-        @printf "%.16e     " nodes[i]
-        @printf "%.16e  \n" weights[i]
-    end
-
-
-### **Example 2**
-Consider the weight function identified by
-
-    which_f = ["chemistry example", [0,Inf], k]
-
-for some assigned value of the positive parameter k. 
-
-For this weight function, the $r$'th moment is 
-
-$$
-	3^{(r - 2) / 3}  \ \Gamma\big((r + 1) / 3\big)
-$$
-
-for $r = 0, 1, 2, \dots$.
-This formula has been implemented in the function `moment_stored_fn`.
-
-
-The following commands compute the nodes and weights, as 
-`Double64` vectors for a 15-point Gauss quadrature rule. This is followed by printing these nodes and weights in the same format as Table 2.2 of 
-Gautschi (1983), using the `printf` function from the package `Printf`.
-
-    using CustomGaussQuadrature
-    which_f = ["chemistry example", [0, Inf]]::Vector{Any}
-	moment_fn = moment_stored_fn;
-    n= 15;
-    nodes, weights = custom_gauss_quad_all_fn(which_f, n);  
-    nodes = convert(Vector{BigFloat}, nodes);
-    weights = convert(Vector{BigFloat}, weights);
-    println("              nodes                     weights")
-    for i in 1:n
-        @printf "%2d     " i
-        @printf "%.15e     " nodes[i]
-        @printf "%.15e  \n" weights[i]
-    end
-
-These results agree with Table 2.2 of 
-Gautschi (1983).
 
 
 ## **Computation of the recursion coefficients in the three-term recurrence relation using the Stjieltjes procedure**
@@ -444,15 +455,39 @@ For the "scaled chi pdf" weight function considered in **Example 1**, the graph 
 sufficiently accurate results from the Stjieltjes procedure
 increases rapidly with increasing $m$.  
 
+## **Two Examples**
+
+For any of the following which_f's \
+which_f = ["scaled chi pdf", [0,Inf], m]\
+which_f = ["chemistry example", [0, Inf]]\
+which_f = ["Hermite", [-Inf, Inf]]\
+which_f = ["Generalized Laguerre", [0, Inf], α_GGL]\
+which_f = ["Legendre", [-1, 1]],\
+we use stjieltjes_lnf_stored_scr.jl as illustrated by the 
+following example.
+
 ### **Example 3**
 
-Consider the same weight function as in **Example 1**. 
+Consider the same weight function as in **Example 1**. For this weight function, with positive integer parameter m set to 160 and number of Gauss quadrature nodes n set to 33, we use the following
+to carry out both **Step 1** and **Step 2**
+<!--
 The evaluation of the log-weight function $\log(f(x))$ **has been implemented** in the function `ln_scaled_chi_pdf_fn` which has inputs `T` (Floating Point type), `x` and `m` (positive integer parameter). 
+-->
 
 	using CustomGaussQuadrature
 	m = 160;
-	lnf_fn = x -> ln_scaled_chi_pdf_fn(T, x, m);
+	which_f = ["scaled chi pdf", [0,Inf], m];
+	n = 33;
+	include(joinpath(@__DIR__, "src", "stjieltjes_lnf_stored_scr.jl"));
 
+This results in stjieltjes_nodes and stjieltjes_weights, which are
+the custom Gauss quadrature nodes and weights, respectively, obtained using the Stjieltjes procedure and the number of sampled function values r used in the discrete approximation to the 
+inner product of functions used in this procedure. If r is of interest to us we use
+
+	println("r = ", r)
+
+
+<!--
 This weight function is a probability density function. Therefore $\mu_0 = 1$. There is also a formula for $\mu_1$. We first compute $\mu_0$ and $\mu_1$ using
 
 	T = BigFloat;
@@ -477,8 +512,8 @@ the computation of the Gauss quadrature nodes and weights from the recursion coe
 
 	stjieltjes_nodes, stjieltjes_weights = 
 	stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
-
-Convert these nodes and weights to `Float64` vectors using
+-->
+Convert stjieltjes_nodes and stjieltjes_weights to `Float64` vectors using
 
 	stjieltjes_nodes = convert(Vector{Float64}, stjieltjes_nodes);
 	stjieltjes_weights = convert(Vector{Float64}, stjieltjes_weights);
@@ -491,6 +526,10 @@ Print these out in the same format as in **Example 1** using
     	@printf "%.16e     " stjieltjes_nodes[i]
     @printf "%.16e  \n" stjieltjes_weights[i]
 	end
+
+### **Example 4**
+
+
 
 # Step 2 using the eigenvalues and eigenvectors of the Jacobi matrix
 
