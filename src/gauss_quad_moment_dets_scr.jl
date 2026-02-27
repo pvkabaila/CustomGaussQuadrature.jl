@@ -1,7 +1,7 @@
 # This Julia script is part of the module 
 # CustomGaussQuadrature.jl
 #
-# This script provideds Julia functions to compute 
+# This script provides Julia functions to compute 
 # the Gauss quadrature rule with n nodes using 
 # the following two steps:
 #
@@ -32,17 +32,17 @@
 
 
 """
-moment = moment_stored_fn(T, which_f, r)
+moment = moment_stored_fn(T, which_f, s)
 
-This function computes moment of order r
+This function computes moment of order s
 for the weight function specified by which_f
-The r'th moment is
+The s'th moment is
       ∞
- μᵣ = ∫ xʳ f(x) dx,
+ μₛ = ∫ xˢ f(x) dx,
      −∞
-for any nonnegative integer r. The standard notation
-for this moment is μᵣ′, so the notation μᵣ is not standard.
-However, μᵣ is a convenient notation and accords with that
+for any nonnegative integer s. The standard notation
+for this moment is μₛ′, so the notation μₛ is not standard.
+However, μₛ is a convenient notation and accords with that
 used by 
 Gautschi, W. (2004) Orthogonal Polynomials, 
 Computation and Approximation. Oxford University Press, Oxford.
@@ -61,40 +61,40 @@ This function accepts the following which_f's as inputs:
    which_f = ["chemistry example", [0, Inf]]
    which_f = ["Legendre", [-1, 1]]
 """
-function moment_stored_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
-  @assert r ≥ 0
+function moment_stored_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
+  @assert s ≥ 0
   T_2 = convert(T, 2)
 
   if which_f[1] == "scaled chi pdf"
-    if r == 0
+    if s == 0
         return(convert(T, 1))
     end
     m = which_f[3]
     T_m = convert(T, m)
-    T_r = convert(T, r)
-    term1 = (T_r/T_2) * log(T_2 / T_m)
+    T_s = convert(T, s)
+    term1 = (T_s/T_2) * log(T_2 / T_m)
     # 3 October 2024: loggamma was not recognised
     # but lgamma was. So I used
-    # term2 = lgamma(((T_r + T_m)/T_2)))
+    # term2 = lgamma(((T_s + T_m)/T_2)))
     # term3 = lgamma(T_m/T_2)
     # However, when testing the package 
     # CustomGaussQuadrature on 7 February 2025, 
     # there was a warning that lgammm(x::Real) is
     # deprecated and should be replaced
     # by (logabsgamma(x))[1]
-    term2 = (logabsgamma((T_r + T_m)/T_2))[1]
+    term2 = (logabsgamma((T_s + T_m)/T_2))[1]
     term3 = (logabsgamma(T_m/T_2))[1]
     moment = exp(term1 + term2 - term3)
     return(moment)
 
   elseif which_f[1] == "Hermite"
-    if r == 0
+    if s == 0
         return(sqrt(convert(T, π)))
     end
-    if isodd(r)
+    if isodd(s)
         moment = convert(T, 0)
     else
-        num  = convert(T, r + 1)
+        num  = convert(T, s + 1)
         moment = gamma(num / T_2)
     end 
     return(moment)
@@ -108,16 +108,16 @@ function moment_stored_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloa
     α_GGL = which_f[3]
     @assert α_GGL > -1
     T_α_GGL = parse(T, string(α_GGL))
-    T_rplus1 = convert(T, (r+1))
-    term = T_α_GGL + T_rplus1
+    T_splus1 = convert(T, (s+1))
+    term = T_α_GGL + T_splus1
     moment = gamma(term)
     return(moment)
     
   elseif which_f[1] == "Legendre"
-    if isodd(r)
+    if isodd(s)
         moment = convert(T, 0)
     else
-        denom = convert(T, r + 1)
+        denom = convert(T, s + 1)
         moment = T_2 / denom
     end
     return(moment)
@@ -125,9 +125,9 @@ function moment_stored_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloa
   elseif which_f[1] ==  "chemistry example"
     T_1 = convert(T, 1)
     T_3 = convert(T, 3)
-    T_r = convert(T, r)
-    term1 = T_3^((T_r - T_2) / T_3)
-    term2 = gamma((T_r + T_1) / T_3)
+    T_s = convert(T, s)
+    term1 = T_3^((T_s - T_2) / T_3)
+    term2 = gamma((T_s + T_1) / T_3)
     moment = term1 * term2
     return(moment)
     
@@ -147,13 +147,13 @@ This function places the moments of orders
 0, ... , 2n - 1
 for the weight function specified by which_f
 in an offset vector, whose starting index is 0. 
-The r'th moment is
+The s'th moment is
       ∞
- μᵣ = ∫ xʳ f(x) dx,
+ μₛ = ∫ xˢ f(x) dx,
      −∞
-for any nonnegative integer r. The standard notation
-for this moment is μᵣ′, so the notation μᵣ is not standard.
-However, μᵣ is a convenient notation and accords with that
+for any nonnegative integer s. The standard notation
+for this moment is μₛ′, so the notation μₛ is not standard.
+However, μₛ is a convenient notation and accords with that
 used by 
 Gautschi, W. (2004) Orthogonal Polynomials, 
 Computation and Approximation. Oxford University Press, Oxford.
@@ -169,8 +169,8 @@ of the interval, with finite endpoints
 function μ_offsetvec_fn(::Type{T}, moment_fn, which_f, n::Integer) where {T<:AbstractFloat}
   @assert n ≥ 1
   μ_offsetvec = OffsetVector(zeros(T,2*n), 0:(2*n - 1))
-  for r in 0:(2*n-1)
-    μ_offsetvec[r] = moment_fn(T, which_f, r)
+  for s in 0:(2*n-1)
+    μ_offsetvec[s] = moment_fn(T, which_f, s)
   end
   μ_offsetvec
 end
@@ -198,8 +198,8 @@ function Δ_fn(μ_offsetvec, k::Integer, n::Integer)
  Hankel_mat = zeros(T, k, k)
   for i in 1:k
     for j in 1:k
-      r = (j - 1) + (i - 1)
-      Hankel_mat[i, j] = μ_offsetvec[r]
+      s = (j - 1) + (i - 1)
+      Hankel_mat[i, j] = μ_offsetvec[s]
     end
   end
   det(Symmetric(Hankel_mat))
@@ -231,15 +231,15 @@ function Δ′_fn(μ_offsetvec, k::Integer, n::Integer)
   Hankel_prime_part1_mat = zeros(T, k, (k-1))
   for i in 1:k
     for j in 1:(k-1)
-      r = (j - 1) + (i - 1)
-      Hankel_prime_part1_mat[i, j] = μ_offsetvec[r]
+      s = (j - 1) + (i - 1)
+      Hankel_prime_part1_mat[i, j] = μ_offsetvec[s]
     end
   end
   
   Hankel_prime_last_col = zeros(T, k)
   for i in 1:k
-    r = i + k - 1
-    Hankel_prime_last_col[i] = μ_offsetvec[r]
+    s = i + k - 1
+    Hankel_prime_last_col[i] = μ_offsetvec[s]
   end
   
   Hankel_prime_mat = hcat(Hankel_prime_part1_mat, Hankel_prime_last_col)
@@ -609,18 +609,18 @@ entering the following commands at the Julia REPL:
   which_f = ["weibull pdf", [0, Inf], k]
 Then we provide the function computing the r'th moment, by entering
 the following commands at the Julia REPL:
-  function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+  function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
     k = which_f[3]
     @assert k > 0
     T_k = parse(T, string(k))
-    @assert r ≥ 0
-    if r == 0
+    @assert s ≥ 0
+    if s == 0
       return(convert(T, 1))
     end
     T_1 = convert(T, 1)
-    T_r = convert(T, r)
-    gamma(T_1 + (T_r/T_k))
+    T_s = convert(T, s)
+    gamma(T_1 + (T_s/T_k))
   end
 Then enter the following command at the Julia REPL:
 moment_fn = moment_weibull_pdf_fn
