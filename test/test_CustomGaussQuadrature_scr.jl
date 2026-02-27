@@ -563,28 +563,28 @@ println("max_abs_rel_error_weights = ", max_abs_rel_error_weights)
 println("\n", "------------------------------------------------------")
 println("Try out using a new weight function, namely,") 
 println("the Weibull pdf, with scale parameter 1")
-println("and shape parameter k > 0, weight function")
+println("and shape parameter γ > 0, weight function")
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
 @assert which_f[1] == "weibull pdf"
-k = which_f[3]
-@assert k > 0
-T_k = parse(T, string(k))
+γ = which_f[3]
+@assert γ > 0
+T_γ = parse(T, string(γ))
 @assert r ≥ 0
 if r == 0
     return(convert(T, 1))
 end
 T_1 = convert(T, 1)
 T_r = convert(T, r)
-gamma(T_1 + (T_r/T_k))
+gamma(T_1 + (T_r/T_γ))
 end;
 
 println("moment_fn = moment_weibull_pdf_fn;")
 moment_fn = moment_weibull_pdf_fn;
 
-k = 2.0;
-which_f = ["weibull pdf", [0, Inf], k];
-println("which_f = ", which_f, ",  k=", k, "\n")
+γ = 2.0;
+which_f = ["weibull pdf", [0, Inf], γ];
+println("which_f = ", which_f, ",  γ=", γ, "\n")
 
 n = 63;
 println("n = ", n, "\n")
@@ -613,7 +613,7 @@ end
 #-------------------------------------------------
 # Plot the cdf corresponding to the Gauss quadrature 
 # rule and the actual cdf of a Weibull distribution 
-# with scale parameter λ = 1 and shape parameter k 
+# with scale parameter λ = 1 and shape parameter γ 
 # (k > 0)
 
 # To include a plot pane within the VS code editor window,
@@ -627,9 +627,9 @@ x_lo = 0.0;
 x_hi = 2.5;
 p = plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi) 
 x_grid = range(x_lo, x_hi, length=200);
-y_grid = weibull_cdf_fn.(x_grid, k);
+y_grid = weibull_cdf_fn.(x_grid, γ);
 plot!(x_grid, y_grid, 
-title="Weibull pdf weight function with scale parameter λ=1.0 and k=$k",
+title="Weibull pdf weight function with scale parameter λ=1.0 and γ=$γ",
  titlefont=font(10))
 display(p)
 
