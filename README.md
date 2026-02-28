@@ -235,9 +235,8 @@ The following commands compute the nodes and weights, as
 ### **Example 2**
 Consider the weight function identified by
 
-    which_f = ["chemistry example", [0,Inf], k]
+    which_f = ["chemistry example", [0,Inf]]
 
-for some assigned value of the positive parameter k. 
 
 For this weight function, the $s$'th moment is 
 
@@ -273,7 +272,7 @@ Gautschi (1983).
 ###?????###
 
 If, on the other hand, we want to specify a new weight function, say the Weibull pdf with 
-shape parameter γ > 0 and scale parameter λ set to 1, then we proceed
+shape parameter γ > 0 and scale parameter set to 1, then we proceed
 as follows. Identify this new weight function by
 ```julia	
 	which_f = ["weibull pdf", [0, Inf], γ]
