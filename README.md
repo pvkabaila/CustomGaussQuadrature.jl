@@ -103,13 +103,13 @@ the absolute error to be less than $|c_1 - c_2|$.
 
 
 We require that there is a formula, which can be computed in `BigFloat`
-arithmetic, for the $r$'th moment
+arithmetic, for the $s$'th moment
 
 $$
-\mu_r = \int_{-\infty}^{\infty} x^k \ f(x) \ dx
+\mu_s = \int_{-\infty}^{\infty} x^s \ f(x) \ dx
 $$
 
-for all nonnegative integers $r \le 2 n - 1$. This formula 
+for all nonnegative integers $s \le 2 n - 1$. This formula 
 must be inserted by the user into the code for the function `moment_fn`, as illustrated in the examples below.
 The function `custom_gauss_quad_all_fn` is then used to compute the Gauss quadrature nodes and weights. 
 
@@ -201,17 +201,17 @@ Consider the weight function specified by
 
 for some assigned value of the positive integer parameter $m$. 
 
-For this weight function, the $r$'th moment is 
+For this weight function, the $s$'th moment is 
 
 $$
-	\left(\frac{2}{m} \right)^{r/2}
-	\frac{\Gamma\big((r+m)/2\big)}{\Gamma(m/2)}
-    = \exp \left(\frac{r}{2} \log\left(\frac{2}{m} \right)  +
-    \log \Gamma \left(\frac{r+m}{2}\right) 
+	\left(\frac{2}{m} \right)^{s/2}
+	\frac{\Gamma\big((s+m)/2\big)}{\Gamma(m/2)}
+    = \exp \left(\frac{s}{2} \log\left(\frac{2}{m} \right)  +
+    \log \Gamma \left(\frac{s+m}{2}\right) 
     - \log \Gamma \left(\frac{m}{2}\right) \right)
 $$
 
-for $r = 0, 1, 2, \dots$.
+for $s = 0, 1, 2, \dots$.
 This formula has been implemented in the function `moment_stored_fn`.
 The following commands compute the nodes and weights, as 
 `Double64` vectors for a 5-point Gauss quadrature rule. This is followed by conversion to 
@@ -239,13 +239,13 @@ Consider the weight function identified by
 
 for some assigned value of the positive parameter k. 
 
-For this weight function, the $r$'th moment is 
+For this weight function, the $s$'th moment is 
 
 $$
-	3^{(r - 2) / 3}  \ \Gamma\big((r + 1) / 3\big)
+	3^{(s - 2) / 3}  \ \Gamma\big((s + 1) / 3\big)
 $$
 
-for $r = 0, 1, 2, \dots$.
+for $s = 0, 1, 2, \dots$.
 This formula has been implemented in the function `moment_stored_fn`.
 
 
@@ -273,28 +273,28 @@ Gautschi (1983).
 ###?????###
 
 If, on the other hand, we want to specify a new weight function, say the Weibull pdf with 
-shape parameter k > 0 and scale parameter λ set to 1, then we proceed
+shape parameter γ > 0 and scale parameter λ set to 1, then we proceed
 as follows. Identify this new weight function by
 ```julia	
-	which_f = ["weibull pdf", [0, Inf], k]
+	which_f = ["weibull pdf", [0, Inf], γ]
 ```
-for some assigned value of the positive parameter $k$. 
+for some assigned value of the positive parameter $\gamma$. 
 
-Then we provide the function computing the r'th moment using 
+Then we provide the function computing the s'th moment using 
 ```julia
   using SpecialFunctions
-  function moment_weibull_pdf_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+  function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    k = which_f[3]
-    @assert k > 0
-    T_k = parse(T, string(k))
-    @assert r ≥ 0
-    if r == 0
+    γ = which_f[3]
+    @assert γ > 0
+    T_γ = parse(T, string(γ))
+    @assert s ≥ 0
+    if s == 0
       return(convert(T, 1))
     end
     T_1 = convert(T, 1)
-    T_r = convert(T, r)
-    gamma(T_1 + (T_r/T_k))
+    T_s = convert(T, s)
+    gamma(T_1 + (T_s/T_γ))
   end
 ```
 Then use
