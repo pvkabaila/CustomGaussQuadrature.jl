@@ -39,6 +39,10 @@ and weights.
 
 In the classical case there are  simple formulae for the recursion coefficients, making **Step 1** trivial. In the non-classical case Step 1 is difficult. The treatise of Gautschi (2004) describes several methods for this computation that differ widely in both complexity and sensitivity to roundoff errors. However, **Step 2** remains the same for both classical and non-classical cases. We carry out **Step 2** by computing the eigenvalues and eigenvectors of a symmetric tridiagonal matrix using the package `GenericLinearAlgebra.jl`.
 
+The first step is to install the package CustomGaussQuadrature and then enter the following command at the Julia REPL
+
+	using CustomGaussQuadrature
+
 # Step 1 using either moment determinants or the Stjieltjes procedure
 
 ## **Three-term recurrence relation** 
@@ -166,16 +170,20 @@ The first component is the name given to $f$ and the second component is the sup
 
 ### **The inputs to `custom_gauss_quad_all_fn`**
 
-Suppose that we want to compute the custom Gauss quadrature rule with n nodes for the weight function specified by `which_f`. The function `custom_gauss_quad_all_fn` does this by carrying out both 
+Suppose that we want to compute the custom Gauss quadrature rule with n nodes for the weight function $f$ specified by `which_f`. The function `custom_gauss_quad_all_fn` does this by carrying out both 
 **Step 1** and **Step 2**. It has the following inputs:
-- `moment_fn`
-- `which_f`
-- `n`
 
-The function `moment_fn` which has inputs `T` (Floating Point type), `which_f` and `r` (moment order). It computes the `r`'th moment for the weight function specified by `which_f`.
+- moment_fn has inputs `T` (Floating Point type), `which_f` and `s` (moment order). It computes the `s`'th moment for the weight function specified by `which_f`.
+
+- `which_f` identifies the weight function $f$. 
+
+- `n` is the number of Gauss quadrature nodes. 
+
+- `upto_n` is a Boolean variable with default value `false`
+
+- `extra_check` is a Boolean variable with default value `false`
 
 For any of the following which_f's 
-
 
 which_f = ["scaled chi pdf", [0,Inf], m]\
 which_f = ["chemistry example", [0, Inf]]\
@@ -217,7 +225,6 @@ The following commands compute the nodes and weights, as
 `Double64` vectors for a 5-point Gauss quadrature rule. This is followed by conversion to 
 `Float64` vectors and printing using  using the `printf` function from the package `Printf`.
 
-    using CustomGaussQuadrature
 	which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
 	moment_fn = moment_stored_fn;
     n = 5;
@@ -252,7 +259,7 @@ The following commands compute the nodes and weights, as
 `Double64` vectors for a 15-point Gauss quadrature rule. This is followed by printing these nodes and weights in the same format as Table 2.2 of 
 Gautschi (1983), using the `printf` function from the package `Printf`.
 
-    using CustomGaussQuadrature
+
     which_f = ["chemistry example", [0, Inf]]::Vector{Any}
 	moment_fn = moment_stored_fn;
     n= 15;
@@ -269,11 +276,28 @@ Gautschi (1983), using the `printf` function from the package `Printf`.
 These results agree with Table 2.2 of 
 Gautschi (1983).
 
-###?????###
 
-If, on the other hand, we want to specify a new weight function, say the Weibull pdf with 
-shape parameter γ > 0 and scale parameter set to 1, then we proceed
-as follows. Identify this new weight function by
+### **Example 3** 
+
+Now suppose that, on the other hand, we want to specify a **new** weight function, say the Weibull pdf with 
+shape parameter γ > 0 and scale parameter set to 1.
+In this case, the weight function is
+$$
+		f(x) =
+	\begin{cases}
+		\ \gamma \, x^{\gamma - 1} \exp(-x^{\gamma}) &\ \text{for} \ \ x > 0
+		\\
+		0  &\ \text{otherwise.}
+	\end{cases}	
+$$
+For this weight function, the $s$'th moment is
+$$
+	\Gamma\left(1 + \frac{s}{\gamma}\right)
+$$
+for $s = 0, 1, 2, \dots$.
+
+
+We identify this new weight function by
 ```julia	
 	which_f = ["weibull pdf", [0, Inf], γ]
 ```
@@ -296,20 +320,23 @@ Then we provide the function computing the s'th moment using
     gamma(T_1 + (T_s/T_γ))
   end
 ```
-Then use
 
-	moment_fn = moment_weibull_pdf_fn
+The following commands compute the nodes and weights, as 
+`Double64` vectors for a 9-point Gauss quadrature rule. This is followed by conversion to 
+`Float64` vectors and printing using  using the `printf` function from the package `Printf`.
 
-- `which_f` identifies the weight function $f$. 
-
-- `n` is the number of Gauss quadrature nodes. 
-
-- `upto_n` is a Boolean variable with default value `false`
-
-- `extra_check` is a Boolean variable with default value `false`
-
-For `custom_gauss_quad_all_fn` the outputs are `nodes` and `weights`  in the form of `Double64` vectors (from the package `DoubleFloats`).
-
+	which_f = ["weibull pdf", [0, Inf], γ]::Vector{Any}
+	moment_fn = moment_weibull_pdf_fn;
+    n = 9;
+    nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+    nodes = convert(Vector{Float64}, nodes);
+    weights = convert(Vector{Float64}, nodes);
+    println("              nodes                     weights")
+    for i in 1:n
+        @printf "%2d     " i
+        @printf "%.16e     " nodes[i]
+        @printf "%.16e  \n" weights[i]
+    end
 
 
 ## **Computation of the recursion coefficients in the three-term recurrence relation using the Stjieltjes procedure**
@@ -462,10 +489,10 @@ which_f = ["chemistry example", [0, Inf]]\
 which_f = ["Hermite", [-Inf, Inf]]\
 which_f = ["Generalized Laguerre", [0, Inf], α_GGL]\
 which_f = ["Legendre", [-1, 1]],\
-we use stjieltjes_lnf_stored_scr.jl as illustrated by the 
+we use stjieltjes_lnf_stored_scr.jl, which computes the $\log(f(x))$, as illustrated by the 
 following example.
 
-### **Example 3**
+### **Example 4**
 
 Consider the same weight function as in **Example 1**. For this weight function, with positive integer parameter m set to 160 and number of Gauss quadrature nodes n set to 33, we use the following
 to carry out both **Step 1** and **Step 2**
@@ -473,7 +500,6 @@ to carry out both **Step 1** and **Step 2**
 The evaluation of the log-weight function $\log(f(x))$ **has been implemented** in the function `ln_scaled_chi_pdf_fn` which has inputs `T` (Floating Point type), `x` and `m` (positive integer parameter). 
 -->
 
-	using CustomGaussQuadrature
 	m = 160;
 	which_f = ["scaled chi pdf", [0,Inf], m];
 	n = 33;
@@ -526,9 +552,80 @@ Print these out in the same format as in **Example 1** using
     @printf "%.16e  \n" stjieltjes_weights[i]
 	end
 
-### **Example 4**
+### **Example 5**
+
+Consider the same weight function as in Example 3. 
+We identify this **new weight** function by
+```julia	
+	which_f = ["weibull pdf", [0, Inf], γ]
+```
+for some assigned value of the positive parameter $\gamma$. 
+
+In this case, 
+$$
+		\log(f(x)) =
+		\log(\gamma) + (\gamma - 1) \log(x) -x^{\gamma} \ \ \ \ \text{for} \ \ x > 0.
+$$
+
+We provide the following function for computing $\log(f(x))$ 
+```julia
+using SpecialFunctions
+function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    @assert x > convert(T,0)
+    γ = which_f[3]
+    T_γ = parse(T, string(γ))
+    @assert T_γ > convert(T, 0)
+    log(T_γ) + (T_γ - convert(T,1)) * log(x) - x^T_γ
+end
+```
+and the following function for computing $\mu_0$ and $\mu_1$
+```julia
+function μ₀_μ₁_weibull_pdf_fn(::Type{T}, which_f) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    γ = which_f[3]
+    T_γ = parse(T, string(γ))
+    @assert T_γ > convert(T, 0)
+    T_1 = convert(T, 1)
+    μ₀ = convert(T,1)
+    μ₁ = gamma(T_1 + (T_1/T_γ))
+    [μ₀ μ₁]
+end
+```
 
 
+For this weight function, with parameter $\gamma$ set to 2 and number of Gauss quadrature nodes n set to 10, we use the following commands to specify the the function for computing $\log(f)$, together with the values of $\mu_0$ and $\mu_1$.
+
+	γ = 2.0
+	which_f = ["weibull pdf", [0, Inf], γ]
+	n = 10
+	T = BigFloat
+	lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x);
+	μ₀, μ₁ = μ₀_μ₁_weibull_pdf_fn(T, which_f);
+
+
+Then we use the following command to carry out both Step 1 and Step 2
+
+	include(joinpath(@__DIR__, "..", "src", "stjieltjes_lnf_new_scr.jl"));
+
+This results in stjieltjes_nodes and stjieltjes_weights, which are
+the custom Gauss quadrature nodes and weights, respectively, obtained using the Stjieltjes procedure and the number of sampled function values r used in the discrete approximation to the 
+inner product of functions used in this procedure. If r is of interest to us we use
+
+	println("r = ", r)
+
+
+The following commands convert the 
+`Float64` vectors and print them using the `printf` function from the package `Printf`.
+
+    nodes = convert(Vector{Float64}, stjieltjes_nodes);
+    weights = convert(Vector{Float64}, stjieltjes_weights);
+    println("              nodes                     weights")
+    for i in 1:n
+        @printf "%2d     " i
+        @printf "%.16e     " nodes[i]
+        @printf "%.16e  \n" weights[i]
+    end
 
 # Step 2 using the eigenvalues and eigenvectors of the Jacobi matrix
 
