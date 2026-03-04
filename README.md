@@ -32,7 +32,7 @@ Gauss rules are usually
 computed in the following two steps.
 
 **Step 1**: Compute the recursion coefficients in the three-step recurrence 
-relation (Gautschi, 2004).
+relation, given by (1) and (2) below.
 
 **Step 2**: Use these recursion coefficients to compute the Gauss quadrature nodes 
 and weights.
@@ -114,7 +114,7 @@ $$
 $$
 
 for all nonnegative integers $s \le 2 n - 1$. This formula 
-must be inserted by the user into the code for the function `moment_fn`, as illustrated in the examples below.
+is provided by the user, as illustrated in the Example 3 below.
 The function `custom_gauss_quad_all_fn` is then used to compute the Gauss quadrature nodes and weights. 
 
 The aim of the method implemented in `custom_gauss_quad_all_fn` is for (a) the *absolute errors* of each of the nodes to be less than
@@ -124,14 +124,14 @@ $10^{-17}$ and (b) the *relative errors* of each of the weights to be less than 
 We identify the weight function $f$ by the array 
 `which_f` with components:\
 (i) the name given to $f$ (a character string),\
-(ii) support interval of $f$ specified by a 2-vector of the endpointsand \
+(ii) support interval of $f$ specified by a 2-vector of the endpoints and \
 (iii) parameter vector (if any).
 
 Two examples of this identification are the following:
 
 ### **Scaled chi pdf weight function**
 
-Consider, for example,  the "scaled chi pdf" weight function given by the probability density function (pdf)
+Consider the "scaled chi pdf" weight function given by the probability density function (pdf)
 
 $$
 	f(x) =
@@ -166,14 +166,13 @@ This weight function is considered by Gautschi (1983) and is identified by
 
     which_f = ["chemistry example", [0,Inf]]
 
-The first component is the name given to $f$ and the second component is the support interval of $f$ specified by a 2-vector of the endpoints.
-
 ### **The inputs to `custom_gauss_quad_all_fn`**
 
 Suppose that we want to compute the custom Gauss quadrature rule with n nodes for the weight function $f$ specified by `which_f`. The function `custom_gauss_quad_all_fn` does this by carrying out both 
 **Step 1** and **Step 2**. It has the following inputs:
 
-- moment_fn has inputs `T` (Floating Point type), `which_f` and `s` (moment order). It computes the `s`'th moment for the weight function specified by `which_f`.
+- moment_fn, <br /> 
+which has inputs `T` (Floating Point type), `which_f` and `s` (moment order). <br /> It computes the `s`'th moment for the weight function specified by `which_f`.
 
 - `which_f` identifies the weight function $f$. 
 
@@ -221,6 +220,7 @@ $$
 
 for $s = 0, 1, 2, \dots$.
 This formula has been implemented in the function `moment_stored_fn`.
+
 The following commands compute the nodes and weights, as 
 `Double64` vectors for a 5-point Gauss quadrature rule. This is followed by conversion to 
 `Float64` vectors and printing using  using the `printf` function from the package `Printf`.
@@ -303,7 +303,7 @@ We identify this new weight function by
 ```
 for some assigned value of the positive parameter $\gamma$. 
 
-Then we provide the function computing the s'th moment using 
+Then we provide the function for computing the s'th moment using 
 ```julia
   using SpecialFunctions
   function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
@@ -396,11 +396,7 @@ $$
 	\end{cases}	
 $$
 
-
-A discrete approximation to the right-hand side of 	(3) can be found as follows.
-Let 
-$h(y) = g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)$, where
-
+It follows from this definition of the function $\varphi$ that
 $$
 	\varphi'(y) = 
 	\begin{cases}
@@ -414,7 +410,11 @@ $$
 	\end{cases}	
 $$
 
-A high-quality quadrature rule then provides a discrete approximation to the integral $\int_{-1}^1 h(y) \ dy$.
+
+A discrete approximation to the right-hand side of 	(3) can be found as follows.
+Let 
+$h(y) = g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)$.
+A high-quality quadrature rule is then used to provide a discrete approximation to the integral $\int_{-1}^1 h(y) \ dy$.
 Gautschi (2004) uses a Fejer quadrature rule.
 Instead, we use Gauss Legendre quadrature with $r$ nodes to approximate
 
@@ -456,7 +456,7 @@ $$
 	\end{cases}	
 $$
 
-All that the user needs to provide is a Julia
+The user needs to provide is a Julia
 function to evaluate $\log(f)$. Since $g = uv$, 
 
 $$
@@ -477,7 +477,7 @@ which is used to compute the right-hand side of (4).
 In the comments for his subroutine `qgp` (available at cs.purdue.edu/archives/2002/wxg/codes), Gautschi states of this method that
 "It takes no account of the special nature of the weight function involved and hence may result in slow convergence of the discretization procedure."
 
-For the "scaled chi pdf" weight function considered in **Example 1**, the graph of the weight function has a single peak which becomes narrower as the positive integer parameter $m$ (the "degrees of freedom") increases. For a given number $n$ of Gauss quadrature nodes, this implies that the value of $r$, the number of nodes in the discrete approximation (4), required for 
+For the "scaled chi pdf" weight function considered in **Example 1**, the graph of the weight function has a single peak which becomes narrower as the positive integer parameter $m$ increases. For a given number $n$ of Gauss quadrature nodes, this implies that the value of $r$, the number of nodes in the discrete approximation (4), required for 
 sufficiently accurate results from the Stjieltjes procedure
 increases rapidly with increasing $m$.  
 
@@ -594,7 +594,7 @@ end
 ```
 
 
-For this weight function, with parameter $\gamma$ set to 2 and number of Gauss quadrature nodes n set to 10, we use the following commands to specify the the function for computing $\log(f)$, together with the values of $\mu_0$ and $\mu_1$.
+For this weight function, with parameter $\gamma$ set to 2 and number of Gauss quadrature nodes n set to 10, we use the following commands to specify the function that will be used for computing $\log(f)$, together with the values of $\mu_0$ and $\mu_1$.
 
 	γ = 2.0
 	which_f = ["weibull pdf", [0, Inf], γ]
@@ -604,7 +604,7 @@ For this weight function, with parameter $\gamma$ set to 2 and number of Gauss q
 	μ₀, μ₁ = μ₀_μ₁_weibull_pdf_fn(T, which_f);
 
 
-Then we use the following command to carry out both Step 1 and Step 2
+Then we use the following command to carry out both **Step 1** and **Step 2**
 
 	include(joinpath(@__DIR__, "..", "src", "stjieltjes_lnf_new_scr.jl"));
 
