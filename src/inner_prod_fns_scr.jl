@@ -54,7 +54,6 @@
 # Oxford University Press, Oxford.
 
 
-
 """
 ϕ = ϕ_fn(T, y, a, b) 
 
@@ -152,7 +151,7 @@ function old_nodes_weights_support_fn(T, f_fn::Function, a, b, r::Integer)
     if T == Float64
         y, w = gausslegendre(r)
     else
-        y, w = gauss(T, r)
+        y, w = legendre(T, r)
     end
     nodes_support = ϕ_fn.(T, y, a, b) 
     weights_support = w .* f_fn.(nodes_support) .* ϕ′_fn.(T, y, a, b)
@@ -188,7 +187,7 @@ function nodes_weights_support_fn(T, f_fn::Function, a, b, r::Integer)
     if T == Float64
         y, w = gausslegendre(r)
     else
-        y, w = gauss(T, r)
+        y, w = legendre(T, r)
     end
     nodes_support = ϕ_fn.(T, y, a, b) 
     weights_support = w .* (f_fn.(nodes_support) .* ϕ′_fn.(T, y, a, b))
@@ -228,15 +227,19 @@ where
 function nodes_lnweights_support_fn(T, lnf_fn::Function, a, b, r::Integer)
     if T == Float64
         y, w = gausslegendre(r)
+    elseif T == Double64
+        # GaussQuadrature.legendre does not support Double64 (it is not in its
+        # internal type dictionary), so compute in BigFloat and convert.
+        y_big, w_big = legendre(BigFloat, r)
+        y = convert(Vector{T}, y_big)
+        w = convert(Vector{T}, w_big)
     else
-        y, w = gauss(T, r)
+        y, w = legendre(T, r)
     end
     nodes_support = ϕ_fn.(T, y, a, b) 
     lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, a, b) + lnf_fn.(nodes_support) 
     [nodes_support, lnweights_support] 
 end
-
-
 
 
 """
@@ -256,7 +259,19 @@ function scaled_chi_pdf_fn(T, x::AbstractFloat, m::Integer)
 end
 
 
-
+# Note on the type parameter T in the log-weight functions below.
+#
+# ln_scaled_chi_pdf_fn and lnf_chemistry_fn take T as an input
+# because they need to promote integer constants (e.g. m, 0, 2, 3)
+# to the working precision via convert(T, ...).
+#
+# lnf_hermite_fn and lnf_laguerre_fn do NOT need T because they
+# only perform arithmetic on their AbstractFloat arguments, so
+# Julia's type promotion keeps the result in the same precision
+# as the input x (and α). For example, when x is BigFloat,
+# -x * x is BigFloat automatically. In the Laguerre case, α is
+# pre-converted to BigFloat (via parse(T, string(α_GGL))) before
+# the closure is created in stieltjes_lnf_stored_scr.jl.
 
 """
 ln_scaled_chi_pdf = ln_scaled_chi_pdf_fn(T, x, m)
@@ -288,7 +303,6 @@ function ln_scaled_chi_pdf_fn(T, x::AbstractFloat, m::Integer)
 end
 
 
-
 """
 lnf_chemistry = lnf_chemistry_fn(T, x)
 
@@ -308,7 +322,6 @@ function lnf_chemistry_fn(T::Type, x::AbstractFloat)
 end
 
 
-
 """
 lnf_hermite = lnf_hermite_fn(x)
 
@@ -321,7 +334,6 @@ function lnf_hermite_fn(x::AbstractFloat)
 end
 
 
-
 """
 lnf_laguerre = lnf_laguerre_fn(x, α)
 
@@ -331,11 +343,10 @@ evaluated at x. This weight function is
        = 0  otherwise.    
 """
 function lnf_laguerre_fn(x::AbstractFloat, α::AbstractFloat)
-    @assert x ≥ convert(BigFloat, 0)
-    @assert α > convert(BigFloat, -1)
+    @assert x ≥ zero(x)
+    @assert α > -one(α)
     α * log(x) - x
 end
-
 
 
 """
@@ -359,7 +370,6 @@ function inner_prod_fns_fn(u_fn, v_fn, nodes_support, weights_support)
     tmp2_vec = v_fn.(nodes_support)
     dot(tmp1_vec, tmp2_vec)
 end
-
 
 
 """
