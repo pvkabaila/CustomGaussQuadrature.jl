@@ -62,8 +62,12 @@
 #   the active project already has the same name or UUID.
 #
 # Step 3 — Run the script:
-#     julia> pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
-#     julia> include(joinpath(pkg_dir, "test", "test_CustomGaussQuadrature_scr.jl"))
+#     julia> include("test/test_CustomGaussQuadrature_scr.jl")
+#
+#   This works because the VS Code Julia REPL's working directory
+#   is the local project root (the folder open in VS Code).
+#   The local test script is used, but the registry version of
+#   the package is under test (loaded in Step 2).
 #
 #------------------------------------------------------------
 # How to run this script — Path (2b): Julia General Registry
