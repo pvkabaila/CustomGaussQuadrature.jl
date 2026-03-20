@@ -139,7 +139,6 @@ function moment_stored_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloa
 end
 
 
-
 """
 μ_offsetvec = μ_offsetvec_fn(T, moment_fn, which_f, n)
 
@@ -176,7 +175,6 @@ function μ_offsetvec_fn(::Type{T}, moment_fn, which_f, n::Integer) where {T<:Ab
 end
 
 
-
 """
 Δ = Δ_fn(μ_offsetvec, k, n)
 
@@ -204,7 +202,6 @@ function Δ_fn(μ_offsetvec, k::Integer, n::Integer)
   end
   det(Symmetric(Hankel_mat))
 end
-
 
 
 """
@@ -246,7 +243,6 @@ function Δ′_fn(μ_offsetvec, k::Integer, n::Integer)
 
   det(Hankel_prime_mat)
 end
-
 
 
 """
@@ -315,7 +311,6 @@ function α_offsetvec_fn(Δ_offsetvec, Δ′_offsetvec, n::Integer)
 end
 
 
-
 """
 β_vec = β_vec_fn(Δ_offsetvec, n)
 
@@ -367,7 +362,6 @@ function a_vec_b_vec_μ₀_fn(T, moment_fn, which_f, n::Integer)
   a_vec = parent(α_offsetvec)
   [a_vec, b_vec, μ₀]
 end
-
 
 
 """
@@ -458,7 +452,6 @@ setprecision(BigFloat, 256, base=2)
 end
 
 
-
 """
 a_vec, b_vec, μ₀, nbits = step1_fn(moment_fn, which_f, n)
 
@@ -506,7 +499,6 @@ function step1_fn(moment_fn, which_f, n::Integer, epsilon=1.0e-18)
 end
 
 
-
 """
 nodes, weights = step2_fn(T, moment_fn, which_f, n, a_vec, b_vec, μ₀)
 
@@ -543,7 +535,6 @@ function step2_fn(T, which_f, n::Integer, a_vec, b_vec, μ₀)
 end
 
 
-
 """
 nodes, weights = custom_gauss_quad_fn(T, which_f, n)
 
@@ -566,7 +557,6 @@ function custom_gauss_quad_fn(T, moment_fn, which_f, n::Integer)
   nodes, weights = step2_fn(T, which_f, n, a_vec, b_vec, μ₀)
   [nodes, weights]
 end
-
 
 
 """
