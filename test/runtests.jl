@@ -129,7 +129,7 @@ which_f = ["weibull pdf", [0, Inf], 2.1]
 Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 #****************************************************
-#  Test of gauss_quad_stjieltjes_scr.jl
+#  Test of gauss_quad_stieltjes_scr.jl
 #****************************************************
 
 m = 160;
@@ -144,16 +144,16 @@ moment_fn = moment_stored_fn
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 n = 5;
 
-stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits = 
-stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
 a_vec, b_vec, μ₀, nbits = 
 step1_fn(moment_fn, which_f, n);
 
 # nodes and weights
 
-stjieltjes_nodes, stjieltjes_weights = 
-stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
+stieltjes_nodes, stieltjes_weights = 
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
 
 nodes, weights = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n);
@@ -166,8 +166,8 @@ T = BigFloat;
 a = convert(T,0);
 b = Inf;
 
-stjieltjes_nodes_upto_n, stjieltjes_weights_upto_n = 
-stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b, upto_n);
+stieltjes_nodes_upto_n, stieltjes_weights_upto_n = 
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b, upto_n);
 
 nodes_upto_n, weights_upto_n = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n);
@@ -189,16 +189,16 @@ which_f = ["chemistry example", [0, Inf]];
 T = BigFloat;
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
-stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits = 
-stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-stjieltjes_nodes, stjieltjes_weights = 
-stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
+stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_nodes, stieltjes_weights = 
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
 
-stjieltjes_nodes_Float64 = convert(Vector{Float64}, stjieltjes_nodes);
-stjieltjes_weights_Float64 = convert(Vector{Float64}, stjieltjes_weights);
+stieltjes_nodes_Float64 = convert(Vector{Float64}, stieltjes_nodes);
+stieltjes_weights_Float64 = convert(Vector{Float64}, stieltjes_weights);
 
 #------------------------------------------------
-# Test the function stjieltjes_custom_gauss_quad_all_fn
+# Test the function stieltjes_custom_gauss_quad_all_fn
 # Hermite
 setprecision(BigFloat, 256, base=2);
 n = 4;
@@ -208,14 +208,14 @@ a = -Inf;
 b = Inf;
 T = BigFloat;
 
-stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
-stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
-stjieltjes_nodes, stjieltjes_weights = 
-stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
+stieltjes_nodes, stieltjes_weights = 
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
 
 #------------------------------------------------
-# Test the function stjieltjes_custom_gauss_quad_all_fn
+# Test the function stieltjes_custom_gauss_quad_all_fn
 # Generalized Laguerre
 
 setprecision(BigFloat, 256, base=2);
@@ -229,10 +229,10 @@ b = Inf;
 lnf_fn = x -> lnf_laguerre_fn(x, α);
 
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
-stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
-stjieltjes_nodes, stjieltjes_weights = 
-stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stjieltjes_a_vec, stjieltjes_b_vec, a, b);
+stieltjes_nodes, stieltjes_weights = 
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
 
 end
