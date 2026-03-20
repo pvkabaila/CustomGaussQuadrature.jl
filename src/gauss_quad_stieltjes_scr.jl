@@ -8,7 +8,7 @@
 # Step 1: Compute the recursion coefficients 
 # [α₀, α₁, ..., αₙ₋₁] and [β₁, ..., βₙ] of the 
 # three-term recurrence relation using the 
-# Stjieltjes procedure, where the inner product 
+# Stieltjes procedure, where the inner product 
 # of two functions is found using the script 
 # inner_prod_fns_scr.jl. The aim of 
 # Step 1 is to compute approximations to the 
@@ -27,7 +27,7 @@
 # the package GenericLinearAlgebra.jl
 
 """
-a_vec, b_vec = stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_support, lnweights_support)
+a_vec, b_vec = stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_support, lnweights_support)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
@@ -46,7 +46,7 @@ chosen then the the vectors [a₁, ..., aₙ] and
 [b₁, ..., bₙ₋₁] may be insufficiently accurate and
 may even include elements that are NaN's.
 """
-function stjieltjes_a_vec_b_vec_nonan_fn(T::Type, n::Integer, μ₀, nodes_support, lnweights_support)
+function stieltjes_a_vec_b_vec_nonan_fn(T::Type, n::Integer, μ₀, nodes_support, lnweights_support)
     @assert n ≥ 2
     α_offsetvec = OffsetVector(zeros(T, n), 0:(n-1))
     β_vec = zeros(T, (n-1))
@@ -99,9 +99,8 @@ function stjieltjes_a_vec_b_vec_nonan_fn(T::Type, n::Integer, μ₀, nodes_suppo
 end
 
 
-
 """
-a_vec, b_vec, nbits = stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+a_vec, b_vec, nbits = stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
@@ -117,7 +116,7 @@ that there is some assurance that the vectors [a₁, ..., aₙ]
 and [b₁, ..., bₙ₋₁] are computed to sufficient accuracy,
 for the specified value of r.
 """
-function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+function stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     setprecision(BigFloat, 256, base=2)
     T = BigFloat
     nbits = 256
@@ -127,7 +126,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
     # @time "Compute a_vec_256 & b_vec_256" 
     a_vec_256, b_vec_256 = 
-    stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_256, lnweights_256)
+    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_256, lnweights_256)
 
     epsilon = 1.0e-22
 
@@ -138,7 +137,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
     # @time "Compute a_vec & b_vec" 
     a_vec_106, b_vec_106 = 
-    stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_106, lnweights_106)
+    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_106, lnweights_106)
     if any(isnan, a_vec_106)==false && any(isnan, b_vec_106)==false
         abs_error_a = convert(Vector{Float64}, abs.(a_vec_106 - a_vec_256))
         max_abs_error_a = maximum(abs_error_a)
@@ -160,7 +159,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
     # @time "Compute a_vec & b_vec" 
     a_vec_224, b_vec_224 = 
-    stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_224, lnweights_224) 
+    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_224, lnweights_224) 
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_224 - a_vec_256))
     max_abs_error_a = maximum(abs_error_a)
     # println("max_abs_error_a = ", max_abs_error_a)
@@ -182,7 +181,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
     # @time "Compute a_vec & b_vec" 
     a_vec_512 , b_vec_512  = 
-    stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_512 , lnweights_512 ) 
+    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_512 , lnweights_512 ) 
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_512 - a_vec_256))
     max_abs_error_a = maximum(abs_error_a)
     # println("max_abs_error_a = ", max_abs_error_a)
@@ -202,7 +201,7 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
     # @time "Compute a_vec & b_vec" 
     a_vec_480, b_vec_480 = 
-    stjieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_480, lnweights_480) 
+    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_480, lnweights_480) 
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_480 - a_vec_480))
     max_abs_error_a = maximum(abs_error_a)
     # println("max_abs_error_a = ", max_abs_error_a)
@@ -219,10 +218,8 @@ function stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
 end 
 
 
-
-
 """
-a_vec, b_vec, nbits, r = stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
+a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
@@ -245,20 +242,20 @@ we consider k (offset + n) for k=3, k-4, up to a maximum
 value k_max. The default values of offset and k_max are 7
 and 40, respectively. 
 """
-function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
+function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
     k = 3
     r = k * (offset + n)
     # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec, b_vec, nbits = 
-    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     
     k = k + 1
     r = k * (offset + n)
     # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec_new, b_vec_new, nbits_new = 
-    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     # println("nbits_new = ", nbits_new)
     
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
@@ -282,7 +279,7 @@ function stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max
     # println("r = k * (offset + n), where k = ", k)
     # @time 
     a_vec_new, b_vec_new, nbits_new = 
-    stjieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
     # println("nbits_new = ", nbits_new)
     
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
@@ -308,7 +305,7 @@ end
 
 
 """
-nodes, weights = stjieltjes_step2_fn(n, μ₀, a_vec, b_vec, a, b)
+nodes, weights = stieltjes_step2_fn(n, μ₀, a_vec, b_vec, a, b)
 
 This function carries our Step 2, which is the computation of 
 the Gauss quadrature nodes and weights from the eigenvalues 
@@ -322,7 +319,7 @@ The computation of these eigenvalues and eigenvectors is
 carried out using Double64 arithmetic and the package 
 GenericLinearAlgebra.jl
 """
-function stjieltjes_step2_fn(n::Integer, μ₀, a_vec, b_vec, a, b)
+function stieltjes_step2_fn(n::Integer, μ₀, a_vec, b_vec, a, b)
   @assert n ≥ 2
   a_vec_converted = convert(Vector{Double64}, a_vec)
   b_vec_converted = convert(Vector{Double64}, b_vec)
@@ -342,10 +339,8 @@ function stjieltjes_step2_fn(n::Integer, μ₀, a_vec, b_vec, a, b)
 end
 
 
-
-
 """
-nodes, weights = stjieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, a_vec, b_vec, a, b, upto_n)
+nodes, weights = stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, a_vec, b_vec, a, b, upto_n)
 
 This function computes the custom-made Gauss quadrature nodes and 
 weights, for n nodes and the weight function specified by the inputs 
@@ -355,7 +350,7 @@ rules are computed for number of nodes q from 1 up and including n.
 By default, this variable is false, so that only the Gauss quadrature 
 rule for number of nodes n is computed.
 """
-function stjieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_vec, 
+function stieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_vec, 
     a, b, upto_n::Bool=false)
   @assert n ≥ 1
   if n == 1
@@ -365,7 +360,7 @@ function stjieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_
     weights = μ₀
     return([nodes, weights])
   end
-  nodes, weights = stjieltjes_step2_fn(n, μ₀, a_vec, b_vec, a, b)
+  nodes, weights = stieltjes_step2_fn(n, μ₀, a_vec, b_vec, a, b)
   if upto_n == false
     # The precision of BigFloat is set globally.
     # Consequently, this precision is reset to
@@ -385,7 +380,7 @@ function stjieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_
   for q in 2:(n-1)
     a_vec_q = a_vec[1:q]
     b_vec_q = b_vec[1:q]
-    nodes_q, weights_q =  stjieltjes_step2_fn(q, μ₀, a_vec_q, b_vec_q, a, b)
+    nodes_q, weights_q =  stieltjes_step2_fn(q, μ₀, a_vec_q, b_vec_q, a, b)
     push!(nodes_upto_n, nodes_q)
     push!(weights_upto_n, weights_q)
   end
