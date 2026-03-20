@@ -1,6 +1,9 @@
 # choice_of_r_scr.jl
 
 using CustomGaussQuadrature
+# μ_offsetvec_fn is an internal function of CustomGaussQuadrature; the
+# qualified import below makes it explicitly available in this script.
+using CustomGaussQuadrature: μ_offsetvec_fn
 pathof(CustomGaussQuadrature)
 using Plots
 
@@ -38,8 +41,8 @@ n_upper = 40;
 r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 for n in n_vec
-    @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
-    stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
     r_vec[n - 1] = k*n
     println("number of Gauss quadrature nodes n = ", n, ",   k = ", k, ",   r = kn = ", k*n, "\n")
 end
@@ -71,8 +74,8 @@ n_upper = 40;
 r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 for n in n_vec
-    @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
-    stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
     r_vec[n - 1] = k*n
     println("number of Gauss quadrature nodes n = ", n, ",   k = ", k, ",   r = kn = ", k*n, "\n")
 end
@@ -99,8 +102,8 @@ n_upper = 40;
 r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 for n in n_vec
-    @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, k = 
-    stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
     r_vec[n - 1] = k*n
     println("number of Gauss quadrature nodes n = ", n, ",   k = ", k, ",   r = kn = ", k*n, "\n")
 end
@@ -135,8 +138,8 @@ offset = 7;
 println("offset = ", offset)
 k_max = 400;
 for n in n_vec
-    @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
-    stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset, k_max);
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset, k_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -169,8 +172,8 @@ offset = 7;
 println("offset = ", offset)
 k_max = 400;
 for n in n_vec
-    @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
-    stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset, k_max);
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset, k_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -200,8 +203,8 @@ offset = 7;
 println("offset = ", offset)
 k_max = 400;
 for n in n_vec
-    @time "stjieltjes_a_vec_b_vec_final_fn" stjieltjes_a_vec, stjieltjes_b_vec, stjieltjes_nbits, r = 
-    stjieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
