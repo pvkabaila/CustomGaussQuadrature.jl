@@ -1,4 +1,5 @@
 using CustomGaussQuadrature
+using CustomGaussQuadrature: μ_offsetvec_fn, Δ_offsetvec_fn, Δ′_offsetvec_fn, α_offsetvec_fn, β_vec_fn, step1_fn
 using Test
 using SpecialFunctions
 
