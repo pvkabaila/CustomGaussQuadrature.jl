@@ -34,7 +34,7 @@
 #
 # Step 4 — Run the script:
 #     julia> using CustomGaussQuadrature
-#     julia> include("test/test_CustomGaussQuadrature_scr.jl")
+#     julia> include("test/test_CustomGaussQuadrature_MomentDets_scr.jl")
 #
 #------------------------------------------------------------
 # How to run this script — Path (2a): Julia General Registry
