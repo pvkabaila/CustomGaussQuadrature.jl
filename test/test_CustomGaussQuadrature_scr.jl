@@ -61,6 +61,9 @@
 #   manager does not allow Pkg.add("CustomGaussQuadrature") when
 #   the active project already has the same name or UUID.
 #
+#   If I want to, I can check the package version using:
+#   julia> pkgversion(CustomGaussQuadrature)
+#
 # Step 3 — Run the script:
 #     julia> include("test/test_CustomGaussQuadrature_scr.jl")
 #
