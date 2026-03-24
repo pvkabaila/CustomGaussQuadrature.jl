@@ -147,9 +147,7 @@ println("from this test is as follows. Open both plain text files")
 println("in VS Code. Then on the OPEN EDITORS menu on the upper left")
 println("right click on the previous output > Select for Compare.")
 println("Then right click on the text file for the latest output >")
-println("Compare with Selected. Both plain text files are compared")
-println("in the same window, with corresponding line numbers from")
-println("both plain text files.")
+println("Compare with Selected. Both plain text files are compared.")
 println("\n", "\n")
 
 println("2026 3 17 I used Claude Opus 4.6 to check the safety of installing")
@@ -1087,3 +1085,10 @@ println("maximum(abs.(stieltjes_nodes_bf - nodes_BigFloat)) = ", convert(Float64
 max_abs_rel_error_weights = maximum(abs.((stieltjes_weights_bf - weights_BigFloat) ./ weights_BigFloat));
 println("maximum(abs.((stieltjes_weights_bf - weights_BigFloat) ./ weights_BigFloat)) = ", 
 convert(Float64, max_abs_rel_error_weights))
+
+#  A known limitation of VS Code's diff algorithm is that intra-line 
+#  character highlighting requires at least one context line after 
+#  the changed line. The last lines of the file have no following 
+#  context, so they fall back to whole-line highlighting only.
+println("\n", "NOTE: VS Code diff intra-line highlighting may be unreliable for the last few changed lines.")
+
