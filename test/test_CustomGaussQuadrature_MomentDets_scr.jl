@@ -765,8 +765,8 @@ end
 #-------------------------------------------------
 # Plot the cdf corresponding to the Gauss quadrature 
 # rule and the actual cdf of a Weibull distribution 
-# with scale parameter λ = 1 and shape parameter k 
-# (k > 0)
+# with scale parameter λ = 1 and shape parameter γ 
+# (γ > 0)
 
 # To include a plot pane within the VS code editor window,
 # open the command palette with Ctrl + Shift + P
