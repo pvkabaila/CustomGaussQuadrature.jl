@@ -134,6 +134,11 @@ include("utilities_scr.jl")
 using CustomGaussQuadrature: μ_offsetvec_fn, Δ_fn, Δ′_fn, Δ_offsetvec_fn,
     Δ′_offsetvec_fn, α_offsetvec_fn, β_vec_fn, step1_fn
 
+# Both the inbuilt package Dates and the package Printf have a format command
+date_time_now = now()
+println("\n", Dates.Date(date_time_now), 
+"   ", Dates.format(date_time_now, "HH:MM"))    
+
 # pkg_dir is the package root directory, regardless of whether the
 # package was loaded from a local path or from the registry.
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
@@ -142,21 +147,50 @@ println_wrap(pkg_dir)
 print("\n")
 
 println("The simplest way to compare the output from this test,")
-println("stored as a plain text file, with a previous output")
-println("from this test is as follows. Open both plain text files")
-println("in VS Code. Then on the OPEN EDITORS menu on the upper left")
+println("stored as a .txt ('plain text') file, with a previous output")
+println("from this test is as follows. Open both .txt files")
+println("in VS Code. Then on the EXPLORER menu on the left")
 println("right click on the previous output > Select for Compare.")
-println("Then right click on the text file for the latest output >")
-println("Compare with Selected. Both plain text files are compared.")
-println("\n", "\n")
+println("Then right click on the .txt file for the latest output >")
+println("Compare with Selected. Both .txt files are compared.")
+println("This does not compare digits in a number numerically,")
+println("by first rounding to the appropriate number of digits")
+println("and then comparing, it simply compares the difference")
+println("between characters. Nonetheless, VS code diff has the")
+println("virtue of being automated.")
+println("Unfortunately, VS code diff will pick up differences that")
+println("are invisible to me, for example trailing whitespaces.")
+println("These trailing whitespaces can be rendered by opening")
+println("the Command Palette with Ctrl+Shift+P, typing") 
+println("'Toggle Render Whitespace' and pressing Enter.")
+println("Also, the fact that a difference is due to a trailing")
+println("whitespace can actually be perceived by careful")
+println("examination of the diff view (check the dotted lines).")
+println("However, the best approach is to first use the following")
+println("Powershell script on both .txt files:")
+println(".\\remove_trailing_whitespace.ps1 -FilePath 'filename.txt'")
+println("written by Claude Sonnet 4.6.", "\n")
 
-println("2026 3 17 I used Claude Opus 4.6 to check the safety of installing")
-println("the EXTENSION Persistent Highlighter and it reported that no") 
+println("2026 3 25 I used Claude Opus 4.6 to check the safety of installing")
+println("the EXTENSION Persistent Text Marker and it reported that no") 
 println("dangerous, suspicious or questionable code was found.") 
-println("To always highlight with the color Light Yellow use") 
-println("Ctrl + Shift + P to bring up the Command Palette and") 
-println("then use Persistent Highlighter: Add Custom Color Highlight")
-println("and always pick Light Yellow.", "\n")
+println("Unfortunately, this highlighting does not work the way")
+println("that I want it to for highlighting part of a number")
+println("since this highlights ALL occurences in the file of")
+println("that part of the number. This cannot be changed.")
+println("The only non-confusing way that this highlighter")
+println("can be used is if I add comments which I highlight")
+println("in Yellow. I do this by right clicking on the chosen")
+println("and then choosing the colour Yellow.", "\n")
+
+println("To use VS code diff to aid in highlighting differences")
+println("in the original .txt file, I open up this file in a normal")
+println("editor split alongside the diff view, so I can see  diff")
+println("view, while applying the highlights in the other pane.")
+println("To go to the same line in both diff view & regular editor")
+println("use Ctrl+G, type the line number and press Enter - works")
+println("in both the diff view and the regular editor tab to jump") 
+println("quickly to the same position.", "\n")
 
 using Printf
 using Plots
@@ -729,8 +763,8 @@ end
 #-------------------------------------------------
 # Plot the cdf corresponding to the Gauss quadrature 
 # rule and the actual cdf of a Weibull distribution 
-# with scale parameter λ = 1 and shape parameter γ 
-# (k > 0)
+# with scale parameter 1 and shape parameter γ 
+# (γ > 0)
 
 # To include a plot pane within the VS code editor window,
 # open the command palette with Ctrl + Shift + P
@@ -745,7 +779,7 @@ p = plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi)
 x_grid = range(x_lo, x_hi, length=200);
 y_grid = weibull_cdf_fn.(x_grid, γ);
 plot!(x_grid, y_grid, 
-title="Weibull pdf weight function with scale parameter λ=1.0 and γ=$γ",
+title="Weibull pdf weight fn with scale parameter 1 & shape parameter γ=$γ",
  titlefont=font(10))
 display(p)
 
@@ -1086,9 +1120,5 @@ max_abs_rel_error_weights = maximum(abs.((stieltjes_weights_bf - weights_BigFloa
 println("maximum(abs.((stieltjes_weights_bf - weights_BigFloat) ./ weights_BigFloat)) = ", 
 convert(Float64, max_abs_rel_error_weights))
 
-#  A known limitation of VS Code's diff algorithm is that intra-line 
-#  character highlighting requires at least one context line after 
-#  the changed line. The last lines of the file have no following 
-#  context, so they fall back to whole-line highlighting only.
 println("\n", "NOTE: VS Code diff intra-line highlighting may be unreliable for the last few changed lines.")
 
