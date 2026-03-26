@@ -38,6 +38,8 @@
 #  run when explicitly called from other scripts or the Julia REPL, 
 #  ensuring it does not execute upon package loading.
 
+using CustomGaussQuadrature: μ_offsetvec_fn
+
 if which_f[1] == "scaled chi pdf"
     moment_fn = moment_stored_fn;
     m = which_f[3];
