@@ -62,7 +62,7 @@
 #
 # Step 3 — Run the script:
 #     julia> pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
-#     julia> include(joinpath(pkg_dir, "test", "test_CustomGaussQuadrature_scr.jl"))
+#     julia> include(joinpath(pkg_dir, "test", "test_CustomGaussQuadrature_MomentDets_scr.jl"))
 #
 #------------------------------------------------------------
 # How to run this script — Path (2b): Julia General Registry
