@@ -190,45 +190,45 @@ println("\n", "------------------------------------------------------")
 # is no "standard" notation for these parameters.
 #
 # The Weibull pdf is 
-# f(x; λ, γ) = (γ/λ) (x/λ)ᵞ⁻¹ exp(-(x/λ)ᵞ) for x ≥ 0
+# f(x; λ, k) = (k/λ) (x/λ)ᵏ⁻¹ exp(-(x/λ)ᵏ) for x ≥ 0
 #            = 0                           otherwise
-# where γ > 0 is the shape parameter and λ > 0 is the
+# where k > 0 is the shape parameter and λ > 0 is the
 # scale parameter. The s'th raw moment of a random 
 # variable X with this pdf is 
-#      E(Xˢ) = λˢ Γ(1 + (s/γ))
+#      E(Xˢ) = λˢ Γ(1 + (s/k))
 #
 # We consider the particular case that the scale 
 # parameter λ = 1. In this case the pdf is
-# f(x; γ) = γ xᵞ⁻¹ exp(-xᵞ) for x ≥ 0
+# f(x; k) = k xᵏ⁻¹ exp(-xᵏ) for x ≥ 0
 #         = 0               otherwise
-# where γ > 0 is the shape parameter.
+# where k > 0 is the shape parameter.
 # The s'th raw moment of a random 
 # variable X with this pdf is 
-#      E(Xˢ) = Γ(1 + (s/γ))
+#      E(Xˢ) = Γ(1 + (s/k))
 
 function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
     @assert x > convert(T,0)
-    γ = which_f[3]
-    T_γ = parse(T, string(γ))
-    @assert T_γ > convert(T, 0)
-    log(T_γ) + (T_γ - convert(T,1)) * log(x) - x^T_γ
+    k = which_f[3]
+    T_k = parse(T, string(k))
+    @assert T_k > convert(T, 0)
+    log(T_k) + (T_k - convert(T,1)) * log(x) - x^T_k
 end
 
 function μ₀_μ₁_weibull_pdf_fn(::Type{T}, which_f) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    γ = which_f[3]
-    T_γ = parse(T, string(γ))
-    @assert T_γ > convert(T, 0)
+    k = which_f[3]
+    T_k = parse(T, string(k))
+    @assert T_k > convert(T, 0)
     T_1 = convert(T, 1)
     μ₀ = convert(T,1)
-    μ₁ = gamma(T_1 + (T_1/T_γ))
+    μ₁ = gamma(T_1 + (T_1/T_k))
     [μ₀ μ₁]
 end
 
 
-γ = 2.0
-which_f = ["weibull pdf", [0, Inf], γ]
+k = 2.0
+which_f = ["weibull pdf", [0, Inf], k]
 n = 10
 
 println("which_f = ", which_f)
@@ -246,16 +246,16 @@ println("r =", r, "\n")
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    γ = which_f[3]
-    @assert γ > 0
-    T_γ = parse(T, string(γ))
+    k = which_f[3]
+    @assert k > 0
+    T_k = parse(T, string(k))
     @assert s ≥ 0
     if s == 0
       return(convert(T, 1))
     end
     T_1 = convert(T, 1)
     T_s = convert(T, s)
-    gamma(T_1 + (T_s/T_γ))
+    gamma(T_1 + (T_s/T_k))
 end
 
 moment_fn = moment_weibull_pdf_fn
