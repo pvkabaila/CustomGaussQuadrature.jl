@@ -208,13 +208,13 @@ we assign the value of positive integer parameter m and then use
 
 ### **A note on the input of real-valued parameters**
 
-Suppose that the exact value of the parameter γ is 3.1. For convenience, we assign it using
+Suppose that the exact value of the parameter k is 3.1. For convenience, we assign it using
 
 ```julia
-γ = 3.1
+k = 3.1
 ```
 
-which sets γ to the `Float64` approximation to 3.1. This package uses a range of `AbstractFloat` types `T`, including `BigFloat`, for its internal computations. It is therefore important to obtain the best approximation of type `T` to the exact value 3.1. Since γ is of type `Float64`, the command `convert(BigFloat, k)` gives only `Float64`-precision:
+which sets k to the `Float64` approximation to 3.1. This package uses a range of `AbstractFloat` types `T`, including `BigFloat`, for its internal computations. It is therefore important to obtain the best approximation of type `T` to the exact value 3.1. Since k is of type `Float64`, the command `convert(BigFloat, k)` gives only `Float64`-precision:
 
 ```
 3.100000000000000088817841970012523233890533447265625
@@ -228,7 +228,7 @@ A more precise `BigFloat` approximation is obtained via `parse(BigFloat, string(
 
 This is because `string(k)` uses Julia's `print`, which for `Float64` values produces the shortest correctly rounded decimal that round-trips identically. Consequently `string(3.1)` returns `"3.1"`.
 
-The function `parse(T, string(...))` is used internally within this package wherever a user-supplied parameter needs to be converted to type `T`. The user only needs to assign parameters using standard Julia literals (e.g. `γ = 3.0`).
+The function `parse(T, string(...))` is used internally within this package wherever a user-supplied parameter needs to be converted to type `T`. The user only needs to assign parameters using standard Julia literals (e.g. `k = 3.0`).
 
 ### **Example 1** 
 
@@ -325,27 +325,27 @@ Gautschi (1983).
 ### **Example 3** 
 
 Now suppose that, on the other hand, we want to specify a **new** weight function, say the Weibull pdf with 
-shape parameter γ > 0 and scale parameter set to 1.
+shape parameter k > 0 and scale parameter set to 1.
 In this case, the weight function is
 $$
 		f(x) =
 	\begin{cases}
-		\ \gamma \, x^{\gamma - 1} \exp(-x^{\gamma}) &\ \text{for} \ \ x > 0
+		\ k \, x^{k - 1} \exp(-x^{k}) &\ \text{for} \ \ x > 0
 		\\
 		0  &\ \text{otherwise.}
 	\end{cases}	
 $$
 For this weight function, the $s$'th moment is
 $$
-	\Gamma\left(1 + \frac{s}{\gamma}\right)
+	\Gamma\left(1 + \frac{s}{k}\right)
 $$
 for $s = 0, 1, 2, \dots$.
 
 
 We identify this new weight function by first assigning
-a value of the positive parameter $\gamma$ and then using Julia command
-`which_f = ["weibull pdf", [0, Inf], γ]`.
-Therefore the following command specifies this weight function with $\gamma$ set to 2.0.
+a value of the positive parameter $k$ and then using Julia command
+`which_f = ["weibull pdf", [0, Inf], k]`.
+Therefore the following command specifies this weight function with $k$ set to 2.0.
 ```julia
 which_f = ["weibull pdf", [0, Inf], 2.0]
 ```
@@ -354,16 +354,16 @@ We provide the function for computing the s'th moment using
   using SpecialFunctions
   function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    γ = which_f[3]
-    @assert γ > 0
-    T_γ = parse(T, string(γ))
+    k = which_f[3]
+    @assert k > 0
+    T_k = parse(T, string(k))
     @assert s ≥ 0
     if s == 0
       return(convert(T, 1))
     end
     T_1 = convert(T, 1)
     T_s = convert(T, s)
-    gamma(T_1 + (T_s/T_γ))
+    gamma(T_1 + (T_s/T_k))
   end
 ```
 
@@ -617,9 +617,9 @@ Print these out in the same format as in **Example 1** using
 ### **Example 5**
 
 Consider the same weight function as in Example 3. We identify this new weight function by first assigning
-a value of the positive parameter $\gamma$ and then using Julia command
-`which_f = ["weibull pdf", [0, Inf], γ]`.
-Therefore the following command specifies this weight function with $\gamma$ set to 2.0, say.
+a value of the positive parameter $k$ and then using Julia command
+`which_f = ["weibull pdf", [0, Inf], k]`.
+Therefore the following command specifies this weight function with $k$ set to 2.0, say.
 ```julia
 which_f = ["weibull pdf", [0, Inf], 2.0]
 ```
@@ -627,7 +627,7 @@ which_f = ["weibull pdf", [0, Inf], 2.0]
 In this case, 
 $$
 		\log(f(x)) =
-		\log(\gamma) + (\gamma - 1) \log(x) -x^{\gamma} \ \ \ \ \text{for} \ \ x > 0.
+		\log(k) + (k - 1) \log(x) -x^{k} \ \ \ \ \text{for} \ \ x > 0.
 $$
 
 We provide the following function for computing $\log(f(x))$ 
@@ -636,28 +636,28 @@ using SpecialFunctions
 function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
     @assert x > convert(T,0)
-    γ = which_f[3]
-    T_γ = parse(T, string(γ))
-    @assert T_γ > convert(T, 0)
-    log(T_γ) + (T_γ - convert(T,1)) * log(x) - x^T_γ
+    k = which_f[3]
+    T_k = parse(T, string(k))
+    @assert T_k > convert(T, 0)
+    log(T_k) + (T_k - convert(T,1)) * log(x) - x^T_k
 end
 ```
 and the following function for computing $\mu_0$ and $\mu_1$
 ```julia
 function μ₀_μ₁_weibull_pdf_fn(::Type{T}, which_f) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    γ = which_f[3]
-    T_γ = parse(T, string(γ))
-    @assert T_γ > convert(T, 0)
+    k = which_f[3]
+    T_k = parse(T, string(k))
+    @assert T_k > convert(T, 0)
     T_1 = convert(T, 1)
     μ₀ = convert(T,1)
-    μ₁ = gamma(T_1 + (T_1/T_γ))
+    μ₁ = gamma(T_1 + (T_1/T_k))
     [μ₀ μ₁]
 end
 ```
 
 
-For this weight function, with parameter $\gamma$ set to 2.0 and number of Gauss quadrature nodes n set to 10, we use the following commands to specify the function that will be used for computing $\log(f)$, together with the values of $\mu_0$ and $\mu_1$.
+For this weight function, with parameter $k$ set to 2.0 and number of Gauss quadrature nodes n set to 10, we use the following commands to specify the function that will be used for computing $\log(f)$, together with the values of $\mu_0$ and $\mu_1$.
 
 ```julia
 	n = 10
