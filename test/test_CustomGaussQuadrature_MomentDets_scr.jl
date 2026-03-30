@@ -765,8 +765,8 @@ end
 #-------------------------------------------------
 # Plot the cdf corresponding to the Gauss quadrature 
 # rule and the actual cdf of a Weibull distribution 
-# with scale parameter λ = 1 and shape parameter γ 
-# (γ > 0)
+# with scale parameter λ = 1 and shape parameter k 
+# (k > 0)
 
 # To include a plot pane within the VS code editor window,
 # open the command palette with Ctrl + Shift + P
@@ -781,5 +781,5 @@ plot_cdf_discrete_rv_fn(x_vec, prob_vec, x_lo, x_hi)
 x_grid = range(x_lo, x_hi, length=200);
 y_grid = weibull_cdf_fn.(x_grid, k);
 plot!(x_grid, y_grid, 
-title="Weibull pdf weight fn with scale parameter 1 & shape parameter γ=$γ",
+title="Weibull pdf weight fn with scale parameter 1 & shape parameter k=$k",
 titlefont=font(10))
