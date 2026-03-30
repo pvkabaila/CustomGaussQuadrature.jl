@@ -84,7 +84,7 @@ nodes = convert(Vector{Float64}, nodes)
 weights = convert(Vector{Float64}, weights)
 ```
 
-**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `γ` = 2 & number of nodes `n` = 9:
+**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 2 & number of nodes `n` = 9:
 
 ```julia
 using SpecialFunctions
@@ -93,14 +93,14 @@ which_f = ["weibull pdf", [0, Inf], 2.0]
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    γ = which_f[3]
-    @assert γ > 0
-    T_γ = parse(T, string(γ))
+    k = which_f[3]
+    @assert k > 0
+    T_k = parse(T, string(k))
     @assert s ≥ 0
     if s == 0
         return(convert(T, 1))
     end
-    gamma(convert(T, 1) + convert(T, s) / T_γ)
+    gamma(convert(T, 1) + convert(T, s) / T_k)
 end
 
 n = 9
@@ -133,7 +133,7 @@ nodes = convert(Vector{Float64}, stieltjes_nodes)
 weights = convert(Vector{Float64}, stieltjes_weights)
 ```
 
-**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `γ` = 2 & number of nodes `n` = 10:
+**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 2 & number of nodes `n` = 10:
 
 
 ```julia
@@ -146,19 +146,19 @@ T = BigFloat
 function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
     @assert x > convert(T, 0)
-    γ = which_f[3]
-    T_γ = parse(T, string(γ))
-    @assert T_γ > convert(T, 0)
-    log(T_γ) + (T_γ - convert(T, 1)) * log(x) - x^T_γ
+    k = which_f[3]
+    T_k = parse(T, string(k))
+    @assert T_k > convert(T, 0)
+    log(T_k) + (T_k - convert(T, 1)) * log(x) - x^T_k
 end
 
 function μ₀_μ₁_weibull_pdf_fn(::Type{T}, which_f) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    γ = which_f[3]
-    T_γ = parse(T, string(γ))
-    @assert T_γ > convert(T, 0)
+    k = which_f[3]
+    T_k = parse(T, string(k))
+    @assert T_k > convert(T, 0)
     T_1 = convert(T, 1)
-    [convert(T, 1) gamma(T_1 + T_1 / T_γ)]
+    [convert(T, 1) gamma(T_1 + T_1 / T_k)]
 end
 
 lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x)
