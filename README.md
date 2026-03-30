@@ -92,9 +92,14 @@ using SpecialFunctions
 which_f = ["weibull pdf", [0, Inf], 2.0]
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
     γ = which_f[3]
+    @assert γ > 0
     T_γ = parse(T, string(γ))
-    s == 0 && return convert(T, 1)
+    @assert s ≥ 0
+    if s == 0
+        return(convert(T, 1))
+    end
     gamma(convert(T, 1) + convert(T, s) / T_γ)
 end
 
@@ -139,14 +144,19 @@ n = 10
 T = BigFloat
 
 function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    @assert x > convert(T, 0)
     γ = which_f[3]
     T_γ = parse(T, string(γ))
+    @assert T_γ > convert(T, 0)
     log(T_γ) + (T_γ - convert(T, 1)) * log(x) - x^T_γ
 end
 
 function μ₀_μ₁_weibull_pdf_fn(::Type{T}, which_f) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
     γ = which_f[3]
     T_γ = parse(T, string(γ))
+    @assert T_γ > convert(T, 0)
     T_1 = convert(T, 1)
     [convert(T, 1) gamma(T_1 + T_1 / T_γ)]
 end
