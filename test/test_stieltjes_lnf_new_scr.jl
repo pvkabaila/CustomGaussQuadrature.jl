@@ -120,6 +120,7 @@
 include("utilities_scr.jl")
 
 # Both the inbuilt package Dates and the package Printf have a format command
+using Dates
 date_time_now = now()
 println("\n", Dates.Date(date_time_now), 
 "   ", Dates.format(date_time_now, "HH:MM"))    
