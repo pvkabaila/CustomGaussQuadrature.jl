@@ -4,6 +4,7 @@ authors = ["Paul Kabaila"]
 version = "2.0.2"
 
 [deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DoubleFloats = "497a8b3b-efae-58df-a0af-a86822472b78"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
 GaussQuadrature = "d54b0c1a-921d-58e0-8e36-89d8069c0969"
@@ -15,6 +16,7 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
+Dates = "1.11.0"
 DoubleFloats = "1.4.2"
 FastGaussQuadrature = "1.0.2"
 GaussQuadrature = "0.5.8"
