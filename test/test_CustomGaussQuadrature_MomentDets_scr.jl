@@ -127,6 +127,7 @@ using CustomGaussQuadrature: μ_offsetvec_fn, Δ_fn, Δ′_fn, Δ_offsetvec_fn,
     Δ′_offsetvec_fn, α_offsetvec_fn, β_vec_fn
 
 # Both the inbuilt package Dates and the package Printf have a format command
+using Dates
 date_time_now = now()
 println("\n", Dates.Date(date_time_now), 
 "   ", Dates.format(date_time_now, "HH:MM"))        
