@@ -154,7 +154,7 @@ step1_fn(moment_fn, which_f, n);
 # nodes and weights
 
 stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
 
 nodes, weights = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n);
@@ -168,7 +168,7 @@ a = convert(T,0);
 b = Inf;
 
 stieltjes_nodes_upto_n, stieltjes_weights_upto_n = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b, upto_n);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b, upto_n);  
 
 nodes_upto_n, weights_upto_n = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n);
@@ -193,7 +193,7 @@ T = BigFloat;
 stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits = 
 stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
 
 stieltjes_nodes_Float64 = convert(Vector{Float64}, stieltjes_nodes);
 stieltjes_weights_Float64 = convert(Vector{Float64}, stieltjes_weights);
@@ -213,7 +213,7 @@ stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k =
 stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
 stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
 
 #------------------------------------------------
 # Test the function stieltjes_custom_gauss_quad_all_fn
@@ -234,6 +234,6 @@ stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k =
 stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
 stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b); 
 
 end
