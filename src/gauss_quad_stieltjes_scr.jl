@@ -241,8 +241,10 @@ in Step 2. To choose the final value of r, which is outputted,
 we consider k (offset + n) for k=3, k-4, up to a maximum 
 value k_max. The default values of offset and k_max are 7
 and 40, respectively. 
+We restrict to n ≥ 2.     
 """
 function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
+@assert n ≥ 2             
     k = 3
     r = k * (offset + n)
     # println("r = k * (offset + n), where k = ", k)
@@ -340,26 +342,19 @@ end
 
 
 """
-nodes, weights = stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, a_vec, b_vec, a, b, upto_n)
+nodes, weights = stieltjes_custom_gauss_quad_all_fn(n, μ₀, a_vec, b_vec, a, b, upto_n) 
 
 This function computes the custom-made Gauss quadrature nodes and 
 weights, for n nodes and the weight function specified by the inputs 
-μ₀, μ₁, a_vec, b_vec, a and b
+μ₀, a_vec, b_vec, a and b. This function is used only when n ≥ 2.      
 The Boolean variable upto_n takes the value true if the Gauss quadrature 
 rules are computed for number of nodes q from 1 up and including n.
 By default, this variable is false, so that only the Gauss quadrature 
 rule for number of nodes n is computed.
 """
-function stieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_vec, 
+function stieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, a_vec, b_vec, 
     a, b, upto_n::Bool=false)
-  @assert n ≥ 1
-  if n == 1
-    μ₀ = convert(Double64, μ₀)
-    μ₁ = convert(Double64, μ₁)  
-    nodes = μ₁ / μ₀
-    weights = μ₀
-    return([nodes, weights])
-  end
+  @assert n ≥ 2
   nodes, weights = stieltjes_step2_fn(n, μ₀, a_vec, b_vec, a, b)
   if upto_n == false
     # The precision of BigFloat is set globally.
@@ -371,10 +366,9 @@ function stieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, μ₁, a_vec, b_v
   end
   nodes_upto_n = Any[]
   weights_upto_n = Any[]
-  μ₀ = convert(Double64, μ₀)
-  μ₁ = convert(Double64, μ₁) 
-  nodes_1 = μ₁ / μ₀
-  weights_1 = μ₀
+  #  a_vec = [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] 
+  nodes_1 = convert(Double64, a_vec[1])      
+  weights_1 = convert(Double64, μ₀)          
   push!(nodes_upto_n, nodes_1)
   push!(weights_upto_n, weights_1)
   for q in 2:(n-1)
