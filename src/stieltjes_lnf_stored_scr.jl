@@ -89,4 +89,4 @@ stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r =
 stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
 stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b); 
