@@ -826,7 +826,7 @@ println("\n")
 println("nodes and weights", "\n") 
 
 @time "stieltjes_custom_gauss_quad_all_fn" stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
 
 @time "custom_gauss_quad_all_fn" nodes, weights = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n);
@@ -864,7 +864,7 @@ a = convert(T,0);
 b = Inf;
 
 @time "stieltjes_custom_gauss_quad_all_fn" stieltjes_nodes_upto_n, stieltjes_weights_upto_n = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b, upto_n);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b, upto_n);  
 print("\n")
 @time "custom_gauss_quad_all_fn" nodes_upto_n, weights_upto_n = 
 custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n);
@@ -961,7 +961,7 @@ print("\n")
 @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits = 
 stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 @time "stieltjes_custom_gauss_quad_all_fn" stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
 print("\n")
 
 # Beware!
@@ -1026,7 +1026,7 @@ T = BigFloat;
 stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 println("r = ", r, "\n")
 @time "stieltjes_custom_gauss_quad_all_fn" stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
 
 
 nodes_BigFloat, weights_BigFloat = hermite(BigFloat, n);
@@ -1087,7 +1087,7 @@ stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 println("r = ", r, "\n")
 
 @time "stieltjes_custom_gauss_quad_all_fn" stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
+stieltjes_custom_gauss_quad_all_fn(n, μ₀,stieltjes_a_vec, stieltjes_b_vec, a, b);
 
 print("\n")
 println("                nodes_BigFloat                         weights_BigFloat")
