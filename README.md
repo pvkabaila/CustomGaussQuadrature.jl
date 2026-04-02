@@ -141,7 +141,7 @@ using SpecialFunctions
 
 which_f = ["weibull pdf", [0, Inf], 2.0]
 n = 10
-T = BigFloat
+
 
 function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
@@ -151,18 +151,13 @@ function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:Abst
     @assert T_k > convert(T, 0)
     log(T_k) + (T_k - convert(T, 1)) * log(x) - x^T_k
 end
+```
+`mu0` is defined to be $\int f(x) dx$. Since the weight function is a pdf,
+`mu0` $ = 1$.
 
-function μ₀_μ₁_weibull_pdf_fn(::Type{T}, which_f) where {T<:AbstractFloat}
-    @assert which_f[1] == "weibull pdf"
-    k = which_f[3]
-    T_k = parse(T, string(k))
-    @assert T_k > convert(T, 0)
-    T_1 = convert(T, 1)
-    [convert(T, 1) gamma(T_1 + T_1 / T_k)]
-end
-
+```julia
 lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x)
-μ₀, μ₁ = μ₀_μ₁_weibull_pdf_fn(T, which_f)
+mu0 = convert(Double64, 1)  
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 # Evaluation of stieltjes_nodes and stieltjes_weights:
