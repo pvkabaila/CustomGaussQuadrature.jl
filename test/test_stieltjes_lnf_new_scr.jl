@@ -216,17 +216,6 @@ function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:Abst
     log(T_k) + (T_k - convert(T,1)) * log(x) - x^T_k
 end
 
-function μ₀_μ₁_weibull_pdf_fn(::Type{T}, which_f) where {T<:AbstractFloat}
-    @assert which_f[1] == "weibull pdf"
-    k = which_f[3]
-    T_k = parse(T, string(k))
-    @assert T_k > convert(T, 0)
-    T_1 = convert(T, 1)
-    μ₀ = convert(T,1)
-    μ₁ = gamma(T_1 + (T_1/T_k))
-    [μ₀ μ₁]
-end
-
 
 k = 2.0
 which_f = ["weibull pdf", [0, Inf], k]
@@ -238,7 +227,7 @@ println("n = ", n, "\n")
 T = BigFloat
 
 lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x);
-μ₀, μ₁ = μ₀_μ₁_weibull_pdf_fn(T, which_f);
+mu0 = convert(T, 1);
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
