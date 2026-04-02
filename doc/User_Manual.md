@@ -642,28 +642,14 @@ function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:Abst
     log(T_k) + (T_k - convert(T,1)) * log(x) - x^T_k
 end
 ```
-<!--
-and the following function for computing $\mu_0$ and $\mu_1$
-```julia
-function μ₀_μ₁_weibull_pdf_fn(::Type{T}, which_f) where {T<:AbstractFloat}
-    @assert which_f[1] == "weibull pdf"
-    k = which_f[3]
-    T_k = parse(T, string(k))
-    @assert T_k > convert(T, 0)
-    T_1 = convert(T, 1)
-    μ₀ = convert(T,1)
-    μ₁ = gamma(T_1 + (T_1/T_k))
-    [μ₀ μ₁]
-end
-```-->
 
 
-For this weight function, with parameter $k$ set to 2.0 and number of Gauss quadrature nodes n set to 10, we use the following commands to specify the function that will be used for computing $\log(f)$, together with the value of $\mu_0$ (which is 1 because the weight function is a pdf).
+For this weight function, with parameter $k$ set to 2.0 and number of Gauss quadrature nodes n set to 10, we use the following commands to specify the function that will be used for computing $\log(f)$, together with the value of $\mu_0$ which is 1 since the weight function is a pdf. In the following code,  $\mu_0$  is denoted by `mu0`.
 
 ```julia
 	n = 10
 	lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x)
-	μ₀ = convert(Double64, 1)
+	mu0 = convert(Double64, 1)
 ```
 
 Then we use the following command to carry out both **Step 1** and **Step 2**
