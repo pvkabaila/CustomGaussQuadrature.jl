@@ -25,7 +25,7 @@
 #     CustomGaussQuadrature - Julia package\CustomGaussQuadrature\
 #
 # Step 2 — Start the Julia REPL:
-#     CTRL + Shift + P  >  Julia: Start REPL
+#     Ctrl+Shift+P  (to bring up Command Palette)>  Julia: Start REPL
 #
 # Step 3 — Activate the local package:
 #     julia> ]
@@ -44,7 +44,7 @@
 #------------------------------------------------------------
 #
 # Step 1 — Start the Julia REPL:
-#     CTRL + Shift + P  >  Julia: Start REPL
+#     Ctrl+Shift+P  (to bring up Command Palette)>  Julia: Start REPL
 #
 # Step 2 — Activate a temporary environment, install the package,
 #           and load it:
@@ -71,7 +71,7 @@
 #------------------------------------------------------------
 #
 # Step 1 — Start the Julia REPL:
-#     CTRL + Shift + P  >  Julia: Start REPL
+#     Ctrl+Shift+P  (to bring up Command Palette)>  Julia: Start REPL
 #
 # Step 2 — Install the package and load it:
 #     julia> using Pkg
