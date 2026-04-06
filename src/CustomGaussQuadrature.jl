@@ -114,6 +114,27 @@ module CustomGaussQuadrature
 # Reference
 # Gautschi, W. (2004) Orthogonal Polynomials, Computation and 
 # Approximation. Oxford University Press, Oxford.
+#
+# ---------------------------------------------------------------
+# Note for R users (not relevant to Julia users)
+# ---------------------------------------------------------------
+# The src/ folder also contains four scripts that are NOT part of
+# this module and are NOT loaded when the package is loaded.
+# They are thin interface scripts intended for R users who call
+# this package from R via the JuliaConnectoR package:
+#
+#   r_interface_moment_dets_scr.jl
+#       Method 1 (moment determinants), user-defined weight function.
+#   r_interface_moment_dets_stored_scr.jl
+#       Method 1 (moment determinants), built-in weight function.
+#   r_interface_stieltjes_new_scr.jl
+#       Method 2 (Stieltjes procedure), user-defined log-weight function.
+#   r_interface_stieltjes_stored_scr.jl
+#       Method 2 (Stieltjes procedure), built-in weight function.
+#
+# Usage instructions for R users are given in the header comments
+# of each of these scripts.
+# ---------------------------------------------------------------
 
 using FastGaussQuadrature
 using GaussQuadrature
