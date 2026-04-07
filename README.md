@@ -147,6 +147,7 @@ function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:Abst
     @assert which_f[1] == "weibull pdf"
     @assert x > convert(T, 0)
     k = which_f[3]
+    @assert k > 0
     T_k = parse(T, string(k))
     @assert T_k > convert(T, 0)
     log(T_k) + (T_k - convert(T, 1)) * log(x) - x^T_k
