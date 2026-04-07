@@ -473,7 +473,7 @@ $$
 
 A discrete approximation to the right-hand side of 	(3) can be found as follows.
 Let 
-$h(y) = g\big(\varphi(y)\big) \, f\big(\varphi(y)\big) \, \varphi'(y)$.
+$h(y) = g\big(\varphi(y)\big) \thinspace f\big(\varphi(y)\big) \thinspace \varphi'(y)$.
 A high-quality quadrature rule is then used to provide a discrete approximation to the integral $\int_{-1}^1 h(y) \ dy$.
 Gautschi (2004) uses a Fejer quadrature rule.
 Instead, we use Gauss Legendre quadrature with $r$ nodes to approximate
