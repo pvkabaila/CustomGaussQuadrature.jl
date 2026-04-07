@@ -153,7 +153,7 @@ function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:Abst
 end
 ```
 `mu0` is defined to be $\int f(x) dx$. Since the weight function is a pdf,
-`mu0` $ = 1$.
+`mu0` $= 1$.
 
 ```julia
 lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x)
