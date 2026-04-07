@@ -1,4 +1,4 @@
-# CustomGaussQuadrature
+﻿# CustomGaussQuadrature
 
 [![Build Status](https://github.com/pvkabaila/CustomGaussQuadrature.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/pvkabaila/CustomGaussQuadrature.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
@@ -92,11 +92,11 @@ where
 
 $$
 \alpha_k 
-	= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
-	(k = 0, 1, \dots) \ \ \text{and} \ \ \
-	\beta_k 
-	= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
-	(k = 1, 2, \dots) 
+= \frac{\big(x \, \pi_k, \pi_k\big)}{\big(\pi_k, \pi_k\big)}
+(k = 0, 1, \dots) \ \ \text{and} \ \ \
+\beta_k 
+= \frac{\big(\pi_k, \pi_k\big)}{\big(\pi_{k-1}, \pi_{k-1}\big)}
+(k = 1, 2, \dots) 
 \ \ \ \ \ \ (2)
 $$
 
@@ -143,12 +143,12 @@ Two examples of this identification are the following:
 Consider the "scaled chi pdf" weight function given by the probability density function (pdf)
 
 $$
-	f(x) =
-	\begin{cases}
-		\dfrac{m^{m/2}}{\Gamma(m/2) \ 2^{(m/2) - 1}} \ x^{m-1} \, \exp\big(- m \ x^2 /2 \big) &\text{for } x > 0
-		\\
-		0 &\text{otherwise},
-	\end{cases}	
+f(x) =
+\begin{cases}
+\dfrac{m^{m/2}}{\Gamma(m/2) \ 2^{(m/2) - 1}} \ x^{m-1} \, \exp\big(- m \ x^2 /2 \big) &\text{for } x > 0
+\\
+0 &\text{otherwise},
+\end{cases}
 $$
 
 where $m$ is a positive integer parameter (the "degrees of freedom"). 
@@ -161,12 +161,12 @@ for some assigned value of the parameter `m`.
 The "chemistry example" weight function is
 
 $$
-		f(x) =
-	\begin{cases}
-		\exp(-x^3 / 3) &\ \text{for} \ x > 0
-		\\
-		0  &\ \text{otherwise.}
-	\end{cases}	
+f(x) =
+\begin{cases}
+\exp(-x^3 / 3) &\ \text{for} \ x > 0
+\\
+0  &\ \text{otherwise.}
+\end{cases}
 $$
 
 This weight function is considered by Gautschi (1983) and is identified by <br>
@@ -245,8 +245,8 @@ Therefore the following command specifies this weight function with `m` set to 1
 For this weight function, the $s$'th moment is 
 
 $$
-	\left(\frac{2}{m} \right)^{s/2}
-	\frac{\Gamma\big((s+m)/2\big)}{\Gamma(m/2)}
+\left(\frac{2}{m} \right)^{s/2}
+\frac{\Gamma\big((s+m)/2\big)}{\Gamma(m/2)}
     = \exp \left(\frac{s}{2} \log\left(\frac{2}{m} \right)  +
     \log \Gamma \left(\frac{s+m}{2}\right) 
     - \log \Gamma \left(\frac{m}{2}\right) \right)
@@ -287,7 +287,7 @@ Consider the weight function identified by
 For this weight function, the $s$'th moment is 
 
 $$
-	3^{(s - 2) / 3}  \ \Gamma\big((s + 1) / 3\big)
+3^{(s - 2) / 3}  \ \Gamma\big((s + 1) / 3\big)
 $$
 
 for $s = 0, 1, 2, \dots$.
@@ -328,16 +328,16 @@ Now suppose that, on the other hand, we want to specify a **new** weight functio
 shape parameter k > 0 and scale parameter set to 1.
 In this case, the weight function is
 $$
-		f(x) =
-	\begin{cases}
-		\ k \, x^{k - 1} \exp(-x^{k}) &\ \text{for} \ \ x > 0
-		\\
-		0  &\ \text{otherwise.}
-	\end{cases}	
+f(x) =
+\begin{cases}
+\ k \, x^{k - 1} \exp(-x^{k}) &\ \text{for} \ \ x > 0
+\\
+0  &\ \text{otherwise.}
+\end{cases}
 $$
 For this weight function, the $s$'th moment is
 $$
-	\Gamma\left(1 + \frac{s}{k}\right)
+\Gamma\left(1 + \frac{s}{k}\right)
 $$
 for $s = 0, 1, 2, \dots$.
 
@@ -401,11 +401,11 @@ These nodes and weights are printed using the `@printf` macro from the package `
 The Stieltjes procedure, given in subsections 2.2.2 and 2.2.3 of Gautschi (2004), applies the three-term recurrence relation (1) and (2) iteratively through the following sequence:
 
 $$\{\pi_{-1}, \pi_0\} \rightarrow
-	\{\alpha_0, \pi_1\} \rightarrow
-	(\pi_1, \pi_1) \rightarrow
+\{\alpha_0, \pi_1\} \rightarrow
+(\pi_1, \pi_1) \rightarrow
 \beta_1  \rightarrow
-	\{\alpha_1, \pi_2\} \rightarrow
-	(\pi_2, \pi_2) \rightarrow
+\{\alpha_1, \pi_2\} \rightarrow
+(\pi_2, \pi_2) \rightarrow
 \beta_2  \rightarrow \dots$$
 
 The inner products used in the computation of the recursion coefficients are found using a high-quality quadrature rule with $r$ nodes. This is a discretization method that is expected to lead to
@@ -424,7 +424,7 @@ to $(u,v)$.
 Suppose that $\{x: f(x) > 0\}$,  the support of the weight function $f$, is an interval with lower and upper endpoints $a$ and $b$, respectively. Here $-\infty \le a < b \le \infty$. The inner product of the functions $u$ and $v$ is therefore 
 
 $$
-	\int_a^b g(x) \ f(x) \ dx,
+\int_a^b g(x) \ f(x) \ dx,
 $$
 
 where $g = u  v$. To compute an approximation to this integral, we 
@@ -434,37 +434,37 @@ transformation
 
 $$
 \int_a^b g(x) \ f(x) \ dx	 
-	= \int_{-1}^1 g\big(\varphi(y)\big) \ f\big(\varphi(y)\big) \ \varphi'(y)  dy 
+= \int_{-1}^1 g\big(\varphi(y)\big) \ f\big(\varphi(y)\big) \ \varphi'(y)  dy 
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ (3)
 $$
 
 where
 
 $$
-	\varphi(y) = 
-	\begin{cases}
-		(1/2) (b - a) y + (1/2) (b + a) &\text{if } -\infty < a < b < \infty
-		\\
-		b - (1 - y) / (1 + y) &\text{if } -\infty = a < b < \infty
-		\\
-		a + (1 + y) / (1 - y) &\text{if } -\infty < a < b = \infty
-		\\
-		y / (1 - y^2)  &\text{if } -\infty = a < b = \infty.
-	\end{cases}	
+\varphi(y) = 
+\begin{cases}
+(1/2) (b - a) y + (1/2) (b + a) &\text{if } -\infty < a < b < \infty
+\\
+b - (1 - y) / (1 + y) &\text{if } -\infty = a < b < \infty
+\\
+a + (1 + y) / (1 - y) &\text{if } -\infty < a < b = \infty
+\\
+y / (1 - y^2)  &\text{if } -\infty = a < b = \infty.
+\end{cases}
 $$
 
 It follows from this definition of the function $\varphi$ that
 $$
-	\varphi'(y) = 
-	\begin{cases}
-		(1/2) (b - a) &\text{if } -\infty < a < b < \infty
-		\\
-		2 / (1 + y)^2 &\text{if } -\infty = a < b < \infty
-		\\
-		2 / (1 - y)^2 &\text{if } -\infty < a < b = \infty
-		\\
-		(1 + y^2) / \big(1 - y^2 \big)^2  &\text{if } -\infty = a < b = \infty.
-	\end{cases}	
+\varphi'(y) = 
+\begin{cases}
+(1/2) (b - a) &\text{if } -\infty < a < b < \infty
+\\
+2 / (1 + y)^2 &\text{if } -\infty = a < b < \infty
+\\
+2 / (1 - y)^2 &\text{if } -\infty < a < b = \infty
+\\
+(1 + y^2) / \big(1 - y^2 \big)^2  &\text{if } -\infty = a < b = \infty.
+\end{cases}
 $$
 
 
@@ -476,13 +476,13 @@ Gautschi (2004) uses a Fejer quadrature rule.
 Instead, we use Gauss Legendre quadrature with $r$ nodes to approximate
 
 $$
-	\int_{-1}^1 h(y) \ dy \quad \text{by} \quad \sum_{i =1}^r \ \xi_i \ h(y_i),	
+\int_{-1}^1 h(y) \ dy \quad \text{by} \quad \sum_{i =1}^r \ \xi_i \ h(y_i),
 $$
 
 where $y_1, \dots, y_r$ are the nodes and $\xi_1, \dots, \xi_r$ are the corresponding weights. Now 
 
-$$	
- \sum_{i =1}^r \ \xi_i \ h(y_i) = \sum_{i =1}^r \ w_i \ g(x_i),	
+$$
+ \sum_{i =1}^r \ \xi_i \ h(y_i) = \sum_{i =1}^r \ w_i \ g(x_i),
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  (4)
 $$
 
@@ -503,14 +503,14 @@ $$
 where
 
 $$
-	\log\big(\varphi'(y)\big) = 
-	\begin{cases}
-		\log(2) - 2 \log(1 + y) &\text{if } -\infty = a < b < \infty
-		\\
-		\log(2) - 2 \log(1 - y) &\text{if } -\infty < a < b = \infty
-		\\
-		\log(1 + y^2) - 2 \log \big(1 - y^2 \big)  &\text{if } -\infty = a < b = \infty.
-	\end{cases}	
+\log\big(\varphi'(y)\big) = 
+\begin{cases}
+\log(2) - 2 \log(1 + y) &\text{if } -\infty = a < b < \infty
+\\
+\log(2) - 2 \log(1 - y) &\text{if } -\infty < a < b = \infty
+\\
+\log(1 + y^2) - 2 \log \big(1 - y^2 \big)  &\text{if } -\infty = a < b = \infty.
+\end{cases}
 $$
 
 The user needs to provide a Julia
@@ -626,8 +626,8 @@ which_f = ["weibull pdf", [0, Inf], 2.0]
 
 In this case, 
 $$
-		\log(f(x)) =
-		\log(k) + (k - 1) \log(x) -x^{k} \ \ \ \ \text{for} \ \ x > 0.
+\log(f(x)) =
+\log(k) + (k - 1) \log(x) -x^{k} \ \ \ \ \text{for} \ \ x > 0.
 $$
 
 We provide the following function for computing $\log(f(x))$ 
@@ -694,16 +694,16 @@ The following commands convert the
 Define the $n \times n$ Jacobi matrix 
 
 $$
-	J_n = \left[
-	\begin{array}{cccccc}
-		\alpha_0 & \sqrt{\beta_1} & 0 & 0 & \dots & 0 \\
-		\sqrt{\beta_1} & \alpha_1 & \sqrt{\beta_2} & 0 & \ddots & \vdots \\
-		0 & \sqrt{\beta_2} & \alpha_2 & \sqrt{\beta_3} & 0  & 0\\
-		0 & \ddots & \ddots & \ddots & \ddots & 0\\
-		\vdots & \ddots & & \sqrt{\beta_{n-1}} & \alpha_{n-2} & \sqrt{\beta_{n-1}} \\
-		0 & \dots & 0 & 0 & \sqrt{\beta_{n-1}} & \alpha_{n-1} 
-	\end{array}	
-	\right].
+J_n = \left[
+\begin{array}{cccccc}
+\alpha_0 & \sqrt{\beta_1} & 0 & 0 & \dots & 0 \\
+\sqrt{\beta_1} & \alpha_1 & \sqrt{\beta_2} & 0 & \ddots & \vdots \\
+0 & \sqrt{\beta_2} & \alpha_2 & \sqrt{\beta_3} & 0  & 0\\
+0 & \ddots & \ddots & \ddots & \ddots & 0\\
+\vdots & \ddots & & \sqrt{\beta_{n-1}} & \alpha_{n-2} & \sqrt{\beta_{n-1}} \\
+0 & \dots & 0 & 0 & \sqrt{\beta_{n-1}} & \alpha_{n-1} 
+\end{array}
+\right].
 $$
 
 The nodes $\tau_1, \dots, \tau_n$ are the eigenvalues of $J_n$, in increasing order. Let $\mathbf{x}_i$ denote an eigenvector corresponding to the eigenvalue $\tau_i$. The weight
