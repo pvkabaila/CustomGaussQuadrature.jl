@@ -1,19 +1,19 @@
 # This script tests the high-level script stieltjes_lnf_new_scr.jl
-# which resides in
-# EITHER 
-# (1) The local development version of my Julia package 
-#     CustomGaussQuadrature, which is in the folder:
-#     \RESEARCH - NUMERICAL METHODS\QUADRATURE\Custom GAUSS\
-#     CustomGaussQuadrature - Julia package\CustomGaussQuadrature\
-# OR
-# (2) The version of my Julia package CustomGaussQuadrature in the 
-#     Julia General Registry.
+# which is part of the CustomGaussQuadrature package.
+# There are 3 paths for running this script, which differ by:
+# (i)  which test script is used (local or registry), and
+# (ii) which version of CustomGaussQuadrature is under test
+#      (local or registry).
 #
-# Choose path (1) or (2) below and follow the corresponding
-# instructions.
+#   Path (1):  Test script LOCAL    |  Package under test LOCAL
+#   Path (2a): Test script LOCAL    |  Package under test REGISTRY
+#   Path (2b): Test script REGISTRY |  Package under test REGISTRY
+#
+# Choose a path below and follow the corresponding instructions.
 #
 #------------------------------------------------------------
 # How to run this script — Path (1): Local development version
+#    => Test script: LOCAL  |  Package under test: LOCAL
 #------------------------------------------------------------
 #
 # Step 1 — Open the folder for the local development version in VS Code:
@@ -40,6 +40,7 @@
 # version, when the folder for the local development version 
 # of the CustomGaussQuadrature package is already open in VS Code, 
 # but is NOT activated
+#    => Test script: LOCAL  |  Package under test: REGISTRY
 #------------------------------------------------------------
 #
 # Step 1 — Start the Julia REPL:
@@ -59,14 +60,22 @@
 #   manager does not allow Pkg.add("CustomGaussQuadrature") when
 #   the active project already has the same name or UUID.
 #
+#   If I want to, I can check the package version using:
+#   julia> pkgversion(CustomGaussQuadrature)
+#
 # Step 3 — Run the script:
-#     julia> pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
-#     julia> include(joinpath(pkg_dir, "test", "test_stieltjes_lnf_new_scr.jl"))
+#     julia> include("test/test_stieltjes_lnf_new_scr.jl")
+#
+#   This works because the VS Code Julia REPL's working directory
+#   is the local project root (the folder open in VS Code).
+#   The local test script is used, but the registry version of
+#   the package is under test (loaded in Step 2).
 #
 #------------------------------------------------------------
 # How to run this script — Path (2b): Julia General Registry
 # version, when the folder for the local development version 
 # of the CustomGaussQuadrature package is NOT open in VS Code
+#    => Test script: REGISTRY  |  Package under test: REGISTRY
 #------------------------------------------------------------
 #
 # Step 1 — Start the Julia REPL:
@@ -78,6 +87,9 @@
 #     julia> Pkg.add("GaussQuadrature")
 #     julia> Pkg.add("SpecialFunctions")
 #     julia> using CustomGaussQuadrature
+#
+#   If I want to, I can check the package version using:
+#   julia> pkgversion(CustomGaussQuadrature)
 #
 # Step 3 — Run the script:
 #     julia> pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
