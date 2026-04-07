@@ -6,7 +6,7 @@ A Julia package for computing Gauss quadrature nodes and weights for
 non-classical weight functions.
 
 Given a nonnegative weight function $f$, the $n$-point Gauss quadrature
-approximation to $\int g(x)\,f(x)\,dx$ is
+approximation to $\int g(x) \thinspace f(x) \thinspace dx$ is
 
 $$\sum_{i=1}^n \lambda_i \; g(\tau_i),$$
 
@@ -64,7 +64,7 @@ function, as shown in the examples below.
 ### Method 1 — Moment determinants
 
 When a closed-form formula for the $s$'th moment
-$\mu_s = \int x^s f(x)\,dx$ is available, 
+$\mu_s = \int x^s f(x) \thinspace dx$ is available, 
 use `custom_gauss_quad_all_fn`. Its main inputs are:
 
 - `moment_fn` — a function with inputs `T` (floating-point type), `which_f` and `s` (moment order), returning the $s$'th moment. 
