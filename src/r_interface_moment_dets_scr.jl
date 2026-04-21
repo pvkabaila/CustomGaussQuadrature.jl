@@ -41,6 +41,7 @@
 #   nodes   <- juliaEval('cgq_nodes')
 #   weights <- juliaEval('cgq_weights')
 
+moment_fn = new_moment_fn
 cgq_nodes_raw, cgq_weights_raw = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 cgq_nodes   = convert(Vector{Float64}, cgq_nodes_raw)
 cgq_weights = convert(Vector{Float64}, cgq_weights_raw)
