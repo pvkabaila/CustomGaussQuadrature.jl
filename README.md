@@ -113,7 +113,7 @@ weights = convert(Vector{Float64}, weights)
 ### Method 2 — Stieltjes procedure
 
 This is more widely applicable than the moment determinants method since it requires only the 
-evaluation of `μ₀`, `μ₁` and $\log f(x)$.
+evaluation of `μ₀` and $\log f(x)$.
 For **built-in** weight functions, these are already
 implemented in `stieltjes_lnf_stored_scr.jl`. For a **user-defined** weight function,
 the user supplies `lnf_fn` (evaluating $\log f$) and a function for evaluating `μ₀` and `μ₁`. These scripts are invoked via `include()`.
