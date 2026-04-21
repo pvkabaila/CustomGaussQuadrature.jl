@@ -22,7 +22,7 @@
 #   n          -- Number of Gauss quadrature nodes (positive integer).
 #
 # These must be defined by including a user-supplied .jl file, e.g.:
-#   juliaEval('include("C:/path/to/my_moment_fn.jl")')
+#   juliaEval('include("path/to/my_moment_fn.jl")')
 #
 # POST-CONDITIONS
 # ---------------
@@ -35,13 +35,13 @@
 # ---------------
 #   library(JuliaConnectoR)
 #   juliaEval('using CustomGaussQuadrature')
-#   juliaEval('include("C:/path/to/my_moment_fn.jl")')
+#   juliaEval('include("path/to/my_moment_fn.jl")')
 #   juliaEval('include(joinpath(dirname(dirname(pathof(CustomGaussQuadrature))),
 #       "src", "r_interface_moment_dets_scr.jl"))')
 #   nodes   <- juliaEval('cgq_nodes')
 #   weights <- juliaEval('cgq_weights')
 
-moment_fn = new_moment_fn
+moment_fn = my_moment_fn
 cgq_nodes_raw, cgq_weights_raw = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 cgq_nodes   = convert(Vector{Float64}, cgq_nodes_raw)
 cgq_weights = convert(Vector{Float64}, cgq_weights_raw)
