@@ -17,6 +17,8 @@
 #
 #   which_f    -- Array identifying a built-in weight function, e.g.
 #                 ["scaled chi pdf", [0, Inf], 160]
+#                 The built-in names are documented in the package
+#                 README and User_Manual.
 #   n          -- Number of Gauss quadrature nodes (positive integer).
 #
 # No user-supplied .jl file is needed for the weight function itself.
@@ -38,7 +40,11 @@
 #       "src", "r_interface_moment_dets_stored_scr.jl"))')
 #   nodes   <- juliaEval('cgq_nodes')
 #   weights <- juliaEval('cgq_weights')
+#
+# For package development against a local checkout, replace the
+# installed-package workflow above by first calling Pkg.develop(path=...).
 
+@assert length(which_f) >= 2
 cgq_nodes_raw, cgq_weights_raw = custom_gauss_quad_all_fn(moment_stored_fn, which_f, n)
 cgq_nodes   = convert(Vector{Float64}, cgq_nodes_raw)
 cgq_weights = convert(Vector{Float64}, cgq_weights_raw)
