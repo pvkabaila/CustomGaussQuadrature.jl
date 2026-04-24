@@ -99,6 +99,89 @@ function stieltjes_a_vec_b_vec_nonan_fn(T::Type, n::Integer, μ₀, nodes_suppor
 end
 
 
+function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, make_lnf_fn::Function, a, b, r)
+  setprecision(BigFloat, 256, base=2)
+  T = BigFloat
+  nbits = 256
+  lnf_fn = make_lnf_fn(T)
+  nodes_256, lnweights_256 = 
+  nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+  a_vec_256, b_vec_256 = 
+  stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_256, lnweights_256)
+
+  epsilon = 1.0e-22
+
+  T = Double64
+  lnf_fn = make_lnf_fn(T)
+  nodes_106, lnweights_106 = 
+  nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+  a_vec_106, b_vec_106 = 
+  stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_106, lnweights_106)
+  if any(isnan, a_vec_106)==false && any(isnan, b_vec_106)==false
+    abs_error_a = convert(Vector{Float64}, abs.(a_vec_106 - a_vec_256))
+    max_abs_error_a = maximum(abs_error_a)
+    rel_error_b = convert(Vector{Float64}, 
+    (abs.((b_vec_106 - b_vec_256) ./ b_vec_256)))
+    max_rel_error_b = maximum(rel_error_b)
+    if max_abs_error_a < epsilon && max_rel_error_b < epsilon
+      return([a_vec_256, b_vec_256, nbits])
+    end
+  end
+
+  setprecision(BigFloat, 224, base=2)
+  T = BigFloat;
+  lnf_fn = make_lnf_fn(T)
+  nodes_224, lnweights_224 = 
+  nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+  a_vec_224, b_vec_224 = 
+  stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_224, lnweights_224) 
+  abs_error_a = convert(Vector{Float64}, abs.(a_vec_224 - a_vec_256))
+  max_abs_error_a = maximum(abs_error_a)
+  rel_error_b = convert(Vector{Float64}, 
+  (abs.((b_vec_224 - b_vec_256) ./ b_vec_256)))
+  max_rel_error_b = maximum(rel_error_b)
+  if max_abs_error_a < epsilon && max_rel_error_b < epsilon
+    return([a_vec_256, b_vec_256, nbits])
+  end
+            
+  setprecision(BigFloat, 512, base=2)
+  T = BigFloat
+  nbits = 512
+  lnf_fn = make_lnf_fn(T)
+  nodes_512 , lnweights_512  = 
+  nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+  a_vec_512 , b_vec_512  = 
+  stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_512 , lnweights_512 ) 
+  abs_error_a = convert(Vector{Float64}, abs.(a_vec_512 - a_vec_256))
+  max_abs_error_a = maximum(abs_error_a)
+  rel_error_b = convert(Vector{Float64}, 
+  (abs.((b_vec_512 - b_vec_256) ./ b_vec_512)))
+  max_rel_error_b = maximum(rel_error_b)
+  if max_abs_error_a < epsilon && max_rel_error_b < epsilon
+    return([a_vec_512, b_vec_512, nbits])
+  end
+    
+  setprecision(BigFloat, 480, base=2)
+  T = BigFloat;
+  lnf_fn = make_lnf_fn(T)
+  nodes_480, lnweights_480 = 
+  nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
+  a_vec_480, b_vec_480 = 
+  stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_480, lnweights_480) 
+  abs_error_a = convert(Vector{Float64}, abs.(a_vec_480 - a_vec_480))
+  max_abs_error_a = maximum(abs_error_a)
+  rel_error_b = convert(Vector{Float64}, 
+  (abs.((b_vec_480 - b_vec_512) ./ b_vec_512)))
+  max_rel_error_b = maximum(rel_error_b)
+  if max_abs_error_a > epsilon || max_rel_error_b > epsilon
+    throw(DomainError(n, " too large"))  
+  end    
+  setprecision(BigFloat, 256, base=2)
+
+  [a_vec_512, b_vec_512, nbits]
+end
+
+
 """
 a_vec, b_vec, nbits = stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
 
@@ -117,105 +200,19 @@ and [b₁, ..., bₙ₋₁] are computed to sufficient accuracy,
 for the specified value of r.
 """
 function stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
-    setprecision(BigFloat, 256, base=2)
-    T = BigFloat
-    nbits = 256
-    # println("T = ", T, ",  nbits = ", precision(BigFloat))
-    # @time "Compute nodes_256 & lnweights_256" 
-    nodes_256, lnweights_256 = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
-    # @time "Compute a_vec_256 & b_vec_256" 
-    a_vec_256, b_vec_256 = 
-    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_256, lnweights_256)
+  stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, _ -> lnf_fn, a, b, r)
+end
 
-    epsilon = 1.0e-22
-
-    T = Double64
-    # println("T = ", T)
-    # @time "Compute nodes_106 & lnweights_support_106" 
-    nodes_106, lnweights_106 = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
-    # @time "Compute a_vec & b_vec" 
-    a_vec_106, b_vec_106 = 
-    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_106, lnweights_106)
-    if any(isnan, a_vec_106)==false && any(isnan, b_vec_106)==false
-        abs_error_a = convert(Vector{Float64}, abs.(a_vec_106 - a_vec_256))
-        max_abs_error_a = maximum(abs_error_a)
-        # println("max_abs_error_a = ", max_abs_error_a)
-        rel_error_b = convert(Vector{Float64}, 
-        (abs.((b_vec_106 - b_vec_256) ./ b_vec_256)))
-        max_rel_error_b = maximum(rel_error_b)
-        # println("max_rel_error_b = ", max_rel_error_b)
-        if max_abs_error_a < epsilon && max_rel_error_b < epsilon
-            return([a_vec_256, b_vec_256, nbits])
-        end
-    end
-
-    setprecision(BigFloat, 224, base=2)
-    T = BigFloat;
-    # println("T = ", T, ",  nbits = ", precision(BigFloat))
-    # @time "Compute nodes_224 & lnweights_224" 
-    nodes_224, lnweights_224 = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
-    # @time "Compute a_vec & b_vec" 
-    a_vec_224, b_vec_224 = 
-    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_224, lnweights_224) 
-    abs_error_a = convert(Vector{Float64}, abs.(a_vec_224 - a_vec_256))
-    max_abs_error_a = maximum(abs_error_a)
-    # println("max_abs_error_a = ", max_abs_error_a)
-    rel_error_b = convert(Vector{Float64}, 
-    (abs.((b_vec_224 - b_vec_256) ./ b_vec_256)))
-    max_rel_error_b = maximum(rel_error_b)
-    # println("max_rel_error_b = ", max_rel_error_b)
-    if max_abs_error_a < epsilon && max_rel_error_b < epsilon
-        return([a_vec_256, b_vec_256, nbits])
-    end
-            
-    # println(" ")
-    setprecision(BigFloat, 512, base=2)
-    T = BigFloat
-    nbits = 512
-    # println("T = ", T, ",  nbits = ", precision(BigFloat))
-    # @time "Compute nodes_512 & lnweights_512" 
-    nodes_512 , lnweights_512  = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
-    # @time "Compute a_vec & b_vec" 
-    a_vec_512 , b_vec_512  = 
-    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_512 , lnweights_512 ) 
-    abs_error_a = convert(Vector{Float64}, abs.(a_vec_512 - a_vec_256))
-    max_abs_error_a = maximum(abs_error_a)
-    # println("max_abs_error_a = ", max_abs_error_a)
-    rel_error_b = convert(Vector{Float64}, 
-    (abs.((b_vec_512 - b_vec_256) ./ b_vec_512)))
-    max_rel_error_b = maximum(rel_error_b)
-    # println("max_rel_error_b = ", max_rel_error_b)
-    if max_abs_error_a < epsilon && max_rel_error_b < epsilon
-        return([a_vec_512, b_vec_512, nbits])
-    end
-    
-    setprecision(BigFloat, 480, base=2)
-    T = BigFloat;
-    # println("T = ", T, ",  nbits = ", precision(BigFloat))
-    # @time "Compute nodes_480 & lnweights_480" 
-    nodes_480, lnweights_480 = 
-    nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
-    # @time "Compute a_vec & b_vec" 
-    a_vec_480, b_vec_480 = 
-    stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_480, lnweights_480) 
-    abs_error_a = convert(Vector{Float64}, abs.(a_vec_480 - a_vec_480))
-    max_abs_error_a = maximum(abs_error_a)
-    # println("max_abs_error_a = ", max_abs_error_a)
-    rel_error_b = convert(Vector{Float64}, 
-    (abs.((b_vec_480 - b_vec_512) ./ b_vec_512)))
-    max_rel_error_b = maximum(rel_error_b)
-    # println("max_rel_error_b = ", max_rel_error_b)
-    if max_abs_error_a > epsilon || max_rel_error_b > epsilon
-        throw(DomainError(n, " too large"))  
-    end    
-    setprecision(BigFloat, 256, base=2)
-
-    [a_vec_512, b_vec_512, nbits]  
-end 
+function stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+  stieltjes_a_vec_b_vec_choosenbits_core_fn(
+    n,
+    μ₀,
+    T -> (x -> lnf_user_fn(T, which_f, x)),
+    a,
+    b,
+    r,
+  )
+end
 
 
 """
@@ -304,6 +301,49 @@ function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=
     [a_vec_new, b_vec_new, nbits_new, r]
     
 end
+
+
+function stieltjes_a_vec_b_vec_final_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, offset=7, k_max=40)
+  @assert n ≥ 2
+    k = 3
+    r = k * (offset + n)
+    a_vec, b_vec, nbits = 
+    stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+
+    k = k + 1
+    r = k * (offset + n)
+    a_vec_new, b_vec_new, nbits_new = 
+    stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+
+    abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
+    max_abs_error_a = maximum(abs_error_a)
+    rel_error_b = convert(Vector{Float64}, 
+    (abs.((b_vec_new - b_vec) ./ b_vec_new)))
+    max_rel_error_b = maximum(rel_error_b)
+
+    epsilon=1.0e-18
+
+    while (max_abs_error_a > epsilon || max_rel_error_b > epsilon)
+    a_vec, b_vec, nbits = a_vec_new, b_vec_new, nbits_new
+    if k == k_max
+      throw(DomainError(k, " needed value of k exceeds k_max"))
+    end
+    k = k + 1
+    r = k * (offset + n)
+    a_vec_new, b_vec_new, nbits_new = 
+    stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+
+    abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
+    max_abs_error_a = maximum(abs_error_a)
+    rel_error_b = convert(Vector{Float64}, 
+    (abs.((b_vec_new - b_vec) ./ b_vec_new)))
+    max_rel_error_b = maximum(rel_error_b)
+
+    end
+
+    setprecision(BigFloat, 256, base=2)
+    [a_vec_new, b_vec_new, nbits_new, r]
+  end
 
 
 """

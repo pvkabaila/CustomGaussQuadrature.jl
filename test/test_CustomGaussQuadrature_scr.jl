@@ -1020,10 +1020,10 @@ n = 15;
 println("number of Gauss quadrature nodes n = ", n, "\n")
 
 which_f = ["Hermite", [-Inf, Inf]];
-lnf_fn = lnf_hermite_fn;
 a = -Inf;
 b = Inf;
 T = BigFloat;
+lnf_fn = x -> lnf_hermite_fn(T, x);
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1); 
 
 @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
@@ -1081,7 +1081,7 @@ which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
 a = convert(T,0);
 b = Inf;
 println("Generalized Laguerre, with α = ", α, "\n")
-lnf_fn = x -> lnf_laguerre_fn(x, α);
+lnf_fn = x -> lnf_laguerre_fn(T, x, α);
 
 nodes_BigFloat, weights_BigFloat = laguerre(n, α);
 

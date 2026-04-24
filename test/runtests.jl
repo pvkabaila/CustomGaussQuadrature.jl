@@ -204,10 +204,10 @@ stieltjes_weights_Float64 = convert(Vector{Float64}, stieltjes_weights);
 setprecision(BigFloat, 256, base=2);
 n = 4;
 which_f = ["Hermite", [-Inf, Inf]];
-lnf_fn = lnf_hermite_fn;
 a = -Inf;
 b = Inf;
 T = BigFloat;
+lnf_fn = x -> lnf_hermite_fn(T, x);
 
 stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
 stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
@@ -227,7 +227,7 @@ T = BigFloat;
 which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
 a = convert(T,0);
 b = Inf;
-lnf_fn = x -> lnf_laguerre_fn(x, α);
+lnf_fn = x -> lnf_laguerre_fn(T, x, α);
 
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
@@ -235,5 +235,7 @@ stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
 
 stieltjes_nodes, stieltjes_weights = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b); 
+
+include("test_stieltjes_driver_owned_T_scr.jl")
 
 end

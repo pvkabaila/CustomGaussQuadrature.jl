@@ -652,7 +652,7 @@ For this weight function, with parameter $k$ set to 2.0 and number of Gauss quad
 
 ```julia
 	n = 10
-	lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x)
+    lnf_user_fn = lnf_weibull_pdf_fn
 	mu0 = convert(Double64, 1)
 ```
 

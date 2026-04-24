@@ -92,10 +92,10 @@ savefig("chemistry.pdf")
 
 
 which_f = ["Hermite", [-Inf, Inf]];
-lnf_fn = lnf_hermite_fn;
 a = -Inf;
 b = Inf;
 T = BigFloat;
+lnf_fn = x -> lnf_hermite_fn(T, x);
 μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
 
 n_upper = 40;
@@ -190,10 +190,10 @@ savefig("chemistry offset=$offset.pdf")
 
 
 which_f = ["Hermite", [-Inf, Inf]];
-lnf_fn = lnf_hermite_fn;
 a = -Inf;
 b = Inf;
 T = BigFloat;
+lnf_fn = x -> lnf_hermite_fn(T, x);
 μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
 
 n_upper = 40;

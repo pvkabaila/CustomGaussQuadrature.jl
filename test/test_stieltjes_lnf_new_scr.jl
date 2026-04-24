@@ -238,7 +238,7 @@ println("n = ", n, "\n")
 
 T = BigFloat
 
-lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x);
+lnf_user_fn = lnf_weibull_pdf_fn;
 mu0 = convert(T, 1);
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))

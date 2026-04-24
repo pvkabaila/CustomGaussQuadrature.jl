@@ -67,14 +67,18 @@ function ϕ_fn(T, y::AbstractFloat, a::AbstractFloat, b::AbstractFloat)
     @assert a < b
     T_1 = convert(T, 1)
     @assert -T_1 ≤ y ≤ T_1
-    if -Inf < a && b < Inf
+    a_is_finite = isfinite(a)
+    b_is_finite = isfinite(b)
+    a_is_neg_inf = isinf(a) && signbit(a)
+    b_is_pos_inf = isinf(b) && !signbit(b)
+    if a_is_finite && b_is_finite
         T_2 = convert(T, 2)
         out = ((b - a)/T_2) * y + (b + a) / T_2
         return(out)
-    elseif -Inf == a && b < Inf
+    elseif a_is_neg_inf && b_is_finite
         out = b - (T_1 - y) / (T_1 + y)
         return(out)
-    elseif -Inf < a && b == Inf
+    elseif a_is_finite && b_is_pos_inf
         out = a + (T_1 + y) / (T_1 - y)
         return(out)
     else
@@ -98,13 +102,17 @@ function ϕ′_fn(T, y::AbstractFloat, a::AbstractFloat, b::AbstractFloat)
     T_1 = convert(T, 1)
     T_2 = convert(T, 2)
     @assert -T_1 ≤ y ≤ T_1
-    if -Inf < a && b < Inf
+    a_is_finite = isfinite(a)
+    b_is_finite = isfinite(b)
+    a_is_neg_inf = isinf(a) && signbit(a)
+    b_is_pos_inf = isinf(b) && !signbit(b)
+    if a_is_finite && b_is_finite
         out = (b - a) / T_2
         return(out)
-    elseif -Inf == a && b < Inf
+    elseif a_is_neg_inf && b_is_finite
         out =  T_2 / (T_1 + y)^2
         return(out)
-    elseif -Inf < a && b == Inf
+    elseif a_is_finite && b_is_pos_inf
         out =  T_2 / (T_1 - y)^2
         return(out)
     else
@@ -128,12 +136,16 @@ function ln_ϕ′_fn(T, y::AbstractFloat, a::AbstractFloat, b::AbstractFloat)
     T_1 = convert(T, 1)
     T_2 = convert(T, 2)
     @assert -T_1 ≤ y ≤ T_1
-    if -Inf < a && b < Inf
+    a_is_finite = isfinite(a)
+    b_is_finite = isfinite(b)
+    a_is_neg_inf = isinf(a) && signbit(a)
+    b_is_pos_inf = isinf(b) && !signbit(b)
+    if a_is_finite && b_is_finite
         throw(DomainError([a,b], "a and b are both finite"))
-    elseif -Inf == a && b < Inf
+    elseif a_is_neg_inf && b_is_finite
         out = log(T_2) - T_2 * log(T_1 + y)
         return(out)
-    elseif -Inf < a && b == Inf
+    elseif a_is_finite && b_is_pos_inf
         out = log(T_2) - T_2 * log(T_1 - y)
         return(out)
     else
@@ -153,8 +165,10 @@ function old_nodes_weights_support_fn(T, f_fn::Function, a, b, r::Integer)
     else
         y, w = legendre(T, r)
     end
-    nodes_support = ϕ_fn.(T, y, a, b) 
-    weights_support = w .* f_fn.(nodes_support) .* ϕ′_fn.(T, y, a, b)
+    aT = parse(T, string(a))
+    bT = parse(T, string(b))
+    nodes_support = ϕ_fn.(T, y, aT, bT)
+    weights_support = w .* f_fn.(nodes_support) .* ϕ′_fn.(T, y, aT, bT)
     [nodes_support, weights_support] 
 end
 
@@ -189,8 +203,10 @@ function nodes_weights_support_fn(T, f_fn::Function, a, b, r::Integer)
     else
         y, w = legendre(T, r)
     end
-    nodes_support = ϕ_fn.(T, y, a, b) 
-    weights_support = w .* (f_fn.(nodes_support) .* ϕ′_fn.(T, y, a, b))
+    aT = parse(T, string(a))
+    bT = parse(T, string(b))
+    nodes_support = ϕ_fn.(T, y, aT, bT)
+    weights_support = w .* (f_fn.(nodes_support) .* ϕ′_fn.(T, y, aT, bT))
     [nodes_support, weights_support] 
 end
 
@@ -236,8 +252,10 @@ function nodes_lnweights_support_fn(T, lnf_fn::Function, a, b, r::Integer)
     else
         y, w = legendre(T, r)
     end
-    nodes_support = ϕ_fn.(T, y, a, b) 
-    lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, a, b) + lnf_fn.(nodes_support) 
+    aT = parse(T, string(a))
+    bT = parse(T, string(b))
+    nodes_support = ϕ_fn.(T, y, aT, bT)
+    lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, aT, bT) + lnf_fn.(nodes_support)
     [nodes_support, lnweights_support] 
 end
 
@@ -261,17 +279,9 @@ end
 
 # Note on the type parameter T in the log-weight functions below.
 #
-# ln_scaled_chi_pdf_fn and lnf_chemistry_fn take T as an input
-# because they need to promote integer constants (e.g. m, 0, 2, 3)
-# to the working precision via convert(T, ...).
-#
-# lnf_hermite_fn and lnf_laguerre_fn do NOT need T because they
-# only perform arithmetic on their AbstractFloat arguments, so
-# Julia's type promotion keeps the result in the same precision
-# as the input x (and α). For example, when x is BigFloat,
-# -x * x is BigFloat automatically. In the Laguerre case, α is
-# pre-converted to BigFloat (via parse(T, string(α_GGL))) before
-# the closure is created in stieltjes_lnf_stored_scr.jl.
+# For consistency and clarity, each of these functions now takes T
+# as an input and uses it directly to control the arithmetic used in
+# the evaluation of the log-weight function.
 
 """
 ln_scaled_chi_pdf = ln_scaled_chi_pdf_fn(T, x, m)
@@ -323,29 +333,32 @@ end
 
 
 """
-lnf_hermite = lnf_hermite_fn(x)
+lnf_hermite = lnf_hermite_fn(T, x)
 
 Returns log of the Hermite weight function),
 evaluated at x. This weight function is     
   f(x) = exp(-x²).     
 """
-function lnf_hermite_fn(x::AbstractFloat)
-    - x * x
+function lnf_hermite_fn(T::Type, x::AbstractFloat)
+    T_x = convert(T, x)
+    - T_x * T_x
 end
 
 
 """
-lnf_laguerre = lnf_laguerre_fn(x, α)
+lnf_laguerre = lnf_laguerre_fn(T, x, α)
 
 Returns log of the Generalized Laguerre weight function),
 evaluated at x. This weight function is     
   f(x) = x^α exp(-x) for x > 0
        = 0  otherwise.    
 """
-function lnf_laguerre_fn(x::AbstractFloat, α::AbstractFloat)
-    @assert x ≥ zero(x)
-    @assert α > -one(α)
-    α * log(x) - x
+function lnf_laguerre_fn(T::Type, x::AbstractFloat, α)
+    T_x = convert(T, x)
+    T_α = parse(T, string(α))
+    @assert T_x ≥ zero(T_x)
+    @assert T_α > -one(T_α)
+    T_α * log(T_x) - T_x
 end
 
 

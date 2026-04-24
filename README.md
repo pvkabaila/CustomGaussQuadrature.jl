@@ -157,7 +157,7 @@ end
 `mu0` $= 1$.
 
 ```julia
-lnf_fn = x -> lnf_weibull_pdf_fn(T, which_f, x)
+lnf_user_fn = lnf_weibull_pdf_fn
 mu0 = convert(Double64, 1)  
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
