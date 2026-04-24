@@ -21,6 +21,8 @@
 #                  lnf_user_fn = lnf_weibull_pdf_fn
 #   mu0     -- Zeroth moment: integral of f over the support.
 #              For a pdf, mu0 = convert(Double64, 1).
+#   k_max   -- Optional positive integer overriding the default cap used
+#              when increasing r in the Stieltjes procedure.
 #
 # These must be defined in the Julia session before this script is
 # included. In the current R workflow this setup is handled by an R
@@ -46,7 +48,7 @@
 #   '
 #   mu0_body <- 'convert(Double64, 1)'
 #   n <- 9
-#   run_stieltjes_new_example <- function(which_f, n, lnf_fn_body, mu0_body) {
+#   run_stieltjes_new_example <- function(which_f, n, lnf_fn_body, mu0_body, k_max = 40) {
 #     weight_name <- which_f[[1]]
 #     support <- which_f[[2]]
 #     left_endpoint <- if (is.infinite(support[1])) "-Inf" else format(support[1], trim = TRUE)
@@ -68,6 +70,7 @@
 #       fn_name, lnf_fn_body))
 #     juliaEval(sprintf('lnf_user_fn = %s', fn_name))
 #     juliaEval(sprintf('mu0 = %s', mu0_body))
+#     juliaEval(sprintf('k_max = %d', k_max))
 #
 #     juliaEval('include(joinpath(dirname(dirname(pathof(CustomGaussQuadrature))),
 #         "src", "r_interface_stieltjes_new_scr.jl"))')
@@ -78,7 +81,7 @@
 #     )
 #   }
 #
-#   result <- run_stieltjes_new_example(which_f, n, lnf_fn_body, mu0_body)
+#   result <- run_stieltjes_new_example(which_f, n, lnf_fn_body, mu0_body, k_max = 80)
 #   nodes   <- result$nodes
 #   weights <- result$weights
 

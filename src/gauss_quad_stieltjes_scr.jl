@@ -103,6 +103,8 @@ function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, make_lnf_fn::Functi
   setprecision(BigFloat, 256, base=2)
   T = BigFloat
   nbits = 256
+  # Build lnf_fn only after choosing T, so every downstream computation
+  # sees a closure whose constants and branches are created for that T.
   lnf_fn = make_lnf_fn(T)
   nodes_256, lnweights_256 = 
   nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
@@ -200,10 +202,14 @@ and [b₁, ..., bₙ₋₁] are computed to sufficient accuracy,
 for the specified value of r.
 """
 function stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
+  # Compatibility path: callers that already constructed lnf_fn(x)
+  # still work by ignoring the driver-chosen arithmetic type.
   stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, _ -> lnf_fn, a, b, r)
 end
 
 function stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+  # Preferred user-defined path: the driver chooses T first, then creates
+  # the one-argument closure x -> lnf_user_fn(T, which_f, x) for that T.
   stieltjes_a_vec_b_vec_choosenbits_core_fn(
     n,
     μ₀,
