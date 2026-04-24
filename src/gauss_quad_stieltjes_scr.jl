@@ -207,6 +207,21 @@ function stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
   stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, _ -> lnf_fn, a, b, r)
 end
 
+
+"""
+a_vec, b_vec, nbits = stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+
+Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and
+[b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number
+of Gauss quadrature nodes (n ≥ 2). This is the user-defined
+counterpart of stieltjes_a_vec_b_vec_choosenbits_fn.
+
+The input lnf_user_fn is expected to have the form
+lnf_user_fn(T, which_f, x). The algorithm first chooses the
+arithmetic type T and then constructs the one-argument closure
+lnf_fn(x) = lnf_user_fn(T, which_f, x) that is used in the
+support quadrature and Stieltjes recurrence computations.
+"""
 function stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
   # Preferred user-defined path: the driver chooses T first, then creates
   # the one-argument closure x -> lnf_user_fn(T, which_f, x) for that T.
@@ -309,6 +324,21 @@ function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=
 end
 
 
+"""
+a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, offset=7, k_max=40)
+
+Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and
+[b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], together with the chosen
+BigFloat precision nbits and the final value of r. This is the
+user-defined counterpart of stieltjes_a_vec_b_vec_final_fn.
+
+The input lnf_user_fn is expected to have the form
+lnf_user_fn(T, which_f, x). For each trial value of r, the
+driver chooses the arithmetic type T and then creates the
+one-argument closure lnf_fn(x) = lnf_user_fn(T, which_f, x)
+before carrying out the support quadrature and Stieltjes
+computations.
+"""
 function stieltjes_a_vec_b_vec_final_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, offset=7, k_max=40)
   @assert n ≥ 2
     k = 3
