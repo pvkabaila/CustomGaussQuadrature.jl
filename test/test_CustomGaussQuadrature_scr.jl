@@ -802,18 +802,17 @@ println("moment_fn = moment_stored_fn;")
 moment_fn = moment_stored_fn;
 
 m = 160;
-lnf_fn = x -> ln_scaled_chi_pdf_fn(T, x, m);
 println("scaled chi pdf weight function, with m = ", m)
 T = BigFloat;
-a = convert(T,0);
-b = Inf;
 which_f = ["scaled chi pdf", [0,Inf], m];
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 n = 5;
 println("number of Gauss quadrature nodes n = ", n)
 
 @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 println("r = ", r)
 
 @time "step1_fn" a_vec, b_vec, μ₀, nbits = 
@@ -952,18 +951,15 @@ println("number of Gauss quadrature nodes n = ", n)
 which_f = ["chemistry example", [0, Inf]];
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
-lnf_fn = x -> lnf_chemistry_fn(T, x);
-T = BigFloat;
-a = convert(T,0);
-b = Inf;
-
 which_f = ["chemistry example", [0, Inf]];
 T = BigFloat;
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> lnf_chemistry_fn(T, x);
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 print("\n")
-@time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+@time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 @time "stieltjes_custom_gauss_quad_all_fn" stieltjes_nodes, stieltjes_weights = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
 print("\n")
@@ -1020,14 +1016,13 @@ n = 15;
 println("number of Gauss quadrature nodes n = ", n, "\n")
 
 which_f = ["Hermite", [-Inf, Inf]];
-a = -Inf;
-b = Inf;
 T = BigFloat;
-lnf_fn = x -> lnf_hermite_fn(T, x);
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1); 
 
 @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 println("r = ", r, "\n")
 @time "stieltjes_custom_gauss_quad_all_fn" stieltjes_nodes, stieltjes_weights = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
@@ -1078,16 +1073,15 @@ println("number of Gauss quadrature nodes n = ", n)
 T = BigFloat;
 α = convert(T, 1);
 which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
-a = convert(T,0);
-b = Inf;
+a, b = which_f[2];
 println("Generalized Laguerre, with α = ", α, "\n")
-lnf_fn = x -> lnf_laguerre_fn(T, x, α);
+lnf_typed_fn = (T, which_f, x) -> lnf_laguerre_fn(T, x, which_f[3]);
 
 nodes_BigFloat, weights_BigFloat = laguerre(n, α);
 
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1); 
 @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 println("r = ", r, "\n")
 
 @time "stieltjes_custom_gauss_quad_all_fn" stieltjes_nodes, stieltjes_weights = 

@@ -133,6 +133,20 @@ nodes = convert(Vector{Float64}, stieltjes_nodes)
 weights = convert(Vector{Float64}, stieltjes_weights)
 ```
 
+<!--
+In the last README example, the important point is that the user does not construct the final lnf_fn(x) closure directly. The example defines a three-argument function lnf_weibull_pdf_fn(T, which_f, x) in README.md:146, then assigns lnf_typed_fn = lnf_weibull_pdf_fn in README.md:160, and finally includes stieltjes_lnf_new_scr.jl:50. That script passes lnf_typed_fn, which_f, mu0, and the raw endpoints a, b down to the Stieltjes driver without fixing the arithmetic type first, as shown in stieltjes_lnf_new_scr.jl:50.
+
+Inside the driver, stieltjes_a_vec_b_vec_final_fn in gauss_quad_stieltjes_scr.jl:365 repeatedly calls stieltjes_a_vec_b_vec_choosenbits_fn for different values of r. That function, in gauss_quad_stieltjes_scr.jl:231, passes the factory
+T -> (x -> lnf_typed_fn(T, which_f, x))
+into the core routine. The core routine is gauss_quad_stieltjes_scr.jl:102. It does not choose one permanent T up front. Instead, it tries several branches:
+
+T = BigFloat with 256-bit precision.
+T = Double64.
+If needed, T = BigFloat again at 224 bits.
+If still needed, T = BigFloat at 512 bits, and a final 480-bit consistency check.
+For each branch, the core first creates a fresh one-argument closure lnf_fn = make_lnf_fn(T). So in the Weibull example, the closure becomes either x -> lnf_weibull_pdf_fn(BigFloat, which_f, x) or x -> lnf_weibull_pdf_fn(Double64, which_f, x), depending on the branch currently being tested. That means T_k = parse(T, string(k)), convert(T, 1), and the endpoint conversions all happen consistently inside that branch's arithmetic.
+-->
+
 **User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 2 & number of nodes `n` = 10:
 
 
@@ -157,13 +171,14 @@ end
 `mu0` $= 1$.
 
 ```julia
-lnf_user_fn = lnf_weibull_pdf_fn
+lnf_typed_fn = lnf_weibull_pdf_fn
 mu0 = convert(Double64, 1)  
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 # Evaluation of stieltjes_nodes and stieltjes_weights:
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
+println("r = ", stieltjes_r)
 nodes = convert(Vector{Float64}, stieltjes_nodes)
 weights = convert(Vector{Float64}, stieltjes_weights)
 ```

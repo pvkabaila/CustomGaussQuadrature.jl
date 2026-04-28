@@ -45,7 +45,7 @@ if which_f[1] == "scaled chi pdf"
     T = BigFloat;
     m = which_f[3];
     @assert m > 0
-    lnf_user_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
+    lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
     μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
     l_endpt, u_endpt = which_f[2];
     T_l_endpt = parse(T, string(l_endpt));
@@ -53,7 +53,7 @@ if which_f[1] == "scaled chi pdf"
 elseif which_f[1] == "Hermite"
     moment_fn = moment_stored_fn;
     T = BigFloat;
-    lnf_user_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
+    lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
     μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
     l_endpt, u_endpt = which_f[2];
     T_l_endpt = parse(T, string(l_endpt));
@@ -63,7 +63,7 @@ elseif which_f[1] == "Generalized Laguerre"
     T = BigFloat;
     α_GGL = which_f[3]
     @assert α_GGL > -1
-    lnf_user_fn = (T, which_f, x) -> lnf_laguerre_fn(T, x, which_f[3]);
+    lnf_typed_fn = (T, which_f, x) -> lnf_laguerre_fn(T, x, which_f[3]);
     μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
     l_endpt, u_endpt = which_f[2];
     T_l_endpt = parse(T, string(l_endpt));
@@ -71,7 +71,7 @@ elseif which_f[1] == "Generalized Laguerre"
 elseif which_f[1] ==  "chemistry example"
     moment_fn = moment_stored_fn;
     T = BigFloat;
-    lnf_user_fn = (T, which_f, x) -> lnf_chemistry_fn(T, x);
+    lnf_typed_fn = (T, which_f, x) -> lnf_chemistry_fn(T, x);
     μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
     l_endpt, u_endpt = which_f[2];
     T_l_endpt = parse(T, string(l_endpt));
@@ -85,7 +85,7 @@ end
 a = T_l_endpt;
 b = T_u_endpt;
 stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-CustomGaussQuadrature.stieltjes_a_vec_b_vec_final_user_fn(n, μ₀, lnf_user_fn, which_f, a, b);
+CustomGaussQuadrature.stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 
 stieltjes_nodes, stieltjes_weights = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b); 

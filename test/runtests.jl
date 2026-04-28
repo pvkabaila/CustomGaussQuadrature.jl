@@ -134,19 +134,18 @@ Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 #****************************************************
 
 m = 160;
-lnf_fn = x -> ln_scaled_chi_pdf_fn(T, x, m);
 T = BigFloat;
-a = convert(T,0);
-b = Inf;
 which_f = ["scaled chi pdf", [0,Inf], m];
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
 
 moment_fn = moment_stored_fn
 
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 n = 5;
 
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 
 a_vec, b_vec, μ₀, nbits = 
 step1_fn(moment_fn, which_f, n);
@@ -164,8 +163,7 @@ custom_gauss_quad_all_fn(moment_fn, which_f, n);
 upto_n = true;
 
 T = BigFloat;
-a = convert(T,0);
-b = Inf;
+a, b = which_f[2];
 
 stieltjes_nodes_upto_n, stieltjes_weights_upto_n = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b, upto_n);  
@@ -181,17 +179,14 @@ n = 5;
 which_f = ["chemistry example", [0, Inf]];
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
-lnf_fn = x -> lnf_chemistry_fn(T, x);
-T = BigFloat;
-a = convert(T,0);
-b = Inf;
-
 which_f = ["chemistry example", [0, Inf]];
 T = BigFloat;
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> lnf_chemistry_fn(T, x);
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 stieltjes_nodes, stieltjes_weights = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
 
@@ -204,13 +199,13 @@ stieltjes_weights_Float64 = convert(Vector{Float64}, stieltjes_weights);
 setprecision(BigFloat, 256, base=2);
 n = 4;
 which_f = ["Hermite", [-Inf, Inf]];
-a = -Inf;
-b = Inf;
 T = BigFloat;
-lnf_fn = x -> lnf_hermite_fn(T, x);
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 
 stieltjes_nodes, stieltjes_weights = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
@@ -225,13 +220,12 @@ n= 4;
 T = BigFloat;
 α = convert(T, 1);
 which_f = ["Generalized Laguerre", [0, Inf], α]::Vector{Any};
-a = convert(T,0);
-b = Inf;
-lnf_fn = x -> lnf_laguerre_fn(T, x, α);
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> lnf_laguerre_fn(T, x, which_f[3]);
 
 μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 
 stieltjes_nodes, stieltjes_weights = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b); 

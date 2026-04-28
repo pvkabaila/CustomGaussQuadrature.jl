@@ -105,6 +105,9 @@ function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, make_lnf_fn::Functi
   nbits = 256
   # Build lnf_fn only after choosing T, so every downstream computation
   # sees a closure whose constants and branches are created for that T.
+  # The support endpoints a and b are still passed in as raw values; the
+  # support-quadrature helper converts them to this local T, so endpoint
+  # storage does not bias the BigFloat-versus-Double64 comparison.
   lnf_fn = make_lnf_fn(T)
   nodes_256, lnweights_256 = 
   nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
@@ -185,50 +188,44 @@ end
 
 
 """
-a_vec, b_vec, nbits = stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
-
-Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
-[b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
-of Gauss quadrature nodes (n ≥ 2). αₖ and βₖ are defined by 
-  αₖ = (x πₖ, πₖ)ₐ / (πₖ, πₖ)ₐ and  βₖ = (πₖ, πₖ)ₐ / (πₖ₋₁, πₖ₋₁)ₐ 
-where (u,v)ₐ denotes the discrete approximation               
-  r                               b      
-  ∑ wᵢ u(xᵢ) v(xᵢ)   to   (u,v) = ∫ u(x) v(x) f(x) dx.           
- i=1                              a                        
-The algorithm chooses the precision nbits of BigFloat 
-arithmetic that is used in all of the computations, so 
-that there is some assurance that the vectors [a₁, ..., aₙ] 
-and [b₁, ..., bₙ₋₁] are computed to sufficient accuracy,
-for the specified value of r.
-"""
-function stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
-  # Compatibility path: callers that already constructed lnf_fn(x)
-  # still work by ignoring the driver-chosen arithmetic type.
-  stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, _ -> lnf_fn, a, b, r)
-end
-
-
-"""
-a_vec, b_vec, nbits = stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+a_vec, b_vec, nbits = stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number
-of Gauss quadrature nodes (n ≥ 2). This is the user-defined
-counterpart of stieltjes_a_vec_b_vec_choosenbits_fn.
+of Gauss quadrature nodes (n ≥ 2).
 
-The input lnf_user_fn is expected to have the form
-lnf_user_fn(T, which_f, x). The algorithm first chooses the
+The input lnf_typed_fn is expected to have the form
+lnf_typed_fn(T, which_f, x). The algorithm first chooses the
 arithmetic type T and then constructs the one-argument closure
-lnf_fn(x) = lnf_user_fn(T, which_f, x) that is used in the
+lnf_fn(x) = lnf_typed_fn(T, which_f, x) that is used in the
 support quadrature and Stieltjes recurrence computations.
+The support endpoints a and b are kept as raw values until the
+support quadrature converts them to this same local T, so their
+stored type does not influence which arithmetic branch is used.
 """
-function stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
-  # Preferred user-defined path: the driver chooses T first, then creates
-  # the one-argument closure x -> lnf_user_fn(T, which_f, x) for that T.
+function stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
+  #
+  # Read T -> (x -> lnf_typed_fn(T, which_f, x)) from left to right:
+  # 1. The outer function takes one input, called T.
+  # 2. After T has been chosen, it returns a new function of x.
+  # 3. That returned function remembers the particular values of T and
+  #    which_f that were in scope when it was created.
+  #
+  # This remembered behaviour is a closure. In other words, the inner
+  # function x -> ... has access to T and which_f even though x is its
+  # only explicit argument. So if the driver first chooses T = BigFloat,
+  # the closure behaves like x -> lnf_typed_fn(BigFloat, which_f, x).
+  # If the driver later chooses T = Double64, a different closure is
+  # created, namely x -> lnf_typed_fn(Double64, which_f, x).
+  #
+  # The key point is scope: T is not looked up later in some ambient
+  # global scope. It is fixed by the outer function call that creates the
+  # closure, and the resulting one-argument lnf_fn is then passed into the
+  # existing support-quadrature and Stieltjes code.
   stieltjes_a_vec_b_vec_choosenbits_core_fn(
     n,
     μ₀,
-    T -> (x -> lnf_user_fn(T, which_f, x)),
+    T -> (x -> lnf_typed_fn(T, which_f, x)),
     a,
     b,
     r,
@@ -237,119 +234,30 @@ end
 
 
 """
-a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
-
-Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and 
-[b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], where n is the number 
-of Gauss quadrature nodes (n ≥ 2). αₖ and βₖ are defined by 
-  αₖ = (x πₖ, πₖ) / (πₖ, πₖ) and  βₖ = (πₖ, πₖ) / (πₖ₋₁, πₖ₋₁) 
-where              
-            b      
-    (u,v) = ∫ u(x) v(x) f(x) dx.           
-            a                        
-The algorithm chooses the precision nbits of BigFloat 
-arithmetic that is used in all of the computations and the 
-value of r that specifies the discrete approximation               
-  r                               b      
-  ∑ wᵢ u(xᵢ) v(xᵢ)   to   (u,v) = ∫ u(x) v(x) f(x) dx,           
- i=1                              a                        
-so that there is some assurance that the vectors [a₁, ..., aₙ] 
-and [b₁, ..., bₙ₋₁] are computed to sufficient accuracy for use
-in Step 2. To choose the final value of r, which is outputted,
-we consider k (offset + n) for k=3, k-4, up to a maximum 
-value k_max. The default values of offset and k_max are 7
-and 40, respectively. 
-We restrict to n ≥ 2.     
-"""
-function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset=7, k_max=40)
-@assert n ≥ 2             
-    k = 3
-    r = k * (offset + n)
-    # println("r = k * (offset + n), where k = ", k)
-    # @time 
-    a_vec, b_vec, nbits = 
-    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
-    
-    k = k + 1
-    r = k * (offset + n)
-    # println("r = k * (offset + n), where k = ", k)
-    # @time 
-    a_vec_new, b_vec_new, nbits_new = 
-    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
-    # println("nbits_new = ", nbits_new)
-    
-    abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
-    max_abs_error_a = maximum(abs_error_a)
-    # println("maximum(abs.(a_vec_new - a_vec)) = ", max_abs_error_a)
-    rel_error_b = convert(Vector{Float64}, 
-    (abs.((b_vec_new - b_vec) ./ b_vec_new)))
-    max_rel_error_b = maximum(rel_error_b)
-    # println("maximum(abs.(b_vec_new - b_vec) ./ b_vec_new)) = ", max_rel_error_b)
-    
-    epsilon=1.0e-18
-    
-    while (max_abs_error_a > epsilon || max_rel_error_b > epsilon) 
-    a_vec, b_vec, nbits = a_vec_new, b_vec_new, nbits_new
-    if k == k_max
-        throw(DomainError(k, " needed value of k exceeds k_max"))
-    end
-    k = k + 1
-    r = k * (offset + n)
-    # println(" ")
-    # println("r = k * (offset + n), where k = ", k)
-    # @time 
-    a_vec_new, b_vec_new, nbits_new = 
-    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_fn, a, b, r)
-    # println("nbits_new = ", nbits_new)
-    
-    abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
-    max_abs_error_a = maximum(abs_error_a)
-    # println("maximum(abs.(a_vec_new - a_vec)) = ", max_abs_error_a)
-    rel_error_b = convert(Vector{Float64}, 
-    (abs.((b_vec_new - b_vec) ./ b_vec_new)))
-    max_rel_error_b = maximum(rel_error_b)
-    # println("maximum(abs.(b_vec_new - b_vec) ./ b_vec_new)) = ", max_rel_error_b)
-    
-    end
-    
-    # The precision of BigFloat is set globally.
-    # Consequently, this precision is reset to
-    # its default value before exitting this
-    # function. 
-    setprecision(BigFloat, 256, base=2)
-    # println("maximum(abs.(a_vec_new - a_vec)) = ", max_abs_error_a)
-    # println("maximum(abs.(b_vec_new - b_vec) ./ b_vec_new)) = ", max_rel_error_b)
-    [a_vec_new, b_vec_new, nbits_new, r]
-    
-end
-
-
-"""
-a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, offset=7, k_max=40)
+a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset=7, k_max=40)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], together with the chosen
-BigFloat precision nbits and the final value of r. This is the
-user-defined counterpart of stieltjes_a_vec_b_vec_final_fn.
+BigFloat precision nbits and the final value of r.
 
-The input lnf_user_fn is expected to have the form
-lnf_user_fn(T, which_f, x). For each trial value of r, the
+The input lnf_typed_fn is expected to have the form
+lnf_typed_fn(T, which_f, x). For each trial value of r, the
 driver chooses the arithmetic type T and then creates the
-one-argument closure lnf_fn(x) = lnf_user_fn(T, which_f, x)
+one-argument closure lnf_fn(x) = lnf_typed_fn(T, which_f, x)
 before carrying out the support quadrature and Stieltjes
 computations.
 """
-function stieltjes_a_vec_b_vec_final_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, offset=7, k_max=40)
+function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset=7, k_max=40)
   @assert n ≥ 2
     k = 3
     r = k * (offset + n)
     a_vec, b_vec, nbits = 
-    stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
 
     k = k + 1
     r = k * (offset + n)
     a_vec_new, b_vec_new, nbits_new = 
-    stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
 
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
     max_abs_error_a = maximum(abs_error_a)
@@ -367,7 +275,7 @@ function stieltjes_a_vec_b_vec_final_user_fn(n, μ₀, lnf_user_fn, which_f, a, 
     k = k + 1
     r = k * (offset + n)
     a_vec_new, b_vec_new, nbits_new = 
-    stieltjes_a_vec_b_vec_choosenbits_user_fn(n, μ₀, lnf_user_fn, which_f, a, b, r)
+    stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
 
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
     max_abs_error_a = maximum(abs_error_a)

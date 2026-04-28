@@ -572,15 +572,16 @@ This results in stieltjes_nodes and stieltjes_weights, which are
 the custom Gauss quadrature nodes and weights, respectively, obtained using the Stieltjes procedure and the number of sampled function values `r` used in the discrete approximation to the 
 inner product of functions used in this procedure. If `r` is of interest to us we use
 ```julia
-	println("r = ", r)
+    println("r = ", stieltjes_r)
 ```
 
 <!--
 This weight function is a probability density function. Therefore $\mu_0 = 1$. There is also a formula for $\mu_1$. We first compute $\mu_0$ and $\mu_1$ using
 
 	T = BigFloat;
+    moment_fn = moment_stored_fn;
 	which_f = ["scaled chi pdf", [0,Inf], m];
-	μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+    μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 Carry out **Step 1**, 
 the computation of the recursion coefficients in the three-step recurrence 
@@ -588,10 +589,10 @@ relation,
 and print out the the chosen value of $r$, the number of nodes in the discrete approximation (4), using
 
 	n = 5;
-	a = convert(T,0);
-	b = Inf;
+    a, b = which_f[2];
+    lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
 	stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-	stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
 	println("r = ", r)
 
 
@@ -652,7 +653,7 @@ For this weight function, with parameter $k$ set to 2.0 and number of Gauss quad
 
 ```julia
 	n = 10
-    lnf_user_fn = lnf_weibull_pdf_fn
+    lnf_typed_fn = lnf_weibull_pdf_fn
 	mu0 = convert(Double64, 1)
 ```
 

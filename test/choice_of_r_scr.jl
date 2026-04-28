@@ -1,9 +1,22 @@
 # choice_of_r_scr.jl
 
+using Pkg
+# Activate the package root, i.e. the directory one level above this test
+# script that contains Project.toml for CustomGaussQuadrature.
+#
+# After this activation, `using CustomGaussQuadrature` is resolved in the
+# active project environment defined by that Project.toml, not by whatever
+# package version may be installed in the default global environment.
+# Because the active project is the CustomGaussQuadrature package itself,
+# Julia loads the module from this checkout's src/CustomGaussQuadrature.jl.
+# In other words, the package name is satisfied by the currently activated
+# local project, so the registered/installed copy is not the one that gets
+# imported for this session.
+Pkg.activate(joinpath(@__DIR__, ".."))
 using CustomGaussQuadrature
 # μ_offsetvec_fn is an internal function of CustomGaussQuadrature; the
 # qualified import below makes it explicitly available in this script.
-using CustomGaussQuadrature: μ_offsetvec_fn
+using CustomGaussQuadrature: μ_offsetvec_fn, stieltjes_a_vec_b_vec_final_fn
 pathof(CustomGaussQuadrature)
 using Plots
 
@@ -30,21 +43,21 @@ end
 # m = 160;
 # m = 5;
 m = 1;
-lnf_fn = x -> ln_scaled_chi_pdf_fn(T, x, m);
-T = BigFloat;
-a = convert(T,0);
-b = Inf;
 which_f = ["scaled chi pdf", [0,Inf], m];
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
+T = BigFloat;
+moment_fn = moment_stored_fn;
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 n_upper = 40;
 r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 for n in n_vec
-    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-    r_vec[n - 1] = k*n
-    println("number of Gauss quadrature nodes n = ", n, ",   k = ", k, ",   r = kn = ", k*n, "\n")
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
+    r_vec[n - 1] = r
+    println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
 
 scatter(n_vec, r_vec, legend=false)
@@ -60,24 +73,22 @@ savefig("scaled_chi_pdf_m=$m.pdf")
 
 
 
-lnf_fn = x -> lnf_chemistry_fn(T, x);
 println("chemistry example weight function")
-T = BigFloat;
-a = convert(T,0);
-b = Inf;
-
 which_f = ["chemistry example", [0, Inf]];
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> lnf_chemistry_fn(T, x);
 T = BigFloat;
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+moment_fn = moment_stored_fn;
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 n_upper = 40;
 r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 for n in n_vec
-    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-    r_vec[n - 1] = k*n
-    println("number of Gauss quadrature nodes n = ", n, ",   k = ", k, ",   r = kn = ", k*n, "\n")
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
+    r_vec[n - 1] = r
+    println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
 
 scatter(n_vec, r_vec, legend=false)
@@ -94,18 +105,19 @@ savefig("chemistry.pdf")
 which_f = ["Hermite", [-Inf, Inf]];
 a = -Inf;
 b = Inf;
+lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
 T = BigFloat;
-lnf_fn = x -> lnf_hermite_fn(T, x);
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+moment_fn = moment_stored_fn;
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 n_upper = 40;
 r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 for n in n_vec
-    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, k = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
-    r_vec[n - 1] = k*n
-    println("number of Gauss quadrature nodes n = ", n, ",   k = ", k, ",   r = kn = ", k*n, "\n")
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
+    r_vec[n - 1] = r
+    println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
 
 scatter(n_vec, r_vec, legend=false)
@@ -118,18 +130,16 @@ title!("Hermite weight function,
 savefig("hermite.pdf")
 
 #-------------------------------------------------
-# Examine the effect of changing r = kn, for k=3,...
-# to r = k(offset+n), for k=3,...
+# Examine the effect of using an explicit offset and a larger k_max
+# while keeping the driver-owned T/closure path.
 
-# m = 160;
-# m = 5;
 m = 1;
-lnf_fn = x -> ln_scaled_chi_pdf_fn(T, x, m);
-T = BigFloat;
-a = convert(T,0);
-b = Inf;
 which_f = ["scaled chi pdf", [0,Inf], m];
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
+T = BigFloat;
+moment_fn = moment_stored_fn;
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 n_upper = 40;
 r_vec = zeros(n_upper - 1);
@@ -139,7 +149,7 @@ println("offset = ", offset)
 k_max = 400;
 for n in n_vec
     @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset, k_max);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -155,15 +165,13 @@ savefig("scaled_chi_pdf m=$m offset=$offset.pdf")
 
 #----------------------------------------------
 
-lnf_fn = x -> lnf_chemistry_fn(T, x);
 println("chemistry example weight function")
-T = BigFloat;
-a = convert(T,0);
-b = Inf;
-
 which_f = ["chemistry example", [0, Inf]];
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> lnf_chemistry_fn(T, x);
 T = BigFloat;
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+moment_fn = moment_stored_fn;
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 n_upper = 40;
 r_vec = zeros(n_upper - 1);
@@ -173,7 +181,7 @@ println("offset = ", offset)
 k_max = 400;
 for n in n_vec
     @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b, offset, k_max);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -192,9 +200,10 @@ savefig("chemistry offset=$offset.pdf")
 which_f = ["Hermite", [-Inf, Inf]];
 a = -Inf;
 b = Inf;
+lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
 T = BigFloat;
-lnf_fn = x -> lnf_hermite_fn(T, x);
-μ₀, μ₁ = μ_offsetvec_fn(T, which_f, 1);
+moment_fn = moment_stored_fn;
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
 
 n_upper = 40;
 r_vec = zeros(n_upper - 1);
@@ -204,7 +213,7 @@ println("offset = ", offset)
 k_max = 400;
 for n in n_vec
     @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_fn, a, b);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -217,3 +226,67 @@ ylabel!("r")
 title!("Hermite weight function, offset = $offset,
 β_hat = $β_hat", titlefontsize=10)
 savefig("hermite offset=$offset.pdf")
+
+
+m = 5;
+which_f = ["scaled chi pdf", [0,Inf], m];
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
+T = BigFloat;
+moment_fn = moment_stored_fn;
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
+
+n_upper = 40;
+r_vec = zeros(n_upper - 1);
+n_vec = 2:n_upper;
+offset = 7;
+println("offset = ", offset)
+k_max = 400;
+for n in n_vec
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
+    r_vec[n - 1] = r
+    println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
+end
+
+scatter(n_vec, r_vec, legend=false)
+xlabel!("n")
+ylabel!("r")
+
+β_hat = add_ls_stline_fn(n_vec, r_vec);
+title!("scaled chi pdf weight function, with m = $m, offset = $offset,
+β_hat = $β_hat", titlefontsize=10)
+savefig("scaled_chi_pdf m=$m offset=$offset.pdf")
+
+
+m = 160;
+which_f = ["scaled chi pdf", [0,Inf], m];
+a, b = which_f[2];
+lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
+T = BigFloat;
+moment_fn = moment_stored_fn;
+μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
+
+n_upper = 40;
+r_vec = zeros(n_upper - 1);
+n_vec = 2:n_upper;
+offset = 7;
+println("offset = ", offset)
+k_max = 400;
+for n in n_vec
+    @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
+    r_vec[n - 1] = r
+    println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
+end
+
+scatter(n_vec, r_vec, legend=false)
+xlabel!("n")
+ylabel!("r")
+
+β_hat = add_ls_stline_fn(n_vec, r_vec);
+title!("scaled chi pdf weight function, with m = $m, offset = $offset,
+β_hat = $β_hat", titlefontsize=10)
+savefig("scaled_chi_pdf m=$m offset=$offset.pdf")
+
+

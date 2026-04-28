@@ -165,6 +165,9 @@ function old_nodes_weights_support_fn(T, f_fn::Function, a, b, r::Integer)
     else
         y, w = legendre(T, r)
     end
+    # Convert the raw support endpoints to the local working type chosen for
+    # this quadrature call. This keeps the stored type of a and b from
+    # influencing the arithmetic used by the support map and its derivative.
     aT = parse(T, string(a))
     bT = parse(T, string(b))
     nodes_support = ϕ_fn.(T, y, aT, bT)
@@ -203,6 +206,10 @@ function nodes_weights_support_fn(T, f_fn::Function, a, b, r::Integer)
     else
         y, w = legendre(T, r)
     end
+    # Convert the raw support endpoints to the local working type chosen for
+    # this quadrature call. This ensures that the arithmetic branch selected
+    # by the caller, rather than the stored type of a and b, controls the
+    # support transformation and the resulting weights.
     aT = parse(T, string(a))
     bT = parse(T, string(b))
     nodes_support = ϕ_fn.(T, y, aT, bT)
@@ -252,6 +259,10 @@ function nodes_lnweights_support_fn(T, lnf_fn::Function, a, b, r::Integer)
     else
         y, w = legendre(T, r)
     end
+    # Convert the raw support endpoints only after T has been chosen for this
+    # branch. This decouples endpoint storage from the Stieltjes type trials,
+    # so the BigFloat and Double64 branches each use endpoints represented in
+    # their own local arithmetic.
     aT = parse(T, string(a))
     bT = parse(T, string(b))
     nodes_support = ϕ_fn.(T, y, aT, bT)
