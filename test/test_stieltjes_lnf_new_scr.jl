@@ -126,6 +126,12 @@
 # CTRL + K      V 
 # to get a preview of this file.
 
+using Pkg
+if !@isdefined(CustomGaussQuadrature)
+    Pkg.activate(joinpath(@__DIR__, ".."))
+    using CustomGaussQuadrature
+end
+
 # The following script is used for plotting cdf's and empirical
 # distribution functions as well as other functions useful for
 # code development and journal article writing.
@@ -133,6 +139,8 @@ include("utilities_scr.jl")
 
 # Both the inbuilt package Dates and the package Printf have a format command
 using Dates
+using Printf
+using DoubleFloats
 date_time_now = now()
 println("\n", Dates.Date(date_time_now), 
 "   ", Dates.format(date_time_now, "HH:MM"))    
@@ -194,6 +202,7 @@ using Printf
 using Plots
 using GaussQuadrature
 using SpecialFunctions
+using DoubleFloats
 
 println("\n", "------------------------------------------------------")
 #---------------------------------------
@@ -222,24 +231,21 @@ println("\n", "------------------------------------------------------")
 function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
     @assert x > convert(T,0)
-    k = which_f[3]
-    T_k = parse(T, string(k))
+    T_k = materialize_scalar_spec_fn(T, which_f[3])
     @assert T_k > convert(T, 0)
     log(T_k) + (T_k - convert(T,1)) * log(x) - x^T_k
 end
 
 
-k = 2.0
+k = "2.0"
 which_f = ["weibull pdf", [0, Inf], k]
 n = 10
 
 println("which_f = ", which_f)
 println("n = ", n, "\n")
 
-T = BigFloat
-
 lnf_typed_fn = lnf_weibull_pdf_fn;
-mu0 = convert(T, 1);
+mu0 = 1;
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
@@ -248,9 +254,8 @@ println("r =", r, "\n")
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    k = which_f[3]
-    @assert k > 0
-    T_k = parse(T, string(k))
+    T_k = materialize_scalar_spec_fn(T, which_f[3])
+    @assert T_k > convert(T, 0)
     @assert s ≥ 0
     if s == 0
       return(convert(T, 1))
@@ -263,12 +268,53 @@ end
 moment_fn = moment_weibull_pdf_fn
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
-# Compare the nodes and weights computed by the Stieltjes
-# procedure with the nodes and weights computed using the
-# moment determinant method
 println("Compare the nodes and weights computed by the Stieltjes")
 println("procedure with the nodes and weights computed using the")
 println("moment determinant method.", "\n")
+diff_nodes = stieltjes_nodes - nodes;
+rel_diff_weights = (stieltjes_weights - weights) ./ weights;
+
+diff_nodes = convert(Vector{Float64}, diff_nodes);
+rel_diff_weights = convert(Vector{Float64}, rel_diff_weights);
+
+println("      stieltjes_nodes - nodes    (stieltjes_weights - weights)./weights")
+for i in 1:lastindex(diff_nodes)
+	@printf "%2d     " i
+	@printf "%.16e     " diff_nodes[i]
+    @printf "%.16e  \n" rel_diff_weights[i]
+end
+
+print("\n")
+println("maximum(abs.(stieltjes_nodes - nodes)) = ", 
+convert(Float64, maximum(abs.(diff_nodes))))
+println("maximum(abs.((stieltjes_weights - weights) ./ weights)) = ", 
+convert(Float64, maximum(abs.(rel_diff_weights))))
+
+
+println("\n", "------------------------------------------------------")
+println("For k = 1, the Weibull pdf weight function that we consider")
+println("is the same as the Laguerre weight function as defined in") 
+println("the Julia package GaussQuadrature.jl, with parameter α = 0.")
+
+k_spec = "1.0"
+which_f = ["weibull pdf", [0, Inf], k_spec]
+n = 10
+
+println("which_f = ", which_f)
+println("n = ", n, "\n")
+
+lnf_typed_fn = lnf_weibull_pdf_fn;
+mu0 = 1;
+
+pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
+include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
+
+println("r =", r, "\n")
+
+T = BigFloat
+
+nodes, weights = laguerre(n, convert(T,0))
+
 diff_nodes = stieltjes_nodes - nodes;
 rel_diff_weights = (stieltjes_weights - weights) ./ weights;
 

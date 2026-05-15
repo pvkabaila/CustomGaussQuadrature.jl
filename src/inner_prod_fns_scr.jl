@@ -168,10 +168,10 @@ function old_nodes_weights_support_fn(T, f_fn::Function, a, b, r::Integer)
     # Convert the raw support endpoints to the local working type chosen for
     # this quadrature call. This keeps the stored type of a and b from
     # influencing the arithmetic used by the support map and its derivative.
-    aT = parse(T, string(a))
-    bT = parse(T, string(b))
-    nodes_support = ϕ_fn.(T, y, aT, bT)
-    weights_support = w .* f_fn.(nodes_support) .* ϕ′_fn.(T, y, aT, bT)
+    T_a = materialize_scalar_spec_fn(T, a)
+    T_b = materialize_scalar_spec_fn(T, b)
+    nodes_support = ϕ_fn.(T, y, T_a, T_b)
+    weights_support = w .* f_fn.(nodes_support) .* ϕ′_fn.(T, y, T_a, T_b)
     [nodes_support, weights_support] 
 end
 
@@ -210,10 +210,10 @@ function nodes_weights_support_fn(T, f_fn::Function, a, b, r::Integer)
     # this quadrature call. This ensures that the arithmetic branch selected
     # by the caller, rather than the stored type of a and b, controls the
     # support transformation and the resulting weights.
-    aT = parse(T, string(a))
-    bT = parse(T, string(b))
-    nodes_support = ϕ_fn.(T, y, aT, bT)
-    weights_support = w .* (f_fn.(nodes_support) .* ϕ′_fn.(T, y, aT, bT))
+    T_a = materialize_scalar_spec_fn(T, a)
+    T_b = materialize_scalar_spec_fn(T, b)
+    nodes_support = ϕ_fn.(T, y, T_a, T_b)
+    weights_support = w .* (f_fn.(nodes_support) .* ϕ′_fn.(T, y, T_a, T_b))
     [nodes_support, weights_support] 
 end
 
@@ -263,10 +263,10 @@ function nodes_lnweights_support_fn(T, lnf_fn::Function, a, b, r::Integer)
     # branch. This decouples endpoint storage from the Stieltjes type trials,
     # so the BigFloat and Double64 branches each use endpoints represented in
     # their own local arithmetic.
-    aT = parse(T, string(a))
-    bT = parse(T, string(b))
-    nodes_support = ϕ_fn.(T, y, aT, bT)
-    lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, aT, bT) + lnf_fn.(nodes_support)
+    T_a = materialize_scalar_spec_fn(T, a)
+    T_b = materialize_scalar_spec_fn(T, b)
+    nodes_support = ϕ_fn.(T, y, T_a, T_b)
+    lnweights_support = log.(w) + ln_ϕ′_fn.(T, y, T_a, T_b) + lnf_fn.(nodes_support)
     [nodes_support, lnweights_support] 
 end
 
@@ -277,7 +277,7 @@ scaled_chi_pdf = scaled_chi_pdf_fn(T, x, m)
 Returns the scaled chi probability density function (pdf) 
 with m degrees of freedom, evaluated at x.
 """
-function scaled_chi_pdf_fn(T, x::AbstractFloat, m::Integer)
+function scaled_chi_pdf_fn(::Type{T}, x::AbstractFloat, m::Integer) where {T<:AbstractFloat}
     T_0 = convert(T,0)
     @assert m > T_0
     @assert x ≥ T_0
@@ -300,7 +300,7 @@ ln_scaled_chi_pdf = ln_scaled_chi_pdf_fn(T, x, m)
 Returns log of the scaled chi probability density function (pdf) 
 with m degrees of freedom, evaluated at x.
 """
-function ln_scaled_chi_pdf_fn(T, x::AbstractFloat, m::Integer)
+function ln_scaled_chi_pdf_fn(::Type{T}, x::AbstractFloat, m::Integer) where {T<:AbstractFloat}
     T_0 = convert(T,0)
     @assert m > T_0
     @assert x ≥ T_0
@@ -327,7 +327,7 @@ end
 """
 lnf_chemistry = lnf_chemistry_fn(T, x)
 
-Returns log of the weight function considered by Gaustschi (1983),
+Returns log of the weight function considered by Gautschi (1983),
 evaluated at x. This weight function is     
   f(x) = exp(-x³/3) for x > 0
        = 0  otherwise.
@@ -335,7 +335,7 @@ Reference
 Gautschi, W. (1983) How and how not to check Gaussian quadrature
 formulae. BIT, 23, 209-216.       
 """
-function lnf_chemistry_fn(T::Type, x::AbstractFloat)
+function lnf_chemistry_fn(::Type{T}, x::AbstractFloat) where {T<:AbstractFloat}
     T_0 = convert(T,0)
     @assert x ≥ T_0
     T_3 = convert(T,3)
@@ -346,11 +346,11 @@ end
 """
 lnf_hermite = lnf_hermite_fn(T, x)
 
-Returns log of the Hermite weight function),
+Returns log of the Hermite weight function,
 evaluated at x. This weight function is     
   f(x) = exp(-x²).     
 """
-function lnf_hermite_fn(T::Type, x::AbstractFloat)
+function lnf_hermite_fn(::Type{T}, x::AbstractFloat) where {T<:AbstractFloat}
     T_x = convert(T, x)
     - T_x * T_x
 end
@@ -359,17 +359,38 @@ end
 """
 lnf_laguerre = lnf_laguerre_fn(T, x, α)
 
-Returns log of the Generalized Laguerre weight function),
+Returns log of the generalized Laguerre weight function,
 evaluated at x. This weight function is     
   f(x) = x^α exp(-x) for x > 0
        = 0  otherwise.    
 """
-function lnf_laguerre_fn(T::Type, x::AbstractFloat, α)
+function lnf_laguerre_fn(::Type{T}, x::AbstractFloat, α) where {T<:AbstractFloat}
     T_x = convert(T, x)
-    T_α = parse(T, string(α))
+    T_α = materialize_scalar_spec_fn(T, α)
     @assert T_x ≥ zero(T_x)
     @assert T_α > -one(T_α)
     T_α * log(T_x) - T_x
+end
+
+
+"""
+lnf_generalized_normal = lnf_generalized_normal_fn(T, x, α, β)
+
+Returns log of the centered generalized normal weight function,
+evaluated at x. This weight function is
+    f(x) = β / (2 α Γ(1 / β)) * exp(-(abs(x) / α)^β),
+for x in ℝ, with α > 0 and β > 0.
+"""
+function lnf_generalized_normal_fn(::Type{T}, x::AbstractFloat, α, β) where {T<:AbstractFloat}
+    T_x = convert(T, x)
+    T_α = materialize_scalar_spec_fn(T, α)
+    T_β = materialize_scalar_spec_fn(T, β)
+    @assert T_α > zero(T_α)
+    @assert T_β > zero(T_β)
+    T_one = one(T)
+    T_two = convert(T, 2)
+    log(T_β) - log(T_two) - log(T_α) -
+    (logabsgamma(T_one / T_β))[1] - (abs(T_x) / T_α)^T_β
 end
 
 

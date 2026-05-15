@@ -51,6 +51,12 @@ The weight function $f$ is identified by the array `which_f` with components:\
 (ii) support interval of $f$ specified by a 2-vector of the endpoints of the support of the weight function and\
 (iii) parameter vector (if any).
 
+For user input, use ordinary Julia values for exact quantities such as integers
+and `±Inf`, but use strings for finite non-integer constants whose decimal
+representation must be preserved. For example, enter
+`which_f = ["scaled chi pdf", [0, Inf], 160]` but
+`which_f = ["weibull pdf", [0, Inf], "2.1"]`.
+
 There are five **built-in** weight functions whose moment formulae and
 log-weight functions are already implemented. These include the scaled chi pdf with positive integer parameter `m`, identified by <br />
 `which_f = ["scaled chi pdf", [0, Inf], m]` 
@@ -84,18 +90,17 @@ nodes = convert(Vector{Float64}, nodes)
 weights = convert(Vector{Float64}, weights)
 ```
 
-**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 2 & number of nodes `n` = 9:
+**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 2.1 & number of nodes `n` = 9:
 
 ```julia
 using SpecialFunctions
 
-which_f = ["weibull pdf", [0, Inf], 2.0]
+which_f = ["weibull pdf", [0, Inf], "2.1"]
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
-    k = which_f[3]
-    @assert k > 0
-    T_k = parse(T, string(k))
+    T_k = CustomGaussQuadrature.materialize_scalar_spec_fn(T, which_f[3])
+    @assert T_k > 0
     @assert s ≥ 0
     if s == 0
         return(convert(T, 1))
@@ -116,7 +121,8 @@ This is more widely applicable than the moment determinants method since it requ
 evaluation of `μ₀` and $\log f(x)$.
 For **built-in** weight functions, these are already
 implemented in `stieltjes_lnf_stored_scr.jl`. For a **user-defined** weight function,
-the user supplies `lnf_fn` (evaluating $\log f$) and a function for evaluating `μ₀` and `μ₁`. These scripts are invoked via `include()`.
+the user supplies `lnf_typed_fn` (evaluating $\log f$ in the chosen arithmetic)
+and the constant `mu0` as a string. These scripts are invoked via `include()`.
 
 **Built-in** weight function scaled chi pdf with parameter `m` = 160 & number of nodes `n` = 33:
 
@@ -147,22 +153,20 @@ If still needed, T = BigFloat at 512 bits, and a final 480-bit consistency check
 For each branch, the core first creates a fresh one-argument closure lnf_fn = make_lnf_fn(T). So in the Weibull example, the closure becomes either x -> lnf_weibull_pdf_fn(BigFloat, which_f, x) or x -> lnf_weibull_pdf_fn(Double64, which_f, x), depending on the branch currently being tested. That means T_k = parse(T, string(k)), convert(T, 1), and the endpoint conversions all happen consistently inside that branch's arithmetic.
 -->
 
-**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 2 & number of nodes `n` = 10:
+**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 3.1 & number of nodes `n` = 6:
 
 
 ```julia
 using SpecialFunctions
 
-which_f = ["weibull pdf", [0, Inf], 2.0]
-n = 10
+which_f = ["weibull pdf", [0, Inf], "3.1"]
+n = 6
 
 
 function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
     @assert x > convert(T, 0)
-    k = which_f[3]
-    @assert k > 0
-    T_k = parse(T, string(k))
+    T_k = CustomGaussQuadrature.materialize_scalar_spec_fn(T, which_f[3])
     @assert T_k > convert(T, 0)
     log(T_k) + (T_k - convert(T, 1)) * log(x) - x^T_k
 end
@@ -172,13 +176,13 @@ end
 
 ```julia
 lnf_typed_fn = lnf_weibull_pdf_fn
-mu0 = convert(Double64, 1)  
+mu0 = 1
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 # Evaluation of stieltjes_nodes and stieltjes_weights:
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
-println("r = ", stieltjes_r)
+println("r = ", r)
 nodes = convert(Vector{Float64}, stieltjes_nodes)
 weights = convert(Vector{Float64}, stieltjes_weights)
 ```

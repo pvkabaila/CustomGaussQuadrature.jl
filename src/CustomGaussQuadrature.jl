@@ -2,7 +2,7 @@ module CustomGaussQuadrature
 # Written by Dr. Paul Kabaila, 
 # Department of Mathematical and Physical Sciences,
 # La Trobe University, Melbourne, Australia.
-# April 2026.
+# May 2026.
 # 
 # This module consists of the following Julia scripts:
 #
@@ -145,6 +145,62 @@ using GenericLinearAlgebra
 using DoubleFloats
 using Polynomials
 
+# (0)
+# Materialize (convert to a concrete value of type T) user-facing parameter
+# and support specifications only after the working type T has been chosen.
+# This preserves precision for decimal strings while still accepting exact
+# values such as integers and infinities. The documented high-level input
+# contract uses ordinary Julia values for exact quantities, but this helper is
+# also a low-level boundary used by internal code paths and tests, so it stays
+# defensive about special floating-point values that may already be typed.
+function materialize_scalar_spec_fn(T::Type, value)
+	if value isa AbstractString
+		return parse(T, value)
+	end
+	if value isa AbstractFloat
+		if isnan(value)
+			return convert(T, NaN)
+		end
+		if isinf(value)
+			return signbit(value) ? -convert(T, Inf) : convert(T, Inf)
+		end
+	end
+	return convert(T, value)
+end
+
+# Materialize (convert to a concrete integer value) an integer specification.
+function materialize_integer_spec_fn(value)
+	if value isa AbstractString
+		return parse(Int, value)
+	end
+	return Int(value)
+end
+
+# Materialize (convert to concrete endpoint values of type T) a support specification.
+function materialize_support_spec_fn(T::Type, support_spec)
+	@assert length(support_spec) == 2
+	left_endpoint = materialize_scalar_spec_fn(T, support_spec[1])
+	right_endpoint = materialize_scalar_spec_fn(T, support_spec[2])
+	return left_endpoint, right_endpoint
+end
+
+# Check that a stored built-in weight-function name already uses the canonical
+# lowercase form, then return that lowercase comparison key.
+function normalize_stored_weight_name_fn(name_spec)
+	@assert name_spec isa AbstractString
+	stored_weight_name = lowercase(name_spec)
+	if name_spec != stored_weight_name
+		throw(DomainError(name_spec,
+			"stored built-in which_f[1] names must use lower case, e.g. \"$(stored_weight_name)\""))
+	end
+	return stored_weight_name
+end
+
+export materialize_integer_spec_fn
+export materialize_scalar_spec_fn
+export materialize_support_spec_fn
+
+
 # (1) 
 include("gauss_quad_moment_dets_scr.jl")
 export moment_stored_fn
@@ -156,6 +212,7 @@ include("inner_prod_fns_scr.jl")
 export scaled_chi_pdf_fn
 export ln_scaled_chi_pdf_fn
 export lnf_chemistry_fn
+export lnf_generalized_normal_fn
 export lnf_hermite_fn
 export lnf_laguerre_fn
 

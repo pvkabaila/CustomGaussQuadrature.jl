@@ -196,33 +196,29 @@ using SpecialFunctions
 using CustomGaussQuadrature: μ_offsetvec_fn
 
 println("\n", "------------------------------------------------------")
-#-------------------------------
-# scaled chi pdf weight function
-#-------------------------------
+println("Test the Stieltjes procedure")
+println("This section compares the Stieltjes procedure with the")
+println("moment-determinants method for the stored scaled chi pdf.", "\n")
 
 m = 160;
-which_f = ["scaled chi pdf", [0,Inf], m];
+which_f = ["scaled chi pdf", [0, Inf], m];
 n = 33;
 
 println("which_f = ", which_f)
-println("n = ", n, "\n")
+println("number of Gauss quadrature nodes n = ", n, "\n")
 
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 
-println("r =", r, "\n")
+println("r = ", r, "\n")
 
-#-----------------------------------------------------------------
-# Compute the custom Gauss quadrature nodes and weights
-# using the moment determinant method
-moment_fn = moment_stored_fn
+println("Use the moment-determinants method to compute the")
+println("custom Gauss quadrature nodes and weights.", "\n")
+moment_fn = moment_stored_fn;
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
-# Compare the nodes and weights computed by the Stieltjes
-# procedure with the nodes and weights computed using the
-# moment determinant method
-println("Compare the nodes and weights computed by the Stieltjes")
-println("procedure with the nodes and weights computed using the")
-println("moment determinant method.", "\n")
+println("The Stieltjes and moment-determinants Gauss rules are")
+println("compared below using the node differences and the")
+println("weight relative differences.", "\n")
 diff_nodes = stieltjes_nodes - nodes;
 rel_diff_weights = (stieltjes_weights - weights) ./ weights;
 
@@ -244,24 +240,21 @@ convert(Float64, maximum(abs.(rel_diff_weights))))
 print("\n")
 
 println("\n", "------------------------------------------------------")
-#-------------------------------
-# Hermite weight function
-#-------------------------------
-# Compute the custom Gauss quadrature nodes and weights
-# using the command hermite from the GaussQuadrature package
-# with arithmetic type BigFloat 
+println("Test the Stieltjes procedure")
+println("This section compares the Stieltjes procedure with the")
+println("GaussQuadrature Hermite rule computed with BigFloat arithmetic.", "\n")
 
-which_f = ["Hermite", [-Inf,Inf]];
+which_f = ["hermite", [-Inf, Inf]];
 n = 10;
 
 println("which_f = ", which_f)
-println("n = ", n, "\n")
+println("number of Gauss quadrature nodes n = ", n, "\n")
 
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 
-println("r =", r, "\n")
+println("r = ", r, "\n")
 
-println("setprecision(BigFloat, 256, base=2) ", "\n")
+println("setprecision(BigFloat, 256, base=2)", "\n")
 setprecision(BigFloat, 256, base=2);
 
 println("Use the command hermite from the GaussQuadrature package:")
@@ -269,18 +262,15 @@ println("nodes_BigFloat, weights_BigFloat = hermite(BigFloat, n);")
 nodes_BigFloat, weights_BigFloat = hermite(BigFloat, n);
 print("\n")
 
-#-----------------------------------------------------------------
-# Compare the nodes and weights computed by the Stieltjes
-# procedure with the nodes and weights computed using the
-# command hermite from the GaussQuadrature package 
-# with arithmetic type BigFloat
 diff_nodes = stieltjes_nodes - nodes_BigFloat;
 rel_diff_weights = (stieltjes_weights - weights_BigFloat) ./ weights_BigFloat;
 
 diff_nodes = convert(Vector{Float64}, diff_nodes);
 rel_diff_weights = convert(Vector{Float64}, rel_diff_weights);
 
-println("Comparison with nodes and weights that are, to Double64 precision, exact.", "\n")
+println("The Stieltjes rule is compared below with the")
+println("GaussQuadrature Hermite rule from hermite(BigFloat, n)")
+println("using the node differences and the weight relative differences.", "\n")
 println("      stieltjes_nodes - nodes    (stieltjes_weights - weights)./weights")
 for i in 1:lastindex(diff_nodes)
 	@printf "%2d     " i

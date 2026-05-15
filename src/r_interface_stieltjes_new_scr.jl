@@ -15,13 +15,14 @@
 #   using CustomGaussQuadrature
 #
 #   which_f -- Array identifying the weight function, e.g.
-#              ["weibull pdf", [0, Inf], 2.0]
+#              ["weibull pdf", [0, Inf], "2.1"]
 #   n       -- Number of Gauss quadrature nodes (positive integer).
 #   lnf_typed_fn -- Julia function of (T, which_f, x) evaluating log(f(x)), e.g.
 #                   lnf_typed_fn = lnf_weibull_pdf_fn
 #   mu0     -- Zeroth moment: integral of f over the support.
-#              For a pdf, mu0 = convert(Double64, 1).
-#   k_max   -- Optional positive integer overriding the default cap used
+#              For a pdf, use mu0 = 1. Use a string only for a finite
+#              non-integer constant whose decimal value matters.
+#   j_max   -- Optional positive integer overriding the default cap used
 #              when increasing r in the Stieltjes procedure.
 #
 # These must be defined in the Julia session before this script is
@@ -45,14 +46,17 @@
 #   juliaEval('Pkg.develop(path=raw"C:/path/to/CustomGaussQuadrature")')
 #   juliaEval('using CustomGaussQuadrature')
 #   juliaEval('pathof(CustomGaussQuadrature)')
-#   which_f <- list("weibull pdf", c(0, Inf), 2.1)
+#   which_f <- list("weibull pdf", c(0, Inf), '"2.1"')
 #   lnf_typed_fn_body <- '
 #       @assert which_f[1] == "weibull pdf"
 #       ...
 #   '
-#   mu0_body <- 'convert(Double64, 1)'
+#   mu0_body <- '1'
+#   # which_f[[3]] and mu0_body are Julia source fragments. Use plain
+#   # numerals for exact values, and Julia string literals such as '"2.1"'
+#   # only for finite non-integer constants whose decimal value matters.
 #   n <- 9
-#   run_stieltjes_new_example <- function(which_f, n, lnf_typed_fn_body, mu0_body, k_max = 40) {
+#   run_stieltjes_new_example <- function(which_f, n, lnf_typed_fn_body, mu0_body, j_max = 40) {
 #     weight_name <- which_f[[1]]
 #     support <- which_f[[2]]
 #     left_endpoint <- if (is.infinite(support[1])) "-Inf" else format(support[1], trim = TRUE)
@@ -79,7 +83,7 @@
 #     # working type T for the current branch.
 #     juliaEval(sprintf('lnf_typed_fn = %s', fn_name))
 #     juliaEval(sprintf('mu0 = %s', mu0_body))
-#     juliaEval(sprintf('k_max = %d', k_max))
+#     juliaEval(sprintf('j_max = %d', j_max))
 #
 #     juliaEval('include(joinpath(dirname(dirname(pathof(CustomGaussQuadrature))),
 #         "src", "r_interface_stieltjes_new_scr.jl"))')
@@ -91,7 +95,7 @@
 #     )
 #   }
 #
-#   result <- run_stieltjes_new_example(which_f, n, lnf_typed_fn_body, mu0_body, k_max = 80)
+#   result <- run_stieltjes_new_example(which_f, n, lnf_typed_fn_body, mu0_body, j_max = 80)
 #   nodes   <- result$nodes
 #   weights <- result$weights
 #   r       <- result$r
@@ -110,7 +114,7 @@
 #   R CPU times are near zero, so a single system.time(...) does not show
 #   which stage is actually responsible for the delay.
 #
-#   profile_run_stieltjes_new_example <- function(which_f, n, lnf_typed_fn_body, mu0_body, k_max = 40) {
+#   profile_run_stieltjes_new_example <- function(which_f, n, lnf_typed_fn_body, mu0_body, j_max = 40) {
 #     timings <- data.frame(
 #       step = character(),
 #       user = numeric(),
@@ -171,8 +175,8 @@
 #       juliaEval(sprintf('mu0 = %s', mu0_body))
 #     )
 #
-#     capture_step("set k_max",
-#       juliaEval(sprintf('k_max = %d', k_max))
+#     capture_step("set j_max",
+#       juliaEval(sprintf('j_max = %d', j_max))
 #     )
 #
 #     capture_step("run include",
@@ -205,7 +209,7 @@
 #     )
 #   }
 #
-#   profile <- profile_run_stieltjes_new_example(which_f, n, lnf_typed_fn_body, mu0_body, k_max = 80)
+#   profile <- profile_run_stieltjes_new_example(which_f, n, lnf_typed_fn_body, mu0_body, j_max = 80)
 #   nodes   <- profile$result$nodes
 #   weights <- profile$result$weights
 #   r       <- profile$result$r
@@ -213,4 +217,4 @@
 include(joinpath(@__DIR__, "stieltjes_lnf_new_scr.jl"))
 cgq_nodes   = convert(Vector{Float64}, stieltjes_nodes)
 cgq_weights = convert(Vector{Float64}, stieltjes_weights)
-cgq_r       = stieltjes_r
+cgq_r       = r

@@ -53,41 +53,42 @@ The input which_f has the following 3 components:
 (i)  name
 (ii) support specified by a 2-vector of the endpoints 
 of the interval. 
-(iii) parameter vector (if any)
+(iii) parameter vector (if any). For user-defined weight functions,
+this third component is passed through unchanged, so it may be
+empty, a single parameter specification, or a container holding
+several parameter specifications.
 This function accepts the following which_f's as inputs:
    which_f = ["scaled chi pdf", [0,Inf], m]
-   which_f = ["Hermite", [-Inf, Inf]]
-   which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
+  which_f = ["hermite", [-Inf, Inf]]
+  which_f = ["generalized laguerre", [0, Inf], α_gl]  
+  which_f = ["generalized normal", [-Inf, Inf], [α, β]]
    which_f = ["chemistry example", [0, Inf]]
-   which_f = ["Legendre", [-1, 1]]
+  which_f = ["legendre", [-1, 1]]
 """
 function moment_stored_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
   @assert s ≥ 0
   T_2 = convert(T, 2)
+  stored_weight_name = normalize_stored_weight_name_fn(which_f[1])
 
-  if which_f[1] == "scaled chi pdf"
+  if stored_weight_name == "scaled chi pdf"
     if s == 0
         return(convert(T, 1))
     end
-    m = which_f[3]
+    m = materialize_integer_spec_fn(which_f[3])
+    @assert m > 0
     T_m = convert(T, m)
     T_s = convert(T, s)
     term1 = (T_s/T_2) * log(T_2 / T_m)
-    # 3 October 2024: loggamma was not recognised
-    # but lgamma was. So I used
-    # term2 = lgamma(((T_s + T_m)/T_2)))
-    # term3 = lgamma(T_m/T_2)
-    # However, when testing the package 
-    # CustomGaussQuadrature on 7 February 2025, 
-    # there was a warning that lgammm(x::Real) is
-    # deprecated and should be replaced
-    # by (logabsgamma(x))[1]
+    # 3 October 2024: loggamma was not recognised but lgamma was,
+    # so the code used lgamma here temporarily. On 7 February 2025,
+    # package testing showed a deprecation warning for lgamma(x::Real),
+    # so this branch was updated to use (logabsgamma(x))[1] instead.
     term2 = (logabsgamma((T_s + T_m)/T_2))[1]
     term3 = (logabsgamma(T_m/T_2))[1]
     moment = exp(term1 + term2 - term3)
     return(moment)
 
-  elseif which_f[1] == "Hermite"
+  elseif stored_weight_name == "hermite"
     if s == 0
         return(sqrt(convert(T, π)))
     end
@@ -99,21 +100,35 @@ function moment_stored_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloa
     end 
     return(moment)
 
-  elseif which_f[1] == "Generalized Laguerre"
+  elseif stored_weight_name == "generalized laguerre"
     # The formula for the r'th moment is given
     # e.g. on p.63 of 
     # Gautschi, W. (2004) Orthogonal Polynomials, 
     # Computation and Approximation. 
     # Oxford University Press, Oxford.
-    α_GGL = which_f[3]
-    @assert α_GGL > -1
-    T_α_GGL = parse(T, string(α_GGL))
+    T_α_gl = materialize_scalar_spec_fn(T, which_f[3])
+    @assert T_α_gl > -one(T_α_gl)
     T_splus1 = convert(T, (s+1))
-    term = T_α_GGL + T_splus1
+    term = T_α_gl + T_splus1
     moment = gamma(term)
     return(moment)
+
+  elseif stored_weight_name == "generalized normal"
+    @assert length(which_f[3]) == 2
+    α_spec, β_spec = which_f[3]
+    T_α = materialize_scalar_spec_fn(T, α_spec)
+    T_β = materialize_scalar_spec_fn(T, β_spec)
+    @assert T_α > zero(T_α)
+    @assert T_β > zero(T_β)
+    if isodd(s)
+        return(zero(T))
+    end
+    T_s = convert(T, s)
+    T_one = one(T)
+    moment = T_α^T_s * gamma((T_s + T_one) / T_β) / gamma(T_one / T_β)
+    return(moment)
     
-  elseif which_f[1] == "Legendre"
+  elseif stored_weight_name == "legendre"
     if isodd(s)
         moment = convert(T, 0)
     else
@@ -122,7 +137,7 @@ function moment_stored_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloa
     end
     return(moment)
 
-  elseif which_f[1] ==  "chemistry example"
+  elseif stored_weight_name ==  "chemistry example"
     T_1 = convert(T, 1)
     T_3 = convert(T, 3)
     T_s = convert(T, s)
@@ -337,9 +352,9 @@ a_vec, b_vec, μ₀ = a_vec_b_vec_μ₀_fn(T, moment_fn, which_f, n)
 
 This function computes a_vec, b_vec and μ₀ using the
 type of arithmetic T (usually a BigFloat with a globally
-specified precision), moment_fn (the function for computing
-the moments of the weight function), which_f which has the 
-following 3 components:
+specified precision) and moment_fn (the function for computing
+the moments of the weight function specified by which_f), where
+which_f has the following 3 components:
 (i)  name
 (ii) support specified by a 2-vector of the endpoints 
 of the interval
@@ -444,7 +459,7 @@ nbits = precision(BigFloat)
 
 # The precision of BigFloat is set globally.
 # Consequently, this precision is reset to
-# its default value before exitting this
+# its default value before exiting this
 # function. 
 setprecision(BigFloat, 256, base=2)
 
@@ -491,7 +506,7 @@ function step1_fn(moment_fn, which_f, n::Integer, epsilon=1.0e-18)
 
   # The precision of BigFloat is set globally.
   # Consequently, this precision is reset to
-  # its default value before exitting this
+  # its default value before exiting this
   # function. 
   setprecision(BigFloat, 256, base=2)
 
@@ -517,13 +532,11 @@ function step2_fn(T, which_f, n::Integer, a_vec, b_vec, μ₀)
   @assert n ≥ 2
   a_vec_converted = convert(Vector{T}, a_vec)
   b_vec_converted = convert(Vector{T}, b_vec)
-  μ₀_converted = convert(T, μ₀)
+  μ₀_converted = materialize_scalar_spec_fn(T, μ₀)
   Jₙ = SymTridiagonal(a_vec_converted, b_vec_converted)
   eigenvalues, eigenvectors = eigen(Jₙ)
   nodes = eigenvalues
-  l_endpt, u_endpt = which_f[2]
-  T_l_endpt = parse(T, string(l_endpt))
-  T_u_endpt = parse(T, string(u_endpt))
+  T_l_endpt, T_u_endpt = materialize_support_spec_fn(T, which_f[2])
   @assert T_l_endpt ≤ nodes[1]
   @assert nodes[n] ≤ T_u_endpt
   weights = zeros(T,n)
@@ -560,7 +573,7 @@ end
 
 
 """
-nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n=false, extra_check=false)
+nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n=false)
 
 This function computes the custom-made Gauss quadrature nodes and 
 weights, for n nodes, moment_fn (the function for computing the 
@@ -569,24 +582,20 @@ which_f which has the following 3 components:
 (i)  name
 (ii) support specified by a 2-vector of the endpoints 
 of the interval
-(iii) parameter vector (if any)
+(iii) parameter vector (if any). For user-defined weight functions,
+this may be a container of several parameter specifications; the
+driver passes it to moment_fn unchanged.
 The Boolean variable upto_n takes the value true if the Gauss quadrature 
 rules are computed for number of nodes q from 1 up and including n.
 By default, this variable is false, so that
 only the Gauss quadrature rule for number of nodes n is computed.
-The Boolean variable extra_check takes the value true if 26 bits of 
-precision are added to the number of bits of precision (a) used in the 
-final stage of Step 1 and (b) Step 2, followed by comparison of this 
-more precise computation of the nodes and weights with the less 
-precise computation of the nodes and weights.
-By default, this variable is false, so that this extra check on the
-precision of the nodes and weights is not carried out. 
 We obtain moment_fn as follows. For any of the following which_f's 
   which_f = ["scaled chi pdf", [0,Inf], m]
-  which_f = ["Hermite", [-Inf, Inf]]
-  which_f = ["Generalized Laguerre", [0, Inf], α_GGL]     
+  which_f = ["hermite", [-Inf, Inf]]
+  which_f = ["generalized laguerre", [0, Inf], α_gl]     
+  which_f = ["generalized normal", [-Inf, Inf], [α, β]]
   which_f = ["chemistry example", [0, Inf]]
-  which_f = ["Legendre", [-1, 1]]
+  which_f = ["legendre", [-1, 1]]
 at the Julia REPL we enter, for example, the following commands:
   which_f = ["scaled chi pdf", [0,Inf], 5]
   moment_fn = moment_stored_fn
@@ -614,8 +623,12 @@ the following commands at the Julia REPL:
   end
 Then enter the following command at the Julia REPL:
 moment_fn = moment_weibull_pdf_fn
+
+If a user-defined weight function has several parameters, store them in
+which_f[3] as a vector or tuple and materialize each entry inside
+moment_fn.
 """
-function custom_gauss_quad_all_fn(moment_fn, which_f, n::Integer, upto_n::Bool=false, extra_check::Bool=false)
+function custom_gauss_quad_all_fn(moment_fn, which_f, n::Integer, upto_n::Bool=false)
   @assert n ≥ 1
   if n == 1
     T = Double64  
@@ -624,37 +637,13 @@ function custom_gauss_quad_all_fn(moment_fn, which_f, n::Integer, upto_n::Bool=f
     weights = μ₀
     return([nodes, weights])
   end
-  a_vec, b_vec, μ₀, nbits = step1_fn(moment_fn, which_f, n)
+  a_vec, b_vec, μ₀, _ = step1_fn(moment_fn, which_f, n)
   nodes, weights = step2_fn(Double64, which_f, n, a_vec, b_vec, μ₀)
-  if extra_check == true
-    setprecision(BigFloat, (nbits+26), base=2)
-    a_vec_better, b_vec_better, μ₀_better = step1_fn(moment_fn, which_f, n)
-    setprecision(BigFloat, 132, base=2)
-    nodes_better, weights_better = step2_fn(BigFloat, which_f, n, a_vec_better, b_vec_better, μ₀_better)
-    nodes = convert(Vector{BigFloat}, nodes)
-    weights = convert(Vector{BigFloat}, weights)
-    abs_error_nodes = convert(Vector{Float64}, abs.(nodes - nodes_better));
-    max_abs_error_nodes = maximum(abs_error_nodes)
-    abs_rel_error_weights = convert(Vector{Float64}, (abs.((weights - weights_better) ./ weights_better)))
-    max_abs_rel_error_weights = maximum(abs_rel_error_weights)
-    a_vec = a_vec_better
-    b_vec = b_vec_better
-    nodes = nodes_better
-    weights = weights_better
-  end
 
   if upto_n == false
-    if extra_check == true
-      # The precision of BigFloat is set globally.
-      # Consequently, this precision is reset to
-      # its default value before exitting this
-      # function. 
-      setprecision(BigFloat, 256, base=2)
-      return([nodes, weights, max_abs_error_nodes, max_abs_rel_error_weights])
-    end
     # The precision of BigFloat is set globally.
     # Consequently, this precision is reset to
-    # its default value before exitting this
+    # its default value before exiting this
     # function. 
     setprecision(BigFloat, 256, base=2)
     return([nodes, weights])
@@ -676,18 +665,10 @@ function custom_gauss_quad_all_fn(moment_fn, which_f, n::Integer, upto_n::Bool=f
   end
   push!(nodes_upto_n, nodes)
   push!(weights_upto_n, weights)
-  if extra_check == true
-    # The precision of BigFloat is set globally.
-    # Consequently, this precision is reset to
-    # its default value before exitting this
-    # function. 
-    setprecision(BigFloat, 256, base=2)
-    return([nodes_upto_n, weights_upto_n, max_abs_error_nodes, max_abs_rel_error_weights])
-  end
 
   # The precision of BigFloat is set globally.
   # Consequently, this precision is reset to
-  # its default value before exitting this
+  # its default value before exiting this
   # function. 
   setprecision(BigFloat, 256, base=2)
 

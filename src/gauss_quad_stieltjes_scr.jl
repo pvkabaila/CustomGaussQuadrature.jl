@@ -99,24 +99,49 @@ function stieltjes_a_vec_b_vec_nonan_fn(T::Type, n::Integer, μ₀, nodes_suppor
 end
 
 
-function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, make_lnf_fn::Function, a, b, r)
+# Materialize (convert to a concrete value of type T) a Stieltjes scalar input,
+# either from a user-supplied specification or from a callback.
+function stieltjes_materialize_typed_scalar_fn(value_or_fn, T::Type, which_f)
+  if value_or_fn isa Function
+    try
+      return value_or_fn(T, which_f)
+    catch err
+      if err isa MethodError
+        return value_or_fn(T)
+      end
+      rethrow()
+    end
+  end
+  return materialize_scalar_spec_fn(T, value_or_fn)
+end
+
+
+function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, make_μ₀_fn::Function, make_lnf_fn::Function, a, b, r)
   setprecision(BigFloat, 256, base=2)
   T = BigFloat
   nbits = 256
+  # Start from a 256-bit BigFloat run and treat it as the reference solution.
+  # Later branches only decide whether this precision is already sufficient or
+  # whether we must move up to 512 bits.
   # Build lnf_fn only after choosing T, so every downstream computation
   # sees a closure whose constants and branches are created for that T.
   # The support endpoints a and b are still passed in as raw values; the
   # support-quadrature helper converts them to this local T, so endpoint
   # storage does not bias the BigFloat-versus-Double64 comparison.
+  μ₀ = make_μ₀_fn(T)
   lnf_fn = make_lnf_fn(T)
   nodes_256, lnweights_256 = 
   nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
   a_vec_256, b_vec_256 = 
   stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_256, lnweights_256)
 
-  epsilon = 1.0e-22
+  epsilon1 = 1.0e-22
 
   T = Double64
+  # Cheap consistency check: if Double64 reproduces the 256-bit coefficients
+  # to within the target tolerances and without NaNs, then 256 bits is already
+  # more than enough and we can return the 256-bit result.
+  μ₀ = make_μ₀_fn(T)
   lnf_fn = make_lnf_fn(T)
   nodes_106, lnweights_106 = 
   nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
@@ -128,13 +153,17 @@ function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, make_lnf_fn::Functi
     rel_error_b = convert(Vector{Float64}, 
     (abs.((b_vec_106 - b_vec_256) ./ b_vec_256)))
     max_rel_error_b = maximum(rel_error_b)
-    if max_abs_error_a < epsilon && max_rel_error_b < epsilon
+    if max_abs_error_a < epsilon1 && max_rel_error_b < epsilon1
       return([a_vec_256, b_vec_256, nbits])
     end
   end
 
   setprecision(BigFloat, 224, base=2)
   T = BigFloat;
+  # Second check in the opposite direction: compare a slightly lower BigFloat
+  # precision against the 256-bit reference. Agreement here indicates that the
+  # 256-bit result is internally stable, so we keep the 256-bit output.
+  μ₀ = make_μ₀_fn(T)
   lnf_fn = make_lnf_fn(T)
   nodes_224, lnweights_224 = 
   nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
@@ -145,13 +174,16 @@ function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, make_lnf_fn::Functi
   rel_error_b = convert(Vector{Float64}, 
   (abs.((b_vec_224 - b_vec_256) ./ b_vec_256)))
   max_rel_error_b = maximum(rel_error_b)
-  if max_abs_error_a < epsilon && max_rel_error_b < epsilon
+  if max_abs_error_a < epsilon1 && max_rel_error_b < epsilon1
     return([a_vec_256, b_vec_256, nbits])
   end
             
   setprecision(BigFloat, 512, base=2)
   T = BigFloat
   nbits = 512
+  # If the 256-bit result fails both cheaper stability checks, recompute at
+  # 512 bits and treat that higher-precision run as the new candidate output.
+  μ₀ = make_μ₀_fn(T)
   lnf_fn = make_lnf_fn(T)
   nodes_512 , lnweights_512  = 
   nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
@@ -162,27 +194,37 @@ function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, μ₀, make_lnf_fn::Functi
   rel_error_b = convert(Vector{Float64}, 
   (abs.((b_vec_512 - b_vec_256) ./ b_vec_512)))
   max_rel_error_b = maximum(rel_error_b)
-  if max_abs_error_a < epsilon && max_rel_error_b < epsilon
+  if max_abs_error_a < epsilon1 && max_rel_error_b < epsilon1
+    # Even though we evaluated 512 bits, the two runs are effectively the same;
+    # return the 512-bit arrays because this branch has selected 512 bits as the
+    # working precision for the final output.
     return([a_vec_512, b_vec_512, nbits])
   end
     
   setprecision(BigFloat, 480, base=2)
   T = BigFloat;
+  # Final safeguard: 480-bit and 512-bit results should agree if 512 bits is
+  # genuinely stable. A mismatch means the requested n is too large for this
+  # precision ladder, so the function rejects the problem instead of returning
+  # coefficients whose accuracy is uncertain.
+  μ₀ = make_μ₀_fn(T)
   lnf_fn = make_lnf_fn(T)
   nodes_480, lnweights_480 = 
   nodes_lnweights_support_fn(T, lnf_fn, a, b, r)
   a_vec_480, b_vec_480 = 
   stieltjes_a_vec_b_vec_nonan_fn(T, n, μ₀, nodes_480, lnweights_480) 
-  abs_error_a = convert(Vector{Float64}, abs.(a_vec_480 - a_vec_480))
+  abs_error_a = convert(Vector{Float64}, abs.(a_vec_480 - a_vec_512))
   max_abs_error_a = maximum(abs_error_a)
   rel_error_b = convert(Vector{Float64}, 
   (abs.((b_vec_480 - b_vec_512) ./ b_vec_512)))
   max_rel_error_b = maximum(rel_error_b)
-  if max_abs_error_a > epsilon || max_rel_error_b > epsilon
+  if max_abs_error_a > epsilon1 || max_rel_error_b > epsilon1
     throw(DomainError(n, " too large"))  
   end    
   setprecision(BigFloat, 256, base=2)
 
+  # Reaching this point means 512 bits passed the final stability check, so the
+  # function returns the 512-bit recurrence coefficients together with nbits=512.
   [a_vec_512, b_vec_512, nbits]
 end
 
@@ -195,13 +237,17 @@ Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and
 of Gauss quadrature nodes (n ≥ 2).
 
 The input lnf_typed_fn is expected to have the form
-lnf_typed_fn(T, which_f, x). The algorithm first chooses the
-arithmetic type T and then constructs the one-argument closure
-lnf_fn(x) = lnf_typed_fn(T, which_f, x) that is used in the
-support quadrature and Stieltjes recurrence computations.
-The support endpoints a and b are kept as raw values until the
-support quadrature converts them to this same local T, so their
-stored type does not influence which arithmetic branch is used.
+lnf_typed_fn(T, which_f, x). The μ₀ input may be either a numeric
+value or a typed factory such as μ₀(T, which_f) or μ₀(T). The
+algorithm first chooses the arithmetic type T and then constructs
+the one-argument closure lnf_fn(x) = lnf_typed_fn(T, which_f, x)
+that is used in the support quadrature and Stieltjes recurrence
+computations. The support endpoints a and b are kept as raw values
+until the support quadrature converts them to this same local T,
+so their stored type does not influence which arithmetic branch is
+used. The driver does not inspect which_f[3], so for user-defined
+weights that third component may be a container holding several
+parameter specifications.
 """
 function stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
   #
@@ -224,7 +270,7 @@ function stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a
   # existing support-quadrature and Stieltjes code.
   stieltjes_a_vec_b_vec_choosenbits_core_fn(
     n,
-    μ₀,
+    T -> stieltjes_materialize_typed_scalar_fn(μ₀, T, which_f),
     T -> (x -> lnf_typed_fn(T, which_f, x)),
     a,
     b,
@@ -234,7 +280,7 @@ end
 
 
 """
-a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset=7, k_max=40)
+a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=7, j_max=40, epsilon=1.0e-15)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], together with the chosen
@@ -245,49 +291,69 @@ lnf_typed_fn(T, which_f, x). For each trial value of r, the
 driver chooses the arithmetic type T and then creates the
 one-argument closure lnf_fn(x) = lnf_typed_fn(T, which_f, x)
 before carrying out the support quadrature and Stieltjes
-computations.
+computations. For user-defined weights, which_f[3] may therefore be
+empty, scalar, or a container of several parameter specifications,
+provided lnf_typed_fn and μ₀ know how to interpret it.
 """
-function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset=7, k_max=40)
+function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=7, j_max=80, epsilon=1.0e-15)
   @assert n ≥ 2
-    k = 3
-    r = k * (offset + n)
-    a_vec, b_vec, nbits = 
+  # Start with two consecutive trial values of r so the driver can measure how
+  # much the recurrence coefficients change when the support quadrature is refined.
+  # Here j is the trial index, and each candidate r is generated from it by
+  # r = j * (offset + n). Increasing j by 1 therefore advances to the next
+  # larger candidate r in this search.
+  j = 3
+  r = j * (offset + n)
+  a_vec, b_vec, nbits = 
     stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
 
-    k = k + 1
-    r = k * (offset + n)
-    a_vec_new, b_vec_new, nbits_new = 
+  j = j + 1
+  r = j * (offset + n)
+  a_vec_new, b_vec_new, nbits_new = 
     stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
 
-    abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
-    max_abs_error_a = maximum(abs_error_a)
-    rel_error_b = convert(Vector{Float64}, 
+  # Compare successive runs in absolute error for a_vec and relative error for
+  # b_vec. The output is accepted only when increasing r no longer changes the
+  # coefficients by more than the target tolerance.
+  abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
+  max_abs_error_a = maximum(abs_error_a)
+  rel_error_b = convert(Vector{Float64}, 
     (abs.((b_vec_new - b_vec) ./ b_vec_new)))
-    max_rel_error_b = maximum(rel_error_b)
+  max_rel_error_b = maximum(rel_error_b)
 
-    epsilon=1.0e-18
-
-    while (max_abs_error_a > epsilon || max_rel_error_b > epsilon)
+  # Keep increasing r until two consecutive coefficient sets agree to within
+  # epsilon, or until j reaches the user-supplied safety limit j_max.
+  # Equivalently, the loop advances through j = 3, 4, 5, ... and tests the
+  # corresponding sequence of candidate r values defined by that formula.
+  while (max_abs_error_a > epsilon || max_rel_error_b > epsilon)
+    # Promote the most recent run to the reference solution before computing the
+    # next candidate at a larger value of r.
     a_vec, b_vec, nbits = a_vec_new, b_vec_new, nbits_new
-    if k == k_max
-      throw(DomainError(k, " needed value of k exceeds k_max"))
+    if j == j_max
+      throw(DomainError(j, " needed value of the r search index exceeds j_max"))
     end
-    k = k + 1
-    r = k * (offset + n)
+    j = j + 1
+    r = j * (offset + n)
     a_vec_new, b_vec_new, nbits_new = 
     stieltjes_a_vec_b_vec_choosenbits_fn(n, μ₀, lnf_typed_fn, which_f, a, b, r)
+    # The new r is therefore not chosen independently; it is exactly the value
+    # associated with the updated integer search index j.
 
+    # Re-evaluate the stopping test against the updated reference and candidate
+    # pair; termination means the latest candidate is stable with respect to r.
     abs_error_a = convert(Vector{Float64}, abs.(a_vec_new - a_vec))
     max_abs_error_a = maximum(abs_error_a)
     rel_error_b = convert(Vector{Float64}, 
     (abs.((b_vec_new - b_vec) ./ b_vec_new)))
     max_rel_error_b = maximum(rel_error_b)
 
-    end
-
-    setprecision(BigFloat, 256, base=2)
-    [a_vec_new, b_vec_new, nbits_new, r]
   end
+
+  setprecision(BigFloat, 256, base=2)
+  # Return the last candidate, which is the first one whose coefficients agree
+  # with the previous run to within the prescribed tolerance.
+  [a_vec_new, b_vec_new, nbits_new, r]
+end
 
 
 """
@@ -309,13 +375,17 @@ function stieltjes_step2_fn(n::Integer, μ₀, a_vec, b_vec, a, b)
   @assert n ≥ 2
   a_vec_converted = convert(Vector{Double64}, a_vec)
   b_vec_converted = convert(Vector{Double64}, b_vec)
-  μ₀_converted = convert(Double64, μ₀)
+  μ₀_converted = materialize_scalar_spec_fn(Double64, μ₀)
   Jₙ = SymTridiagonal(a_vec_converted, b_vec_converted)
   eigenvalues, eigenvectors = eigen(Jₙ)
   nodes = eigenvalues
   # println("nodes[1] = ",nodes[1] )
-  @assert a ≤ nodes[1]
-  @assert nodes[n] ≤ b
+  # Materialize the two support endpoints separately. Rebuilding [a, b] can
+  # force mixed inputs like BigFloat(0) and Inf to promote before conversion.
+  T_a = materialize_scalar_spec_fn(Double64, a)
+  T_b = materialize_scalar_spec_fn(Double64, b)
+  @assert T_a ≤ nodes[1]
+  @assert nodes[n] ≤ T_b
   weights = zeros(Double64,n)
   for j in 1:n
     weights[j] = eigenvectors[1, j]^2 / dot(eigenvectors[:,j], eigenvectors[:,j])
@@ -343,7 +413,7 @@ function stieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, a_vec, b_vec,
   if upto_n == false
     # The precision of BigFloat is set globally.
     # Consequently, this precision is reset to
-    # its default value before exitting this
+    # its default value before exiting this
     # function. 
     setprecision(BigFloat, 256, base=2)
     return([nodes, weights])
@@ -352,7 +422,7 @@ function stieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, a_vec, b_vec,
   weights_upto_n = Any[]
   #  a_vec = [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] 
   nodes_1 = convert(Double64, a_vec[1])      
-  weights_1 = convert(Double64, μ₀)          
+  weights_1 = materialize_scalar_spec_fn(Double64, μ₀)          
   push!(nodes_upto_n, nodes_1)
   push!(weights_upto_n, weights_1)
   for q in 2:(n-1)
@@ -366,7 +436,7 @@ function stieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, a_vec, b_vec,
   push!(weights_upto_n, weights)
   # The precision of BigFloat is set globally.
   # Consequently, this precision is reset to
-  # its default value before exitting this
+  # its default value before exiting this
   # function. 
   setprecision(BigFloat, 256, base=2)
 

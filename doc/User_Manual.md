@@ -52,6 +52,8 @@ Then load the package:
 using CustomGaussQuadrature
 ```
 
+In this manual and in the package source, names ending in `_fn` denote functions and filenames ending in `_scr` denote implementation scripts included in the module.
+
 # Step 1 using either moment determinants or the Stieltjes procedure
 
 ## **Three-term recurrence relation** 
@@ -135,6 +137,12 @@ We identify the weight function $f$ by the array
 (ii) support interval of $f$ specified by a 2-vector of the endpoints and \
 (iii) parameter vector (if any).
 
+For user input, use ordinary Julia values for exact quantities such as integers
+and $\pm\infty$, but use strings for finite non-integer constants whose decimal
+representation must be preserved. Thus `which_f = ["scaled chi pdf", [0,Inf], m]`
+is natural when `m` is an integer, whereas a Weibull shape parameter should be
+entered as a string such as `"2.1"`.
+
 Two examples of this identification are the following:
 
 ### **Scaled chi pdf weight function**
@@ -185,15 +193,13 @@ which has inputs `T` (floating-point type), `which_f` and `s` (moment order). <b
 
 - `upto_n` is a Boolean variable with default value `false`
 
-- `extra_check` is a Boolean variable with default value `false`
-
 For any of the following which_f's 
 
 which_f = ["scaled chi pdf", [0,Inf], m]\
 which_f = ["chemistry example", [0, Inf]]\
-which_f = ["Hermite", [-Inf, Inf]]\
-which_f = ["Generalized Laguerre", [0, Inf], α_GGL]\
-which_f = ["Legendre", [-1, 1]],
+which_f = ["hermite", [-Inf, Inf]]\
+which_f = ["generalized laguerre", [0, Inf], α_gl]\
+which_f = ["legendre", [-1, 1]],
 
 we proceed as illustrated by the following two examples.
 
@@ -207,7 +213,7 @@ we assign the value of positive integer parameter m and then use
 
 ### **A note on the input of real-valued parameters**
 
-Suppose that the exact value of the parameter k is 3.1. For convenience, we assign it using
+Suppose that the exact value of the parameter k is 3.1. If we assign it using
 
 ```julia
 k = 3.1
@@ -219,15 +225,13 @@ which sets k to the `Float64` approximation to 3.1. This package uses a range of
 3.100000000000000088817841970012523233890533447265625
 ```
 
-A more precise `BigFloat` approximation is obtained via `parse(BigFloat, string(k))`, which gives:
-
-```
-3.099999999999999999999999999999999999999999999999999999999999999999999999999986
-```
-
-This is because `string(k)` uses Julia's `print`, which for `Float64` values produces the shortest correctly rounded decimal that round-trips identically. Consequently `string(3.1)` returns `"3.1"`.
-
-The function `parse(T, string(...))` is used internally within this package wherever a user-supplied parameter needs to be converted to type `T`. The user only needs to assign parameters using standard Julia literals (e.g. `k = 3.0`).
+Once the user enters `3.1`, Julia has already stored the nearby `Float64`
+value rather than the exact decimal constant 3.1, so that lost precision
+cannot be recovered later. For this reason, the recommended user-facing rule
+is simple: use ordinary Julia values for exact quantities such as integers and
+`±Inf`, but use strings for finite non-integer constants whose decimal
+representation matters. Thus a Weibull parameter should be entered as `"3.1"`,
+not `3.1`.
 
 ### **Example 1** 
 
@@ -348,20 +352,26 @@ for $s = 0, 1, 2, \dots$.
 We identify this new weight function by first assigning
 a value of the positive parameter $k$ and then using Julia command
 `which_f = ["weibull pdf", [0, Inf], k]`.
-Therefore the following command specifies this weight function with $k$ set to 2.0.
+Therefore the following command specifies this weight function with $k$ set to 2.1.
 ```julia
-which_f = ["weibull pdf", [0, Inf], 2.0]
+`which_f = ["weibull pdf", [0, Inf], k]`.
 ```
 We provide the function for computing the s'th moment using 
-```julia
+which_f = ["weibull pdf", [0, Inf], "2.1"]
+
+The helper function `materialize_scalar_spec_fn(T, value)` converts a user-supplied
+scalar specification to a concrete value of type `T`. For example, it converts a
+string such as `"2.1"` to a value of type `T`. This is useful when a parameter is
+stored in `which_f` as a string so that its decimal value is preserved until the
+working floating-point type `T` has been chosen.
+
   using SpecialFunctions
   function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
     k = which_f[3]
     @assert k > 0
-    T_k = parse(T, string(k))
-    @assert s ≥ 0
-    if s == 0
+    T_k = CustomGaussQuadrature.materialize_scalar_spec_fn(T, which_f[3])
+    @assert T_k > 0
       return(convert(T, 1))
     end
     T_1 = convert(T, 1)
@@ -546,153 +556,194 @@ increases rapidly with increasing $m$.
 For any of the following which_f's \
 which_f = ["scaled chi pdf", [0,Inf], m]\
 which_f = ["chemistry example", [0, Inf]]\
-which_f = ["Hermite", [-Inf, Inf]]\
-which_f = ["Generalized Laguerre", [0, Inf], α_GGL]\
-which_f = ["Legendre", [-1, 1]],\
+which_f = ["hermite", [-Inf, Inf]]\
+which_f = ["generalized laguerre", [0, Inf], α_gl]\
+which_f = ["legendre", [-1, 1]],\
 we use stieltjes_lnf_stored_scr.jl, which computes the $\log(f(x))$, as illustrated by the 
 following example.
 
 ### **Example 4**
 
-Consider the same weight function as in **Example 1**. For this weight function, with positive integer parameter `m` set to 160 and number of Gauss quadrature nodes `n` set to 33, we use the following
-to carry out both **Step 1** and **Step 2**
+Consider the same weight function as in **Example 1**.
+For this stored weight function, with positive integer parameter `m` set to 160
+and number of Gauss quadrature nodes `n` set to 33,
+we use the high-level stored Stieltjes driver
+`stieltjes_lnf_stored_scr.jl`
+to carry out both **Step 1** and **Step 2**.
 
-<!--
-The evaluation of the log-weight function $\log(f(x))$ **has been implemented** in the function `ln_scaled_chi_pdf_fn` which has inputs `T` (Floating Point type), `x` and `m` (positive integer parameter). 
--->
 ```julia
-	m = 160
-	which_f = ["scaled chi pdf", [0,Inf], m]
-	n = 33
-	pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
-	include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
+m = 160
+which_f = ["scaled chi pdf", [0, Inf], m]
+n = 33
+
+pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
+include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 ```
 
-This results in stieltjes_nodes and stieltjes_weights, which are
-the custom Gauss quadrature nodes and weights, respectively, obtained using the Stieltjes procedure and the number of sampled function values `r` used in the discrete approximation to the 
-inner product of functions used in this procedure. If `r` is of interest to us we use
+This creates the following outputs in the caller:
+
+- `stieltjes_nodes`
+- `stieltjes_weights`
+- `stieltjes_a_vec`
+- `stieltjes_b_vec`
+- `stieltjes_nbits`
+- `r`
+
+Here `stieltjes_nodes` and `stieltjes_weights`
+are the custom Gauss quadrature nodes and weights obtained using the Stieltjes procedure,
+and `r` is the number of sampled function values used in the discrete approximation to the inner product.
+If `r` is of interest, use
+
 ```julia
-    println("r = ", stieltjes_r)
+println("r = ", r)
 ```
 
-<!--
-This weight function is a probability density function. Therefore $\mu_0 = 1$. There is also a formula for $\mu_1$. We first compute $\mu_0$ and $\mu_1$ using
+Convert `stieltjes_nodes` and `stieltjes_weights` to `Float64` vectors using
 
-	T = BigFloat;
-    moment_fn = moment_stored_fn;
-	which_f = ["scaled chi pdf", [0,Inf], m];
-    μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-
-Carry out **Step 1**, 
-the computation of the recursion coefficients in the three-step recurrence 
-relation,
-and print out the the chosen value of $r$, the number of nodes in the discrete approximation (4), using
-
-	n = 5;
-    a, b = which_f[2];
-    lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
-	stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
-	println("r = ", r)
-
-
-Carry out **Step 2**, 
-the computation of the Gauss quadrature nodes and weights from the recursion coefficients, using
-
-	stieltjes_nodes, stieltjes_weights = 
-	stieltjes_custom_gauss_quad_all_fn(n, μ₀, μ₁, stieltjes_a_vec, stieltjes_b_vec, a, b);
--->
-Convert stieltjes_nodes and stieltjes_weights to `Float64` vectors using
 ```julia
-	stieltjes_nodes = convert(Vector{Float64}, stieltjes_nodes)
-	stieltjes_weights = convert(Vector{Float64}, stieltjes_weights)
+stieltjes_nodes = convert(Vector{Float64}, stieltjes_nodes)
+stieltjes_weights = convert(Vector{Float64}, stieltjes_weights)
 ```
 
 Print these out in the same format as in **Example 1** using
+
 ```julia
-	using Printf
-	println("           stieltjes_nodes             stieltjes_weights")
-	for i in 1:lastindex(stieltjes_nodes)
-    	@printf "%2d     " i
-    	@printf "%.16e     " stieltjes_nodes[i]
+using Printf
+println("           stieltjes_nodes             stieltjes_weights")
+for i in 1:lastindex(stieltjes_nodes)
+    @printf "%2d     " i
+    @printf "%.16e     " stieltjes_nodes[i]
     @printf "%.16e  \n" stieltjes_weights[i]
-	end
-```
-### **Example 5**
-
-Consider the same weight function as in Example 3. We identify this new weight function by first assigning
-a value of the positive parameter $k$ and then using Julia command
-`which_f = ["weibull pdf", [0, Inf], k]`.
-Therefore the following command specifies this weight function with $k$ set to 2.0, say.
-```julia
-which_f = ["weibull pdf", [0, Inf], 2.0]
-```
-
-In this case, 
-
-$$
-\log(f(x)) =
-\log(k) + (k - 1) \log(x) -x^{k} \ \ \ \ \text{for} \ \ x > 0.
-$$
-
-We provide the following function for computing $\log(f(x))$ 
-```julia
-using SpecialFunctions
-function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
-    @assert which_f[1] == "weibull pdf"
-    @assert x > convert(T,0)
-    k = which_f[3]
-    T_k = parse(T, string(k))
-    @assert T_k > convert(T, 0)
-    log(T_k) + (T_k - convert(T,1)) * log(x) - x^T_k
 end
 ```
 
+### **Example 5**
 
-For this weight function, with parameter $k$ set to 2.0 and number of Gauss quadrature nodes n set to 10, we use the following commands to specify the function that will be used for computing $\log(f)$, together with the value of $\mu_0$ which is 1 since the weight function is a pdf. In the following code,  $\mu_0$  is denoted by `mu0`.
+Consider the same weight function as in **Example 3**.
+We identify this new weight function by first assigning
+a value of the positive parameter `k`
+and then using the Julia command
+`which_f = ["weibull pdf", [0, Inf], k]`.
+Therefore the following command specifies this weight function with `k` set to 3.1, say.
 
 ```julia
-	n = 10
-    lnf_typed_fn = lnf_weibull_pdf_fn
-	mu0 = convert(Double64, 1)
+which_f = ["weibull pdf", [0, Inf], "3.1"]
 ```
 
-Then we use the following command to carry out both **Step 1** and **Step 2**
+In this case,
 
-<!-- According to Claude Opus 4.6 on 5 March 2026:
-pathof(CustomGaussQuadrature) always returns the absolute path to CustomGaussQuadrature.jl, regardless of whether the package was:
+$$
+\log(f(x)) =
+\log(k) + (k - 1) \log(x) - x^k
+\qquad \text{for } x > 0.
+$$
 
-activated locally (] activate .) — returns e.g. c:\Users\pkaba\...\CustomGaussQuadrature\src\CustomGaussQuadrature.jl
+We provide the following function for computing $\log(f(x))$:
 
-installed from the registry (Pkg.add(...)) — returns e.g. C:\Users\pkaba\.julia\packages\CustomGaussQuadrature\Ab1Cd\src\CustomGaussQuadrature.jl
+Here `materialize_scalar_spec_fn(T, which_f[3])` converts the parameter stored in
+`which_f[3]` to the floating-point type `T`.
 
-In both cases, dirname(dirname(pathof(...))) gets you to the package root, and the include resolves to the correct file.
-
-So this approach is universal — it works for both the local and registry-installed versions. 
--->
 ```julia
-	pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
-	include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
+using SpecialFunctions
+
+function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    @assert x > convert(T, 0)
+    T_k = materialize_scalar_spec_fn(T, which_f[3])
+    @assert T_k > convert(T, 0)
+    log(T_k) + (T_k - convert(T, 1)) * log(x) - x^T_k
+end
 ```
-This results in stieltjes_nodes and stieltjes_weights, which are
-the custom Gauss quadrature nodes and weights, respectively, obtained using the Stieltjes procedure and the number of sampled function values `r` used in the discrete approximation to the 
-inner product of functions used in this procedure. If `r` is of interest to us we use
+
+For a user-defined weight function,
+the high-level Stieltjes driver
+`stieltjes_lnf_new_scr.jl`
+expects the following inputs in the caller:
+
+- `which_f`
+- `n`
+- `lnf_typed_fn`
+- `mu0`
+
+For the Weibull pdf with shape parameter `k = "3.1"`
+and number of Gauss quadrature nodes `n = 6`,
+we therefore use
+
 ```julia
-	println("r = ", r)
+which_f = ["weibull pdf", [0, Inf], "3.1"]
+n = 6
+
+lnf_typed_fn = lnf_weibull_pdf_fn
+mu0 = 1
+
+pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
+include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 ```
 
-The following commands convert the 
-`Float64` vectors and print them using the `@printf` macro from the package `Printf`.
+This creates the following outputs in the caller:
+
+- `stieltjes_nodes`
+- `stieltjes_weights`
+- `stieltjes_a_vec`
+- `stieltjes_b_vec`
+- `stieltjes_nbits`
+- `r`
+
+Here `stieltjes_nodes` and `stieltjes_weights`
+are the custom Gauss quadrature nodes and weights obtained using the Stieltjes procedure,
+and `r` is the number of sampled function values used in the discrete approximation to the inner product.
+If `r` is of interest, use
+
 ```julia
-    using Printf
-    nodes = convert(Vector{Float64}, stieltjes_nodes)
-    weights = convert(Vector{Float64}, stieltjes_weights)
-    println("              nodes                     weights")
-    for i in 1:n
-        @printf "%2d     " i
-        @printf "%.16e     " nodes[i]
-        @printf "%.16e  \n" weights[i]
+println("r = ", r)
+```
+
+The following commands convert the nodes and weights to `Float64` vectors and print them using the `@printf` macro from `Printf`.
+
+```julia
+using Printf
+nodes = convert(Vector{Float64}, stieltjes_nodes)
+weights = convert(Vector{Float64}, stieltjes_weights)
+println("              nodes                     weights")
+for i in 1:n
+    @printf "%2d     " i
+    @printf "%.16e     " nodes[i]
+    @printf "%.16e  \n" weights[i]
+end
+```
+
+If we also wish to compare the Stieltjes result with the result obtained by the moment-determinants method,
+we must additionally provide a function for computing the moments of the same weight function.
+For the Weibull pdf this can be done as follows:
+
+Again, `materialize_scalar_spec_fn(T, which_f[3])` converts the parameter stored in
+`which_f[3]` to the floating-point type `T`.
+
+```julia
+function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    T_k = materialize_scalar_spec_fn(T, which_f[3])
+    @assert T_k > convert(T, 0)
+    @assert s ≥ 0
+    if s == 0
+        return(convert(T, 1))
     end
+    gamma(convert(T, 1) + convert(T, s) / T_k)
+end
+
+nodes, weights = custom_gauss_quad_all_fn(moment_weibull_pdf_fn, which_f, n)
+```
+
+We may then compare the two methods using
+
+```julia
+diff_nodes = stieltjes_nodes - nodes
+rel_diff_weights = (stieltjes_weights - weights) ./ weights
+
+println("maximum(abs.(stieltjes_nodes - nodes)) = ",
+    convert(Float64, maximum(abs.(diff_nodes))))
+println("maximum(abs.((stieltjes_weights - weights) ./ weights)) = ",
+    convert(Float64, maximum(abs.(rel_diff_weights))))
 ```
 # Step 2 using the eigenvalues and eigenvectors of the Jacobi matrix
 

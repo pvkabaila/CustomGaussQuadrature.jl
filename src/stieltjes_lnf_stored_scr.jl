@@ -1,91 +1,106 @@
-# This Julia script is used for computing the 
-# custom Gauss quadrature nodes and weights
-# using the Stjieltes procedure.
-# This Julia script is NOT part of the module 
-# CustomGaussQuadrature.jl. Consequently, it
-# will NOT run when the package CustomGaussQuadrature
-# is loaded. This is in accordance with the following
-# general advice:
+# Stored Stieltjes driver for built-in weight functions.
+#
+# This file is intentionally not included from
+# CustomGaussQuadrature.jl. It is meant to be run explicitly with
+# include(...), typically from the REPL, tests, or an interface script.
+#
+# Required inputs in the caller:
+#   which_f
+#   n
+# Optional inputs:
+#   offset, j_max, epsilon
+#
+# Outputs in the caller:
+#   stieltjes_nodes
+#   stieltjes_weights
+#   stieltjes_a_vec
+#   stieltjes_b_vec
+#   stieltjes_nbits
+#   r
 
-# In a Julia package, if you have a script that doesn't 
-# define any functions and you want to prevent it from 
-# running when the package is loaded, you should place 
-# it in the src directory but do not include it in the 
-# main file (typically src/MyPackage.jl).
+using CustomGaussQuadrature: Double64
 
-# Recommended Approach
-# Create a Separate File: Place your script in a separate 
-# file within the src directory. For example, you could 
-# name it src/my_script.jl.
-# Do Not Include in Main File: Ensure that you do not 
-# include or use the include("my_script.jl") command in 
-# your package's main file (src/MyPackage.jl). This way, 
-# the script won't run when the package is loaded.
-# Example Structure
+a, b = which_f[2];
+# Keep the support endpoints in their input representation.
+# The support-quadrature helpers convert a and b to the local working type
+# chosen by the underlying arithmetic path when they need endpoint values.
 
-#  MyPackage/
-#  │
-#  ├── src/
-#  │   ├── MyPackage.jl       # Main package file
-#  │   └── my_script.jl       # Your script
-#  │
-#  ├── test/
-#  │   └── runtests.jl        # Tests for the package
-#  │
-#  └── Project.toml           # Package configuration
-#  Summary
-#  By structuring your package this way, the script will only
-#  run when explicitly called from other scripts or the Julia REPL, 
-#  ensuring it does not execute upon package loading.
+stored_weight_name = CustomGaussQuadrature.normalize_stored_weight_name_fn(which_f[1])
 
-using CustomGaussQuadrature: μ_offsetvec_fn
-
-if which_f[1] == "scaled chi pdf"
-    moment_fn = moment_stored_fn;
-    T = BigFloat;
-    m = which_f[3];
+if stored_weight_name == "scaled chi pdf"
+    m = materialize_integer_spec_fn(which_f[3]);
     @assert m > 0
-    lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
-    μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-    l_endpt, u_endpt = which_f[2];
-    T_l_endpt = parse(T, string(l_endpt));
-    T_u_endpt = parse(T, string(u_endpt)); 
-elseif which_f[1] == "Hermite"
-    moment_fn = moment_stored_fn;
-    T = BigFloat;
+    lnf_typed_fn = (T, which_f, x) ->
+    ln_scaled_chi_pdf_fn(T, x, materialize_integer_spec_fn(which_f[3]));
+    μ₀_input = T -> one(T)
+elseif stored_weight_name == "hermite"
     lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
-    μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-    l_endpt, u_endpt = which_f[2];
-    T_l_endpt = parse(T, string(l_endpt));
-    T_u_endpt = parse(T, string(u_endpt)); 
-elseif which_f[1] == "Generalized Laguerre"
-    moment_fn = moment_stored_fn;
-    T = BigFloat;
-    α_GGL = which_f[3]
-    @assert α_GGL > -1
+    μ₀_input = T -> sqrt(convert(T, π))
+elseif stored_weight_name == "generalized laguerre"
     lnf_typed_fn = (T, which_f, x) -> lnf_laguerre_fn(T, x, which_f[3]);
-    μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-    l_endpt, u_endpt = which_f[2];
-    T_l_endpt = parse(T, string(l_endpt));
-    T_u_endpt = parse(T, string(u_endpt)); 
-elseif which_f[1] ==  "chemistry example"
-    moment_fn = moment_stored_fn;
-    T = BigFloat;
+    μ₀_input = (T, which_f) -> begin
+        T_α_gl = materialize_scalar_spec_fn(T, which_f[3])
+        @assert T_α_gl > -one(T_α_gl)
+        gamma(T_α_gl + one(T_α_gl))
+    end
+elseif stored_weight_name == "generalized normal"
+    @assert length(which_f[3]) == 2
+    α, β = which_f[3]
+    lnf_typed_fn = (T, which_f, x) -> lnf_generalized_normal_fn(T, x, α, β)
+    μ₀_input = T -> one(T)
+elseif stored_weight_name == "chemistry example"
     lnf_typed_fn = (T, which_f, x) -> lnf_chemistry_fn(T, x);
-    μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-    l_endpt, u_endpt = which_f[2];
-    T_l_endpt = parse(T, string(l_endpt));
-    T_u_endpt = parse(T, string(u_endpt)); 
+    μ₀_input = T -> begin
+        T_1 = one(T)
+        T_2 = convert(T, 2)
+        T_3 = convert(T, 3)
+        T_3^(-T_2 / T_3) * gamma(T_1 / T_3)
+    end
 else
     # DomainError means that the argument to a function
     # or constructor does not lie in the valid domain
     throw(DomainError(which_f, "invalid argument"))
 end
 
-a = T_l_endpt;
-b = T_u_endpt;
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-CustomGaussQuadrature.stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
+μ₀_double64 = CustomGaussQuadrature.stieltjes_materialize_typed_scalar_fn(
+    μ₀_input,
+    Double64,
+    which_f,
+)
 
-stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b); 
+# This script keeps lnf_typed_fn and which_f separate and passes both to the
+# driver. The driver then chooses T and creates the final one-argument lnf_fn.
+# In closure language, the driver calls a function factory that takes T and
+# returns x -> lnf_typed_fn(T, which_f, x). That returned function has x as
+# its only explicit argument, but it still has access to T and which_f from
+# the scope in which the closure was created.
+stieltjes_kwargs = (;)
+
+if @isdefined offset
+    stieltjes_kwargs = (; stieltjes_kwargs..., offset=offset)
+end
+
+if @isdefined j_max
+    stieltjes_kwargs = (; stieltjes_kwargs..., j_max=j_max)
+end
+
+if @isdefined epsilon
+    stieltjes_kwargs = (; stieltjes_kwargs..., epsilon=epsilon)
+end
+
+stieltjes_final_user_fn = (n) ->
+stieltjes_a_vec_b_vec_final_fn(n, μ₀_input, lnf_typed_fn, which_f, a, b; stieltjes_kwargs...)
+
+@assert n ≥ 1
+if n == 1
+    stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_final_user_fn(2);
+    stieltjes_nodes = convert(Double64, stieltjes_a_vec[1])
+    stieltjes_weights = μ₀_double64
+else
+    stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    stieltjes_final_user_fn(n);
+
+    stieltjes_nodes, stieltjes_weights = 
+    stieltjes_custom_gauss_quad_all_fn(n, μ₀_double64, stieltjes_a_vec, stieltjes_b_vec, a, b);
+end

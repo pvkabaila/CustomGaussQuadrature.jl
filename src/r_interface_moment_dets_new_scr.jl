@@ -22,7 +22,7 @@
 #   "_moment_fn". For example,
 #       "weibull pdf"    -> weibull_pdf_moment_fn
 #   which_f    -- Array identifying the weight function, e.g.
-#                 ["weibull pdf", [0, Inf], 2.1]
+#                 ["weibull pdf", [0, Inf], "2.1"]
 #   n          -- Number of Gauss quadrature nodes (positive integer).
 #
 # These must be defined in the Julia session before this script is
@@ -42,7 +42,7 @@
 #   library(JuliaConnectoR)
 #   juliaEval('using CustomGaussQuadrature')
 #   juliaEval('using SpecialFunctions')
-#   which_f <- list("weibull pdf", c(0, Inf), 2.1)
+#   which_f <- list("weibull pdf", c(0, Inf), "2.1")
 #   moment_fn_body <- '
 #       @assert which_f[1] == "weibull pdf"
 #       ...

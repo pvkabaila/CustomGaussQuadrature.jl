@@ -1,4 +1,5 @@
 # choice_of_r_scr.jl
+# This script is for investigation, not for automated testing.
 
 using Pkg
 # Activate the package root, i.e. the directory one level above this test
@@ -14,8 +15,9 @@ using Pkg
 # imported for this session.
 Pkg.activate(joinpath(@__DIR__, ".."))
 using CustomGaussQuadrature
-# μ_offsetvec_fn is an internal function of CustomGaussQuadrature; the
-# qualified import below makes it explicitly available in this script.
+# μ_offsetvec_fn and stieltjes_a_vec_b_vec_final_fn are internal functions 
+# of CustomGaussQuadrature; the qualified import below makes these explicitly 
+# available in this script.
 using CustomGaussQuadrature: μ_offsetvec_fn, stieltjes_a_vec_b_vec_final_fn
 pathof(CustomGaussQuadrature)
 using Plots
@@ -102,7 +104,7 @@ savefig("chemistry.pdf")
 
 
 
-which_f = ["Hermite", [-Inf, Inf]];
+which_f = ["hermite", [-Inf, Inf]];
 a = -Inf;
 b = Inf;
 lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
@@ -130,7 +132,7 @@ title!("Hermite weight function,
 savefig("hermite.pdf")
 
 #-------------------------------------------------
-# Examine the effect of using an explicit offset and a larger k_max
+# Examine the effect of using an explicit offset and a larger j_max
 # while keeping the driver-owned T/closure path.
 
 m = 1;
@@ -146,10 +148,10 @@ r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 offset = 7;
 println("offset = ", offset)
-k_max = 400;
+j_max = 400;
 for n in n_vec
     @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=offset, j_max=j_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -178,10 +180,10 @@ r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 offset = 7;
 println("offset = ", offset)
-k_max = 400;
+j_max = 400;
 for n in n_vec
     @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=offset, j_max=j_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -197,7 +199,7 @@ savefig("chemistry offset=$offset.pdf")
 
 
 
-which_f = ["Hermite", [-Inf, Inf]];
+which_f = ["hermite", [-Inf, Inf]];
 a = -Inf;
 b = Inf;
 lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
@@ -210,10 +212,10 @@ r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 offset = 7;
 println("offset = ", offset)
-k_max = 400;
+j_max = 400;
 for n in n_vec
     @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=offset, j_max=j_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -241,10 +243,10 @@ r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 offset = 7;
 println("offset = ", offset)
-k_max = 400;
+j_max = 400;
 for n in n_vec
     @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=offset, j_max=j_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end
@@ -272,10 +274,10 @@ r_vec = zeros(n_upper - 1);
 n_vec = 2:n_upper;
 offset = 7;
 println("offset = ", offset)
-k_max = 400;
+j_max = 400;
 for n in n_vec
     @time "stieltjes_a_vec_b_vec_final_fn" stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b, offset, k_max);
+    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=offset, j_max=j_max);
     r_vec[n - 1] = r
     println("number of Gauss quadrature nodes n = ", n, ",   r = ", r, "\n")
 end

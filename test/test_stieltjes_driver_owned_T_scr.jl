@@ -6,7 +6,7 @@ using Test
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 
 @eval Main begin
-    which_f = ["Hermite", [-Inf, Inf]]
+    which_f = ["hermite", [-Inf, Inf]]
     n = 3
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
@@ -20,15 +20,15 @@ stored_r = Main.r
 
 @eval Main begin
     function lnf_user_hermite_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
-        @assert which_f[1] == "Hermite"
+        @assert which_f[1] == "hermite"
         T_x = convert(T, x)
         -(T_x * T_x)
     end
 
-    which_f = ["Hermite", [-Inf, Inf]]
+    which_f = ["hermite", [-Inf, Inf]]
     n = 3
     lnf_typed_fn = lnf_user_hermite_fn
-    mu0 = sqrt(big(pi))
+    mu0 = string(sqrt(big(pi)))
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
@@ -37,6 +37,6 @@ include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 @test all(isapprox.(Main.stieltjes_a_vec, stored_a_vec; rtol=big"1e-24", atol=big"1e-70"))
 @test all(isapprox.(Main.stieltjes_b_vec, stored_b_vec; rtol=big"1e-24", atol=big"1e-70"))
 @test Main.stieltjes_nbits == stored_nbits
-@test Main.stieltjes_r == stored_r
+@test Main.r == stored_r
 
 end
