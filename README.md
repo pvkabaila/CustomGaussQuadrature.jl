@@ -54,8 +54,8 @@ The weight function $f$ is identified by the array `which_f` with components:\
 For user input, use ordinary Julia values for exact quantities such as integers
 and `±Inf`, but use strings for finite non-integer constants whose decimal
 representation must be preserved. For example, enter
-`which_f = ["scaled chi pdf", [0, Inf], 160]` but
-`which_f = ["weibull pdf", [0, Inf], "2.1"]`.
+`which_f = ["scaled chi pdf", [0, Inf], 160]` (where the parameter is the integer 160), but
+`which_f = ["weibull pdf", [0, Inf], "2.1"]` (where the parameter is the non-integer constant 2.1 whose decimal representation needs to be preserved).
 
 There are five **built-in** weight functions whose moment formulae and
 log-weight functions are already implemented. These include the scaled chi pdf with positive integer parameter `m`, identified by <br />
@@ -90,12 +90,12 @@ nodes = convert(Vector{Float64}, nodes)
 weights = convert(Vector{Float64}, weights)
 ```
 
-**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 2.1 & number of nodes `n` = 9:
+**User-defined** weight function Weibull pdf with scale parameter 1 and shape parameter `k` = 3.1 & number of nodes `n` = 6:
 
 ```julia
 using SpecialFunctions
 
-which_f = ["weibull pdf", [0, Inf], "2.1"]
+which_f = ["weibull pdf", [0, Inf], "3.1"]
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
     @assert which_f[1] == "weibull pdf"
@@ -108,7 +108,7 @@ function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:Abstrac
     gamma(convert(T, 1) + convert(T, s) / T_k)
 end
 
-n = 9
+n = 6
 nodes, weights = custom_gauss_quad_all_fn(moment_weibull_pdf_fn, which_f, n)
 
 nodes = convert(Vector{Float64}, nodes)
@@ -122,7 +122,9 @@ evaluation of `μ₀` and $\log f(x)$.
 For **built-in** weight functions, these are already
 implemented in `stieltjes_lnf_stored_scr.jl`. For a **user-defined** weight function,
 the user supplies `lnf_typed_fn` (evaluating $\log f$ in the chosen arithmetic)
-and the constant `mu0` as a string. These scripts are invoked via `include()`.
+and the constant `mu0`. For a pdf, use `mu0 = 1`; use a string only for a finite
+non-integer constant whose decimal value matters. These scripts are invoked via `include()`.
+The older `stieltjes_*` output names remain available as compatibility aliases.
 
 **Built-in** weight function scaled chi pdf with parameter `m` = 160 & number of nodes `n` = 33:
 
@@ -132,11 +134,11 @@ which_f = ["scaled chi pdf", [0, Inf], m]
 n = 33
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
-# Evaluation of stieltjes_nodes and stieltjes_weights:
+# Evaluation of nodes_stieltjes and weights_stieltjes:
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 
-nodes = convert(Vector{Float64}, stieltjes_nodes)
-weights = convert(Vector{Float64}, stieltjes_weights)
+nodes = convert(Vector{Float64}, nodes_stieltjes)
+weights = convert(Vector{Float64}, weights_stieltjes)
 ```
 
 <!--
@@ -179,10 +181,10 @@ lnf_typed_fn = lnf_weibull_pdf_fn
 mu0 = 1
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
-# Evaluation of stieltjes_nodes and stieltjes_weights:
+# Evaluation of nodes_stieltjes and weights_stieltjes:
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
 println("r = ", r)
-nodes = convert(Vector{Float64}, stieltjes_nodes)
-weights = convert(Vector{Float64}, stieltjes_weights)
+nodes = convert(Vector{Float64}, nodes_stieltjes)
+weights = convert(Vector{Float64}, weights_stieltjes)
 ```

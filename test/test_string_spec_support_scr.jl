@@ -41,6 +41,29 @@ string_nodes, string_weights = custom_gauss_quad_all_fn(moment_weibull_spec_fn, 
 @test all(isapprox.(string_nodes, numeric_nodes; rtol=1.0e-24, atol=1.0e-28))
 @test all(isapprox.(string_weights, numeric_weights; rtol=1.0e-24, atol=1.0e-28))
 
+function moment_inverse_gamma_spec_fn(::Type{T}, which_f, r::Integer) where {T<:AbstractFloat}
+    @assert which_f[1] == "inverse gamma pdf"
+    @assert length(which_f[3]) == 2
+    alpha_spec, beta_spec = which_f[3]
+    T_alpha = materialize_scalar_spec_fn(T, alpha_spec)
+    T_beta = materialize_scalar_spec_fn(T, beta_spec)
+    @assert T_alpha > zero(T_alpha)
+    @assert T_beta > zero(T_beta)
+    @assert r ≥ 0
+    T_r = convert(T, r)
+    @assert T_alpha > T_r
+    T_beta^T_r * gamma(T_alpha - T_r) / gamma(T_alpha)
+end
+
+numeric_inverse_gamma = ["inverse gamma pdf", [0, Inf], [8, 3]]
+string_inverse_gamma = ["inverse gamma pdf", ["0", "Inf"], ["8", "3"]]
+
+numeric_nodes, numeric_weights = custom_gauss_quad_all_fn(moment_inverse_gamma_spec_fn, numeric_inverse_gamma, 3)
+string_nodes, string_weights = custom_gauss_quad_all_fn(moment_inverse_gamma_spec_fn, string_inverse_gamma, 3)
+
+@test all(isapprox.(string_nodes, numeric_nodes; rtol=1.0e-24, atol=1.0e-28))
+@test all(isapprox.(string_weights, numeric_weights; rtol=1.0e-24, atol=1.0e-28))
+
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 
 @eval Main begin
@@ -101,6 +124,41 @@ include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
 @test all(isapprox.(Main.stieltjes_nodes, user_numeric_nodes; rtol=1.0e-24, atol=1.0e-28))
 @test all(isapprox.(Main.stieltjes_weights, user_numeric_weights; rtol=1.0e-24, atol=1.0e-28))
+
+@eval Main begin
+    function lnf_user_inverse_gamma_spec_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
+        @assert which_f[1] == "inverse gamma pdf"
+        @assert x > zero(T)
+        @assert length(which_f[3]) == 2
+        alpha_spec, beta_spec = which_f[3]
+        T_alpha = materialize_scalar_spec_fn(T, alpha_spec)
+        T_beta = materialize_scalar_spec_fn(T, beta_spec)
+        @assert T_alpha > zero(T_alpha)
+        @assert T_beta > zero(T_beta)
+        T_alpha * log(T_beta) - (logabsgamma(T_alpha))[1] -
+            (T_alpha + one(T)) * log(x) - T_beta / x
+    end
+
+    which_f = ["inverse gamma pdf", [0, Inf], [8, 3]]
+    n = 3
+    lnf_typed_fn = lnf_user_inverse_gamma_spec_fn
+    mu0 = 1
+end
+include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
+
+inverse_gamma_numeric_nodes = copy(Main.stieltjes_nodes)
+inverse_gamma_numeric_weights = copy(Main.stieltjes_weights)
+
+@eval Main begin
+    which_f = ["inverse gamma pdf", ["0", "Inf"], ["8", "3"]]
+    n = 3
+    lnf_typed_fn = lnf_user_inverse_gamma_spec_fn
+    mu0 = "1"
+end
+include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
+
+@test all(isapprox.(Main.stieltjes_nodes, inverse_gamma_numeric_nodes; rtol=1.0e-24, atol=1.0e-28))
+@test all(isapprox.(Main.stieltjes_weights, inverse_gamma_numeric_weights; rtol=1.0e-24, atol=1.0e-28))
 
 moment_fn = moment_stored_fn
 which_f = ["scaled chi pdf", [0, Inf], 160]

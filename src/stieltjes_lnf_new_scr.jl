@@ -13,12 +13,19 @@
 #   offset, j_max, epsilon
 #
 # Outputs in the caller:
+#   nodes_stieltjes
+#   weights_stieltjes
+#   a_vec_stieltjes
+#   b_vec_stieltjes
+#   nbits_stieltjes
+#   r
+#
+# Backward-compatible aliases also provided in the caller:
 #   stieltjes_nodes
 #   stieltjes_weights
 #   stieltjes_a_vec
 #   stieltjes_b_vec
 #   stieltjes_nbits
-#   r
 
 using CustomGaussQuadrature: Double64
 
@@ -67,14 +74,20 @@ CustomGaussQuadrature.stieltjes_a_vec_b_vec_final_fn(n, μ₀_input, lnf_typed_f
 
 @assert n ≥ 1
 if n == 1
-    stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    a_vec_stieltjes, b_vec_stieltjes, nbits_stieltjes, r = 
     stieltjes_final_user_fn(2);
-    stieltjes_nodes = convert(Double64, stieltjes_a_vec[1])
-    stieltjes_weights = μ₀_double64
+    nodes_stieltjes = convert(Double64, a_vec_stieltjes[1])
+    weights_stieltjes = μ₀_double64
 else
-    stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
+    a_vec_stieltjes, b_vec_stieltjes, nbits_stieltjes, r = 
     stieltjes_final_user_fn(n);
 
-    stieltjes_nodes, stieltjes_weights = 
-    stieltjes_custom_gauss_quad_all_fn(n, μ₀_double64, stieltjes_a_vec, stieltjes_b_vec, a, b);
+    nodes_stieltjes, weights_stieltjes = 
+    stieltjes_custom_gauss_quad_all_fn(n, μ₀_double64, a_vec_stieltjes, b_vec_stieltjes, a, b);
 end
+
+stieltjes_nodes = nodes_stieltjes
+stieltjes_weights = weights_stieltjes
+stieltjes_a_vec = a_vec_stieltjes
+stieltjes_b_vec = b_vec_stieltjes
+stieltjes_nbits = nbits_stieltjes

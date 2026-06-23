@@ -46,16 +46,49 @@
 #   juliaEval('Pkg.develop(path=raw"C:/path/to/CustomGaussQuadrature")')
 #   juliaEval('using CustomGaussQuadrature')
 #   juliaEval('pathof(CustomGaussQuadrature)')
-#   which_f <- list("weibull pdf", c(0, Inf), '"2.1"')
+#   mu0_body <- '1'
+#   # Use strings for finite non-integer constants so Julia preserves
+#   # the decimal specification. Vector or list parameters may contain
+#   # these scalar specifications recursively. mu0_body remains a Julia
+#   # source fragment.
+#   # Example 1: scalar parameter specification.
+#   which_f <- list("weibull pdf", c(0, Inf), "2.1")
 #   lnf_typed_fn_body <- '
 #       @assert which_f[1] == "weibull pdf"
+#       T_k = materialize_scalar_spec_fn(T, which_f[3])
+#       @assert T_k > zero(T_k)
 #       ...
 #   '
-#   mu0_body <- '1'
-#   # which_f[[3]] and mu0_body are Julia source fragments. Use plain
-#   # numerals for exact values, and Julia string literals such as '"2.1"'
-#   # only for finite non-integer constants whose decimal value matters.
+#
+#   # Example 2: vector-valued parameter specification.
+#   which_f <- list("inverse gamma pdf", c(0, Inf), list("18.5", "3.2"))
+#   lnf_typed_fn_body <- '
+#       @assert which_f[1] == "inverse gamma pdf"
+#       alpha_spec, beta_spec = which_f[3]
+#       T_alpha = materialize_scalar_spec_fn(T, alpha_spec)
+#       T_beta = materialize_scalar_spec_fn(T, beta_spec)
+#       ...
+#   '
 #   n <- 9
+#   julia_value_literal <- function(value) {
+#     if (is.character(value) && length(value) == 1) {
+#       escaped <- gsub("\\\\", "\\\\\\\\", value)
+#       escaped <- gsub('"', '\\"', escaped, fixed = TRUE)
+#       return(sprintf('"%s"', escaped))
+#     }
+#     if (is.numeric(value) && length(value) == 1) {
+#       if (is.infinite(value)) {
+#         return(if (value > 0) "Inf" else "-Inf")
+#       }
+#       return(format(value, trim = TRUE, scientific = FALSE))
+#     }
+#     if (is.list(value) || (is.atomic(value) && length(value) > 1)) {
+#       item_literals <- vapply(value, julia_value_literal, character(1))
+#       return(sprintf("[%s]", paste(item_literals, collapse = ", ")))
+#     }
+#     stop("This example supports scalar numeric or character specifications, or vectors/lists containing them.")
+#   }
+#
 #   run_stieltjes_new_example <- function(which_f, n, lnf_typed_fn_body, mu0_body, j_max = 40) {
 #     weight_name <- which_f[[1]]
 #     support <- which_f[[2]]
@@ -66,7 +99,8 @@
 #     if (length(which_f) == 2) {
 #       juliaEval(sprintf('which_f = ["%s", [%s]]', weight_name, support_str))
 #     } else {
-#       juliaEval(sprintf('which_f = ["%s", [%s], %s]', weight_name, support_str, which_f[[3]]))
+#       parameter_str <- julia_value_literal(which_f[[3]])
+#       juliaEval(sprintf('which_f = ["%s", [%s], %s]', weight_name, support_str, parameter_str))
 #     }
 #     juliaEval(sprintf('n = %d', n))
 #
@@ -149,8 +183,9 @@
 #         juliaEval(sprintf('which_f = ["%s", [%s]]', weight_name, support_str))
 #       )
 #     } else {
+#       parameter_str <- julia_value_literal(which_f[[3]])
 #       capture_step("set which_f",
-#         juliaEval(sprintf('which_f = ["%s", [%s], %s]', weight_name, support_str, which_f[[3]]))
+#         juliaEval(sprintf('which_f = ["%s", [%s], %s]', weight_name, support_str, parameter_str))
 #       )
 #     }
 #

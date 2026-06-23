@@ -233,7 +233,7 @@ is simple: use ordinary Julia values for exact quantities such as integers and
 representation matters. Thus a Weibull parameter should be entered as `"3.1"`,
 not `3.1`.
 
-### **Example 1** 
+### **Example 1 - Scaled chi pdf weight function** 
 
 We identify this weight function by first assigning a value of the positive integer parameter `m` and then using Julia command 
 `which_f = ["scaled chi pdf", [0,Inf], m]`.
@@ -259,11 +259,11 @@ for $s = 0, 1, 2, \dots$.
 This formula has been implemented in the function `moment_stored_fn`.
 
 The following commands compute the nodes and weights, as 
-`Double64` vectors for a 5-point Gauss quadrature rule. 
+`Double64` vectors for a 33-point Gauss quadrature rule. 
 ```julia
 	moment_fn = moment_stored_fn
-    n = 5
-    nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+    n = 33
+    nodes_momentdets_ex1, weights_momentdets_ex1 = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 ```
 
 
@@ -271,17 +271,17 @@ This is followed by conversion to
 `Float64` vectors and printing using the `@printf` macro from the package `Printf`.
 ```julia
     using Printf
-    nodes = convert(Vector{Float64}, nodes)
-    weights = convert(Vector{Float64}, weights)
+    nodes_momentdets_ex1 = convert(Vector{Float64}, nodes_momentdets_ex1)
+    weights_momentdets_ex1 = convert(Vector{Float64}, weights_momentdets_ex1)
     println("              nodes                     weights")
     for i in 1:n
         @printf "%2d     " i
-        @printf "%.16e     " nodes[i]
-        @printf "%.16e  \n" weights[i]
+        @printf "%.16e     " nodes_momentdets_ex1[i]
+        @printf "%.16e  \n" weights_momentdets_ex1[i]
     end
 ```
 
-### **Example 2**
+### **Example 2 - Chemistry example weight function**
 Consider the weight function identified by
 ```julia
     which_f = ["chemistry example", [0, Inf]]
@@ -303,7 +303,7 @@ The following commands compute the nodes and weights, as
 ```julia
 	moment_fn = moment_stored_fn
     n = 15
-    nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+    nodes_momentdets_ex2, weights_momentdets_ex2 = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 ```
 
 This is followed by printing these nodes and weights in the same format as Table 2.2 of 
@@ -311,13 +311,13 @@ Gautschi (1983), using the `@printf` macro from the package `Printf`.
 
 ```julia
     using Printf
-    nodes = convert(Vector{BigFloat}, nodes)
-    weights = convert(Vector{BigFloat}, weights)
+    nodes_momentdets_ex2 = convert(Vector{BigFloat}, nodes_momentdets_ex2)
+    weights_momentdets_ex2 = convert(Vector{BigFloat}, weights_momentdets_ex2)
     println("              nodes                     weights")
     for i in 1:n
         @printf "%2d     " i
-        @printf "%.15e     " nodes[i]
-        @printf "%.15e  \n" weights[i]
+        @printf "%.15e     " nodes_momentdets_ex2[i]
+        @printf "%.15e  \n" weights_momentdets_ex2[i]
     end
 ```
 
@@ -325,7 +325,7 @@ These results agree with Table 2.2 of
 Gautschi (1983).
 
 
-### **Example 3** 
+### **Example 3 - Weibull pdf (scale parameter = 1) weight function** 
 
 Now suppose that, on the other hand, we want to specify a **new** weight function, say the Weibull pdf with 
 shape parameter k > 0 and scale parameter set to 1.
@@ -352,61 +352,118 @@ for $s = 0, 1, 2, \dots$.
 We identify this new weight function by first assigning
 a value of the positive parameter $k$ and then using Julia command
 `which_f = ["weibull pdf", [0, Inf], k]`.
-Therefore the following command specifies this weight function with $k$ set to 2.1.
+Because finite non-integer parameters should be entered as strings, the following
+command specifies this weight function with $k$ set to 3.1.
 ```julia
-`which_f = ["weibull pdf", [0, Inf], k]`.
+which_f = ["weibull pdf", [0, Inf], "3.1"]
 ```
-We provide the function for computing the s'th moment using 
-which_f = ["weibull pdf", [0, Inf], "2.1"]
+We provide the function for computing the s'th moment using this `which_f`.
 
 The helper function `materialize_scalar_spec_fn(T, value)` converts a user-supplied
 scalar specification to a concrete value of type `T`. For example, it converts a
-string such as `"2.1"` to a value of type `T`. This is useful when a parameter is
+string such as `"3.1"` to a value of type `T`. This is useful when a parameter is
 stored in `which_f` as a string so that its decimal value is preserved until the
 working floating-point type `T` has been chosen.
 
-  using SpecialFunctions
-  function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
-    @assert which_f[1] == "weibull pdf"
-    k = which_f[3]
-    @assert k > 0
-    T_k = CustomGaussQuadrature.materialize_scalar_spec_fn(T, which_f[3])
-    @assert T_k > 0
-      return(convert(T, 1))
-    end
-    T_1 = convert(T, 1)
-    T_s = convert(T, s)
-    gamma(T_1 + (T_s/T_k))
-  end
+```julia
+using SpecialFunctions
+
+function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
+        @assert which_f[1] == "weibull pdf"
+    T_k = materialize_scalar_spec_fn(T, which_f[3])
+        @assert T_k > convert(T, 0)
+        @assert s ≥ 0
+        if s == 0
+                return convert(T, 1)
+        end
+        gamma(convert(T, 1) + convert(T, s) / T_k)
+end
 ```
 
 The following commands compute the nodes and weights, as 
-`Double64` vectors for a 9-point Gauss quadrature rule. 
+`Double64` vectors for a 6-point Gauss quadrature rule. 
 ```julia
 	moment_fn = moment_weibull_pdf_fn
-    n = 9
-    nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+    n = 6
+    nodes_momentdets_ex3, weights_momentdets_ex3 = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 ```
 
 
 This is followed by conversion to 
 `Float64` vectors using the commands
 ```julia
-    nodes = convert(Vector{Float64}, nodes)
-    weights = convert(Vector{Float64}, weights)
+    nodes_momentdets_ex3 = convert(Vector{Float64}, nodes_momentdets_ex3)
+    weights_momentdets_ex3 = convert(Vector{Float64}, weights_momentdets_ex3)
 ```
 
 These nodes and weights are printed using the `@printf` macro from the package `Printf` as follows.
 ```julia
     using Printf
-    nodes = convert(Vector{Float64}, nodes)
-    weights = convert(Vector{Float64}, weights)
     println("              nodes                     weights")
     for i in 1:n
         @printf "%2d     " i
-        @printf "%.16e     " nodes[i]
-        @printf "%.16e  \n" weights[i]
+        @printf "%.16e     " nodes_momentdets_ex3[i]
+        @printf "%.16e  \n" weights_momentdets_ex3[i]
     end
+```
+
+### **Example 4 - Inverse gamma pdf (vector-valued parameter) weight function**
+
+The following example shows how `which_f[3]` can itself be a vector of scalar
+specifications. Consider the inverse gamma pdf
+
+$$
+f(x) =
+\begin{cases}
+\dfrac{\beta^{\alpha}}{\Gamma(\alpha)} x^{-(\alpha + 1)} \exp(-\beta / x) &\text{for } x > 0
+\\
+0 &\text{otherwise,}
+\end{cases}
+$$
+
+where $\alpha > 0$ and $\beta > 0$. We identify this weight function by
+
+```julia
+which_f = ["inverse gamma pdf", [0, Inf], ["18.5", "3.2"]]
+```
+
+Here the parameter vector `which_f[3]` has two components, corresponding to
+`α = "18.5"` and `β = "3.2"`.
+
+For this weight function, the $s$'th moment is
+
+$$
+\beta^s \frac{\Gamma(\alpha - s)}{\Gamma(\alpha)},
+$$
+
+provided that $\alpha > s$. Since `custom_gauss_quad_all_fn` requires moments
+up to order $2n - 1$, we must choose `n` so that $\alpha > 2n - 1$. For
+`n = 8`, this condition is satisfied because $18.5 > 15$.
+
+```julia
+using SpecialFunctions
+
+function moment_inverse_gamma_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
+    @assert which_f[1] == "inverse gamma pdf"
+    @assert length(which_f[3]) == 2
+    alpha_spec, beta_spec = which_f[3]
+    T_alpha = materialize_scalar_spec_fn(T, alpha_spec)
+    T_beta = materialize_scalar_spec_fn(T, beta_spec)
+    @assert T_alpha > convert(T, 0)
+    @assert T_beta > convert(T, 0)
+    @assert s ≥ 0
+    if s == 0
+        return convert(T, 1)
+    end
+    T_s = convert(T, s)
+    @assert T_alpha > T_s
+    T_beta^T_s * gamma(T_alpha - T_s) / gamma(T_alpha)
+end
+
+n = 8
+nodes_momentdets_ex4, weights_momentdets_ex4 = custom_gauss_quad_all_fn(moment_inverse_gamma_pdf_fn, which_f, n)
+nodes_momentdets_ex4 = convert(Vector{Float64}, nodes_momentdets_ex4)
+weights_momentdets_ex4 = convert(Vector{Float64}, weights_momentdets_ex4)
 ```
 
 ## **Computation of the recursion coefficients in the three-term recurrence relation using the Stieltjes procedure**
@@ -551,7 +608,7 @@ For the "scaled chi pdf" weight function considered in **Example 1**, the graph 
 sufficiently accurate results from the Stieltjes procedure
 increases rapidly with increasing $m$.  
 
-## **Two Examples**
+## **Examples**
 
 For any of the following which_f's \
 which_f = ["scaled chi pdf", [0,Inf], m]\
@@ -562,7 +619,7 @@ which_f = ["legendre", [-1, 1]],\
 we use stieltjes_lnf_stored_scr.jl, which computes the $\log(f(x))$, as illustrated by the 
 following example.
 
-### **Example 4**
+### **Example 5 - Scaled chi pdf Stieltjes counterpart**
 
 Consider the same weight function as in **Example 1**.
 For this stored weight function, with positive integer parameter `m` set to 160
@@ -582,42 +639,120 @@ include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 
 This creates the following outputs in the caller:
 
-- `stieltjes_nodes`
-- `stieltjes_weights`
-- `stieltjes_a_vec`
-- `stieltjes_b_vec`
-- `stieltjes_nbits`
+- `nodes_stieltjes`
+- `weights_stieltjes`
+- `a_vec_stieltjes`
+- `b_vec_stieltjes`
+- `nbits_stieltjes`
 - `r`
 
-Here `stieltjes_nodes` and `stieltjes_weights`
+Here `nodes_stieltjes` and `weights_stieltjes`
 are the custom Gauss quadrature nodes and weights obtained using the Stieltjes procedure,
 and `r` is the number of sampled function values used in the discrete approximation to the inner product.
+The older `stieltjes_*` names remain available as compatibility aliases.
 If `r` is of interest, use
 
 ```julia
 println("r = ", r)
 ```
 
-Convert `stieltjes_nodes` and `stieltjes_weights` to `Float64` vectors using
+Convert `nodes_stieltjes` and `weights_stieltjes` to `Float64` vectors using
 
 ```julia
-stieltjes_nodes = convert(Vector{Float64}, stieltjes_nodes)
-stieltjes_weights = convert(Vector{Float64}, stieltjes_weights)
+nodes_stieltjes = convert(Vector{Float64}, nodes_stieltjes)
+weights_stieltjes = convert(Vector{Float64}, weights_stieltjes)
 ```
 
 Print these out in the same format as in **Example 1** using
 
 ```julia
 using Printf
-println("           stieltjes_nodes             stieltjes_weights")
-for i in 1:lastindex(stieltjes_nodes)
+println("              nodes                     weights")
+for i in 1:lastindex(nodes_stieltjes)
     @printf "%2d     " i
-    @printf "%.16e     " stieltjes_nodes[i]
-    @printf "%.16e  \n" stieltjes_weights[i]
+    @printf "%.16e     " nodes_stieltjes[i]
+    @printf "%.16e  \n" weights_stieltjes[i]
 end
 ```
 
-### **Example 5**
+If we also wish to compare the Stieltjes result with the result obtained by the
+moment-determinants method, we should store the moment-determinants outputs from
+**Example 1** using distinct names such as `nodes_momentdets_ex1` and
+`weights_momentdets_ex1`.
+
+We may then compare the two methods using
+
+```julia
+diff_nodes = nodes_stieltjes - nodes_momentdets_ex1
+rel_diff_weights = (weights_stieltjes - weights_momentdets_ex1) ./ weights_momentdets_ex1
+
+println("maximum(abs.(nodes_stieltjes - nodes_momentdets_ex1)) = ",
+    convert(Float64, maximum(abs.(diff_nodes))))
+println("maximum(abs.((weights_stieltjes - weights_momentdets_ex1) ./ weights_momentdets_ex1)) = ",
+    convert(Float64, maximum(abs.(rel_diff_weights))))
+```
+
+### **Example 6 - Chemistry example Stieltjes counterpart**
+
+Consider the same weight function as in **Example 2**.
+For this stored weight function, with number of Gauss quadrature nodes
+`n = 15`, we again use the high-level stored Stieltjes driver
+`stieltjes_lnf_stored_scr.jl`.
+
+```julia
+which_f = ["chemistry example", [0, Inf]]
+n = 15
+
+pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
+include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
+```
+
+This creates the following outputs in the caller:
+
+- `nodes_stieltjes`
+- `weights_stieltjes`
+- `a_vec_stieltjes`
+- `b_vec_stieltjes`
+- `nbits_stieltjes`
+- `r`
+
+Convert `nodes_stieltjes` and `weights_stieltjes` to `Float64` vectors using
+
+```julia
+nodes_stieltjes = convert(Vector{Float64}, nodes_stieltjes)
+weights_stieltjes = convert(Vector{Float64}, weights_stieltjes)
+```
+
+Print these out in the same format as in **Example 2** using
+
+```julia
+using Printf
+println("              nodes                     weights")
+for i in 1:lastindex(nodes_stieltjes)
+    @printf "%2d     " i
+    @printf "%.15e     " nodes_stieltjes[i]
+    @printf "%.15e  \n" weights_stieltjes[i]
+end
+```
+
+If we also wish to compare the Stieltjes result with the result obtained by the
+moment-determinants method, we should store the moment-determinants outputs from
+**Example 2** using distinct names such as `nodes_momentdets_ex2` and
+`weights_momentdets_ex2`.
+
+We may then compare the two methods using
+
+```julia
+diff_nodes = nodes_stieltjes - nodes_momentdets_ex2
+rel_diff_weights = (weights_stieltjes - weights_momentdets_ex2) ./ weights_momentdets_ex2
+
+println("maximum(abs.(nodes_stieltjes - nodes_momentdets_ex2)) = ",
+    convert(Float64, maximum(abs.(diff_nodes))))
+println("maximum(abs.((weights_stieltjes - weights_momentdets_ex2) ./ weights_momentdets_ex2)) = ",
+    convert(Float64, maximum(abs.(rel_diff_weights))))
+```
+
+### **Example 7 - Weibull pdf Stieltjes counterpart**
 
 Consider the same weight function as in **Example 3**.
 We identify this new weight function by first assigning
@@ -680,18 +815,23 @@ pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 ```
 
+Later in this example, after defining `moment_weibull_pdf_fn`, we compare
+`nodes_stieltjes` and `weights_stieltjes` with the corresponding Gauss rule
+obtained using the moment-determinants method.
+
 This creates the following outputs in the caller:
 
-- `stieltjes_nodes`
-- `stieltjes_weights`
-- `stieltjes_a_vec`
-- `stieltjes_b_vec`
-- `stieltjes_nbits`
+- `nodes_stieltjes`
+- `weights_stieltjes`
+- `a_vec_stieltjes`
+- `b_vec_stieltjes`
+- `nbits_stieltjes`
 - `r`
 
-Here `stieltjes_nodes` and `stieltjes_weights`
+Here `nodes_stieltjes` and `weights_stieltjes`
 are the custom Gauss quadrature nodes and weights obtained using the Stieltjes procedure,
 and `r` is the number of sampled function values used in the discrete approximation to the inner product.
+The older `stieltjes_*` names remain available as compatibility aliases.
 If `r` is of interest, use
 
 ```julia
@@ -702,8 +842,8 @@ The following commands convert the nodes and weights to `Float64` vectors and pr
 
 ```julia
 using Printf
-nodes = convert(Vector{Float64}, stieltjes_nodes)
-weights = convert(Vector{Float64}, stieltjes_weights)
+nodes = convert(Vector{Float64}, nodes_stieltjes)
+weights = convert(Vector{Float64}, weights_stieltjes)
 println("              nodes                     weights")
 for i in 1:n
     @printf "%2d     " i
@@ -712,37 +852,85 @@ for i in 1:n
 end
 ```
 
-If we also wish to compare the Stieltjes result with the result obtained by the moment-determinants method,
-we must additionally provide a function for computing the moments of the same weight function.
-For the Weibull pdf this can be done as follows:
-
-Again, `materialize_scalar_spec_fn(T, which_f[3])` converts the parameter stored in
-`which_f[3]` to the floating-point type `T`.
-
-```julia
-function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
-    @assert which_f[1] == "weibull pdf"
-    T_k = materialize_scalar_spec_fn(T, which_f[3])
-    @assert T_k > convert(T, 0)
-    @assert s ≥ 0
-    if s == 0
-        return(convert(T, 1))
-    end
-    gamma(convert(T, 1) + convert(T, s) / T_k)
-end
-
-nodes, weights = custom_gauss_quad_all_fn(moment_weibull_pdf_fn, which_f, n)
-```
+If we also wish to compare the Stieltjes result with the result obtained by the
+moment-determinants method, we refer to `nodes_momentdets_ex3` and
+`weights_momentdets_ex3` computed earlier in **Example 3**.
 
 We may then compare the two methods using
 
 ```julia
-diff_nodes = stieltjes_nodes - nodes
-rel_diff_weights = (stieltjes_weights - weights) ./ weights
+diff_nodes = nodes_stieltjes - nodes_momentdets_ex3
+rel_diff_weights = (weights_stieltjes - weights_momentdets_ex3) ./ weights_momentdets_ex3
 
-println("maximum(abs.(stieltjes_nodes - nodes)) = ",
+println("maximum(abs.(nodes_stieltjes - nodes_momentdets_ex3)) = ",
     convert(Float64, maximum(abs.(diff_nodes))))
-println("maximum(abs.((stieltjes_weights - weights) ./ weights)) = ",
+println("maximum(abs.((weights_stieltjes - weights_momentdets_ex3) ./ weights_momentdets_ex3)) = ",
+    convert(Float64, maximum(abs.(rel_diff_weights))))
+```
+
+### **Example 8 - Inverse gamma pdf Stieltjes counterpart**
+
+Consider the same weight function as in **Example 4**.
+The same inverse gamma pdf can also be handled by the Stieltjes procedure.
+Its log-weight function is
+
+$$
+\log(f(x)) =
+\alpha \log(\beta) - \log \Gamma(\alpha) - (\alpha + 1)\log(x) - \beta / x
+\qquad \text{for } x > 0.
+$$
+
+We again use
+
+```julia
+which_f = ["inverse gamma pdf", [0, Inf], ["18.5", "3.2"]]
+```
+
+and since this is a probability density function, `mu0 = 1`.
+
+```julia
+using SpecialFunctions
+
+function lnf_inverse_gamma_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
+    @assert which_f[1] == "inverse gamma pdf"
+    @assert x > zero(T)
+    @assert length(which_f[3]) == 2
+    alpha_spec, beta_spec = which_f[3]
+    T_alpha = materialize_scalar_spec_fn(T, alpha_spec)
+    T_beta = materialize_scalar_spec_fn(T, beta_spec)
+    @assert T_alpha > zero(T_alpha)
+    @assert T_beta > zero(T_beta)
+    T_one = one(T)
+    T_alpha * log(T_beta) -
+        logabsgamma(T_alpha)[1] -
+        (T_alpha + T_one) * log(x) -
+        T_beta / x
+end
+
+n = 8
+lnf_typed_fn = lnf_inverse_gamma_pdf_fn
+mu0 = 1
+
+pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
+include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
+
+nodes_stieltjes = convert(Vector{Float64}, nodes_stieltjes)
+weights_stieltjes = convert(Vector{Float64}, weights_stieltjes)
+println("r = ", r)
+```
+
+If we also wish to compare the Stieltjes result with the result obtained by the
+moment-determinants method, we refer to `nodes_momentdets_ex4` and
+`weights_momentdets_ex4` computed earlier in the inverse gamma moment-determinants
+example.
+
+```julia
+diff_nodes = nodes_stieltjes - nodes_momentdets_ex4
+rel_diff_weights = (weights_stieltjes - weights_momentdets_ex4) ./ weights_momentdets_ex4
+
+println("maximum(abs.(nodes_stieltjes - nodes_momentdets_ex4)) = ",
+    convert(Float64, maximum(abs.(diff_nodes))))
+println("maximum(abs.((weights_stieltjes - weights_momentdets_ex4) ./ weights_momentdets_ex4)) = ",
     convert(Float64, maximum(abs.(rel_diff_weights))))
 ```
 # Step 2 using the eigenvalues and eigenvectors of the Jacobi matrix

@@ -123,7 +123,7 @@ module CustomGaussQuadrature
 # They are thin interface scripts intended for R users who call
 # this package from R via the JuliaConnectoR package:
 #
-#   r_interface_moment_dets_scr.jl
+#   r_interface_moment_dets_new_scr.jl
 #       Method 1 (moment determinants), user-defined weight function.
 #   r_interface_moment_dets_stored_scr.jl
 #       Method 1 (moment determinants), built-in weight function.
