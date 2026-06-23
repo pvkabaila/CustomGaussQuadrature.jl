@@ -676,9 +676,8 @@ end
 ```
 
 If we also wish to compare the Stieltjes result with the result obtained by the
-moment-determinants method, we should store the moment-determinants outputs from
-**Example 1** using distinct names such as `nodes_momentdets_ex1` and
-`weights_momentdets_ex1`.
+moment-determinants method, we refer to `nodes_momentdets_ex1` and
+`weights_momentdets_ex1` computed earlier in **Example 1**.
 
 We may then compare the two methods using
 
@@ -736,9 +735,8 @@ end
 ```
 
 If we also wish to compare the Stieltjes result with the result obtained by the
-moment-determinants method, we should store the moment-determinants outputs from
-**Example 2** using distinct names such as `nodes_momentdets_ex2` and
-`weights_momentdets_ex2`.
+moment-determinants method, we refer to `nodes_momentdets_ex2` and
+`weights_momentdets_ex2` computed earlier in **Example 2**.
 
 We may then compare the two methods using
 
