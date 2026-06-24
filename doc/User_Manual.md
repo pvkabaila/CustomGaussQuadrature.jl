@@ -39,6 +39,8 @@ and weights.
 
 In the classical case there are simple formulae for the recursion coefficients, making **Step 1** trivial. In the non-classical case Step 1 is difficult. The treatise of Gautschi (2004) describes several methods for this computation that differ widely in both complexity and sensitivity to roundoff errors. However, **Step 2** remains the same for both classical and non-classical cases. We carry out **Step 2** by computing the eigenvalues and eigenvectors of a symmetric tridiagonal matrix using the package `GenericLinearAlgebra.jl`.
 
+`CustomGaussQuadrature` aims to deliver about double precision accuracy in the computed Gauss rule for subsequent extensive `Float64` computations. 
+
 ## Installation
 
 ```julia
@@ -109,26 +111,28 @@ The map from the vector
 $\big(\mu_0, \mu_1, \dots, \mu_{2n-1} \big)$ of moments to the vector $\big(\alpha_0, \dots, \alpha_{n-1},  \beta_1, \dots, \beta_{n-1}\big)$ of recursion coefficients is severely ill-conditioned (Gautschi, 1983, 2004). However, it has long been recognized that this limitation can be overcome by the use of high-precision arithmetic, see e.g. Gautschi (1983), when applying 
  the method of moment determinants.
 
-We use `BigFloat` arithmetic, with number of bits of precision `b`. For assurance that the chosen number of bits of precision `b` is sufficiently large, we use the following simple method. Suppose that $c_1$ and $c_2$ are numerical approximations to the same quantity computed using the same Julia function
-that implements an ill-conditioned numerical method, 
-using `BigFloat` arithmetic with number of bits of precision `b1` and `b2`, respectively, where `b2` is substantially larger than `b1`.
-The approximation $c_2$ is therefore believed to be much more accurate than $c_1$. Then we take $c_2$ as our final approximation and assess 
-the absolute error to be less than $|c_1 - c_2|$.
-
-
-We require that there is a formula, which can be computed in `BigFloat`
+ We require that there is a formula, which can be computed in `BigFloat`
 arithmetic, for the $s$'th moment
 
 $$
 \mu_s = \int_{-\infty}^{\infty} x^s \ f(x) \ dx
 $$
 
-for all nonnegative integers $s \le 2 n - 1$. This formula 
-is provided by the user, as illustrated in the Example 3 below.
-The function `custom_gauss_quad_all_fn` is then used to compute the Gauss quadrature nodes and weights. 
+for all nonnegative integers $s \le 2 n - 1$. This formula has been already implemented in code for several families of weight functions (described below). For "new" weight functions this formula must be provided by the user and implemented in code, as illustrated in  Example 3 below.
 
-The aim of the method implemented in `custom_gauss_quad_all_fn` is for (a) the *absolute errors* of each of the nodes to be less than
-$10^{-17}$ and (b) the *relative errors* of each of the weights to be less than $10^{-17}$. In other words, the nodes and weights are computed with the purpose of being used in further extensive `Float64` computations.
+
+We use `BigFloat` arithmetic, with number of bits of precision `b`. For assurance that the chosen number of bits of precision `b` is sufficiently large, we use the following simple method. Suppose that $c_1$ and $c_2$ are numerical approximations to the same quantity computed using the same Julia function
+that implements an ill-conditioned numerical method, 
+using `BigFloat` arithmetic with number of bits of precision `b1` and `b2`, respectively, where `b2` is substantially larger than `b1`.
+The approximation $c_2$ is therefore believed to be much more accurate than $c_1$. Then we take $c_2$ as our final approximation and assess 
+the absolute error to be less than $|c_1 - c_2|$.
+
+We compute approximations to the vectors $\big(\alpha_0, \dots, \alpha_{n-1} \big)$ and $\big(\sqrt{\beta_1}, \dots, \sqrt{\beta_{n-1}}\big)$ that are assessed by this method to have maximum absolute errors and maximum relative errors, respectively, bounded
+above by $10^{-18}$. 
+
+The function `custom_gauss_quad_all_fn` carries out both **Step 1** and **Step 2** to compute the Gauss quadrature nodes and weights. 
+**Step 2** is usually very well conditioned and is carried out using quadruple precision arithmetic. Consequently, the computed Gauss quadrature nodes and weights are expected to have 
+maximum absolute errors and maximum relative errors, respectively, bounded above by about $10^{-18}$.
 
 
 We identify the weight function $f$ by the array 
@@ -137,7 +141,7 @@ We identify the weight function $f$ by the array
 (ii) support interval of $f$ specified by a 2-vector of the endpoints and \
 (iii) parameter vector (if any).
 
-For user input, use ordinary Julia values for exact quantities such as integers
+For user input of support interval endpoints and parameter values, use ordinary Julia values for exact quantities such as integers
 and $\pm\infty$, but use strings for finite non-integer constants whose decimal
 representation must be preserved. Thus `which_f = ["scaled chi pdf", [0,Inf], m]`
 is natural when `m` is an integer, whereas a Weibull shape parameter should be
@@ -599,6 +603,15 @@ $$
 $$
 
 which is used to compute the right-hand side of (4).
+
+
+We compute approximations to the vectors 
+$\big(\alpha_0, \alpha_1, \dots, \alpha_{n-1}\big)$ and 
+$\big(\sqrt{\beta_1}, \sqrt{\beta_2}, \dots, \sqrt{\beta_{n-1}} \big)$ 
+that are assessed by the simple method described in the section 
+**Computation of the recursion coefficients in the three-term recurrence relation using moment determinants** to have
+maximum absolute errors and maximum relative errors, respectively, bounded above by $10^{-15}$. **Step 2** is usually very well conditioned and is carried out using quadruple precision arithmetic. Consequently, the computed Gauss quadrature nodes and weights are expected to have 
+maximum absolute errors and maximum relative errors, respectively, bounded above by about $10^{-15}$.
 
 ### **Remark**
 In the comments for his subroutine `qgp` (available at cs.purdue.edu/archives/2002/wxg/codes), Gautschi states of this method that
