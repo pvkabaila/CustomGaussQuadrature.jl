@@ -441,8 +441,8 @@ $$
 $$
 
 provided that $\alpha > s$. Since `custom_gauss_quad_all_fn` requires moments
-up to order $2n - 1$, we must choose `n` so that $\alpha > 2n - 1$. For
-`n = 8`, this condition is satisfied because $18.5 > 15$.
+up to order $2n - 1$, we must choose $n$ so that $\alpha > 2n - 1$. For
+`n = 8` (as in the example below) this condition is satisfied.
 
 ```julia
 using SpecialFunctions
