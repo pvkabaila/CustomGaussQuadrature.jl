@@ -43,9 +43,13 @@
 # TYPICAL R USAGE
 # ---------------
 #   library(JuliaConnectoR)
+#   juliaEval('using Pkg')
 #   juliaEval('Pkg.develop(path=raw"C:/path/to/CustomGaussQuadrature")')
 #   juliaEval('using CustomGaussQuadrature')
 #   juliaEval('pathof(CustomGaussQuadrature)')
+#   juliaEval('using SpecialFunctions')
+#   juliaEval('Pkg.add("DoubleFloats")')
+#   juliaEval('using DoubleFloats')
 #   mu0_body <- '1'
 #   # Use strings for finite non-integer constants so Julia preserves
 #   # the decimal specification. Vector or list parameters may contain
@@ -89,6 +93,10 @@
 #     stop("This example supports scalar numeric or character specifications, or vectors/lists containing them.")
 #   }
 #
+#   # The underlying Julia Stieltjes driver uses names such as
+#   # nodes_stieltjes and weights_stieltjes, but this R helper
+#   # deliberately returns the method-neutral names nodes,
+#   # weights and r by fetching cgq_nodes, cgq_weights and cgq_r.
 #   run_stieltjes_new_example <- function(which_f, n, lnf_typed_fn_body, mu0_body, j_max = 40) {
 #     weight_name <- which_f[[1]]
 #     support <- which_f[[2]]

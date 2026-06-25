@@ -68,6 +68,9 @@
 #       ...
 #   '
 #   n <- 9
+#   # This R helper returns the method-neutral names nodes and
+#   # weights by fetching the Julia variables cgq_nodes and
+#   # cgq_weights after the include.
 #   run_moment_dets_example <- function(which_f, n, moment_fn_body) {
 #     julia_value_literal <- function(value) {
 #       if (is.character(value) && length(value) == 1) {

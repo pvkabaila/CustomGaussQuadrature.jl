@@ -249,7 +249,7 @@ Therefore the following command specifies this weight function with `m` set to 1
 
 
 
-For this weight function, the $s$'th moment is 
+For this weight function, the $s$'th moment $\mu_s$ is 
 
 $$
 \left(\frac{2}{m} \right)^{s/2}
@@ -291,10 +291,10 @@ Consider the weight function identified by
     which_f = ["chemistry example", [0, Inf]]
 ```
 
-For this weight function, the $s$'th moment is 
+For this weight function, the $s$'th moment 
 
 $$
-3^{(s - 2) / 3}  \ \Gamma\big((s + 1) / 3\big)
+\mu_s = 3^{(s - 2) / 3}  \ \Gamma\big((s + 1) / 3\big)
 $$
 
 for $s = 0, 1, 2, \dots$.
@@ -344,10 +344,10 @@ f(x) =
 \end{cases}
 $$
 
-For this weight function, the $s$'th moment is
+For this weight function, the $s$'th moment 
 
 $$
-\Gamma\left(1 + \frac{s}{k}\right)
+\mu_s = \Gamma\left(1 + \frac{s}{k}\right)
 $$
 
 for $s = 0, 1, 2, \dots$.
@@ -419,25 +419,22 @@ specifications. Consider the inverse gamma pdf
 $$
 f(x) =
 \begin{cases}
-\dfrac{\beta^{\alpha}}{\Gamma(\alpha)} x^{-(\alpha + 1)} \exp(-\beta / x) &\text{for } x > 0
+\dfrac{\beta^{\alpha}}{\Gamma(\alpha)} \, x^{-(\alpha + 1)} \exp(-\beta / x) &\text{for } x > 0
 \\
 0 &\text{otherwise,}
 \end{cases}
 $$
 
-where $\alpha > 0$ and $\beta > 0$. We identify this weight function by
+where shape parameter $\alpha > 0$ and scale parameter $\beta > 0$. For $(\alpha, \beta) = (18.5,3.2)$, we identify this weight function by
 
 ```julia
 which_f = ["inverse gamma pdf", [0, Inf], ["18.5", "3.2"]]
 ```
 
-Here the parameter vector `which_f[3]` has two components, corresponding to
-`α = "18.5"` and `β = "3.2"`.
-
-For this weight function, the $s$'th moment is
+For this weight function, the $s$'th moment 
 
 $$
-\beta^s \frac{\Gamma(\alpha - s)}{\Gamma(\alpha)},
+\mu_s = \beta^s \, \frac{\Gamma(\alpha - s)}{\Gamma(\alpha)},
 $$
 
 provided that $\alpha > s$. Since `custom_gauss_quad_all_fn` requires moments
