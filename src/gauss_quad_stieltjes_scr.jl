@@ -117,6 +117,7 @@ end
 
 
 function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, make_μ₀_fn::Function, make_lnf_fn::Function, a, b, r)
+  try
   setprecision(BigFloat, 256, base=2)
   T = BigFloat
   nbits = 256
@@ -221,11 +222,17 @@ function stieltjes_a_vec_b_vec_choosenbits_core_fn(n, make_μ₀_fn::Function, m
   if max_abs_error_a > epsilon1 || max_rel_error_b > epsilon1
     throw(DomainError(n, " too large"))  
   end    
-  setprecision(BigFloat, 256, base=2)
 
   # Reaching this point means 512 bits passed the final stability check, so the
   # function returns the 512-bit recurrence coefficients together with nbits=512.
   [a_vec_512, b_vec_512, nbits]
+  finally
+    # The precision of BigFloat is set globally.
+    # Consequently, this precision is reset to
+    # its default value before exiting this
+    # function.
+    setprecision(BigFloat, 256, base=2)
+  end
 end
 
 
@@ -296,6 +303,7 @@ empty, scalar, or a container of several parameter specifications,
 provided lnf_typed_fn and μ₀ know how to interpret it.
 """
 function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=7, j_max=80, epsilon=1.0e-15)
+  try
   @assert n ≥ 2
   # Start with two consecutive trial values of r so the driver can measure how
   # much the recurrence coefficients change when the support quadrature is refined.
@@ -353,6 +361,13 @@ function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; o
   # Return the last candidate, which is the first one whose coefficients agree
   # with the previous run to within the prescribed tolerance.
   [a_vec_new, b_vec_new, nbits_new, r]
+  finally
+    # The precision of BigFloat is set globally.
+    # Consequently, this precision is reset to
+    # its default value before exiting this
+    # function.
+    setprecision(BigFloat, 256, base=2)
+  end
 end
 
 

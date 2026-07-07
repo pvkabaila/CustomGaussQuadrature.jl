@@ -392,6 +392,7 @@ the computation of the Gauss quadrature
 coefficients to sufficient precision.  
 """
 function step1a_fn(moment_fn, which_f, n::Integer)
+  try
   @assert n ≥ 2
   a_vec, b_vec, μ₀ =
   try 
@@ -455,15 +456,16 @@ function step1a_fn(moment_fn, which_f, n::Integer)
           end
       end
   end
-nbits = precision(BigFloat)
+ nbits = precision(BigFloat)
 
-# The precision of BigFloat is set globally.
-# Consequently, this precision is reset to
-# its default value before exiting this
-# function. 
-setprecision(BigFloat, 256, base=2)
-
-[a_vec, b_vec, μ₀, nbits]
+  [a_vec, b_vec, μ₀, nbits]
+  finally
+    # The precision of BigFloat is set globally.
+    # Consequently, this precision is reset to
+    # its default value before exiting this
+    # function.
+    setprecision(BigFloat, 256, base=2)
+  end
 end
 
 
@@ -479,6 +481,7 @@ full Float64 precision. This sufficient
 BigFloat precision is given by nbits. 
 """
 function step1_fn(moment_fn, which_f, n::Integer, epsilon=1.0e-18)
+  try
   @assert n ≥ 2
 
   a_vec, b_vec, μ₀, nbits = step1a_fn(moment_fn, which_f, n)
@@ -504,13 +507,14 @@ function step1_fn(moment_fn, which_f, n::Integer, epsilon=1.0e-18)
     max_rel_error_b = maximum(rel_error_b)
   end
 
-  # The precision of BigFloat is set globally.
-  # Consequently, this precision is reset to
-  # its default value before exiting this
-  # function. 
-  setprecision(BigFloat, 256, base=2)
-
   [a_vec_new, b_vec_new, μ₀_new, nbits_new]
+  finally
+    # The precision of BigFloat is set globally.
+    # Consequently, this precision is reset to
+    # its default value before exiting this
+    # function.
+    setprecision(BigFloat, 256, base=2)
+  end
 end
 
 
