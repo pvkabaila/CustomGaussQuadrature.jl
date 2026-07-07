@@ -4,7 +4,6 @@ authors = ["Paul Kabaila"]
 version = "3.0.6"
 
 [deps]
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DoubleFloats = "497a8b3b-efae-58df-a0af-a86822472b78"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
 GaussQuadrature = "d54b0c1a-921d-58e0-8e36-89d8069c0969"
@@ -12,11 +11,9 @@ GenericLinearAlgebra = "14197337-ba66-59df-a3e3-ca00e7dcff7a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
-Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
-Dates = "1.11.0"
 DoubleFloats = "1.4.2"
 FastGaussQuadrature = "1.0.2"
 GaussQuadrature = "0.5.8"
@@ -24,7 +21,6 @@ GenericLinearAlgebra = "0.3.15"
 LinearAlgebra = "<0.0.1, 1"
 OffsetArrays = "1.15.0"
 Polynomials = "4.0.14"
-Printf = "<0.0.1, 1"
 SpecialFunctions = "2.5.0"
 julia = "1.6"
 
