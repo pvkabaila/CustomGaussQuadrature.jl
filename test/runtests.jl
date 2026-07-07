@@ -5,6 +5,74 @@ using SpecialFunctions
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 
+function lnf_sine_power_pdf_test_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:AbstractFloat}
+@assert which_f[1] == "sine-power density"
+m = materialize_integer_spec_fn(which_f[3])
+@assert m > 0
+T_x = convert(T, x)
+@assert zero(T) <= T_x <= one(T)
+if T_x == zero(T) || T_x == one(T)
+    return -convert(T, Inf)
+end
+T_m = convert(T, m)
+T_half = one(T) / convert(T, 2)
+T_pi = convert(T, pi)
+normalizing_constant = T_pi / beta(T_half, (T_m + one(T)) / convert(T, 2))
+log(normalizing_constant) + T_m * log(sin(T_pi * T_x))
+end
+
+function sine_power_centered_integral_D_test_fn(::Type{T}, s::Integer, m::Integer) where {T<:AbstractFloat}
+@assert s >= 0
+@assert m >= 0
+if isodd(s)
+    return zero(T)
+end
+T_1 = one(T)
+T_2 = convert(T, 2)
+T_pi = convert(T, pi)
+if m == 0
+    return T_1 / (convert(T, s + 1) * T_2^s)
+elseif m == 1
+    if s == 0
+        return T_2 / T_pi
+    end
+    term1 = T_1 / (T_pi * T_2^(s - 1))
+    term2 = convert(T, s * (s - 1)) *
+        sine_power_centered_integral_D_test_fn(T, s - 2, 1) / T_pi^2
+    return term1 - term2
+end
+T_m = convert(T, m)
+term1 = convert(T, m - 1) * sine_power_centered_integral_D_test_fn(T, s, m - 2) / T_m
+term2 = zero(T)
+if s >= 2
+    term2 = convert(T, s * (s - 1)) *
+        sine_power_centered_integral_D_test_fn(T, s - 2, m) / (T_m^2 * T_pi^2)
+end
+term1 - term2
+end
+
+function sine_power_raw_moment_test_fn(::Type{T}, s::Integer, m::Integer) where {T<:AbstractFloat}
+@assert s >= 0
+moment = zero(T)
+for r in 0:div(s, 2)
+    centered_order = 2 * r
+    centered_moment =
+        sine_power_centered_integral_D_test_fn(T, centered_order, m) /
+        sine_power_centered_integral_D_test_fn(T, 0, m)
+    moment += convert(T, binomial(s, centered_order)) *
+        (one(T) / convert(T, 2))^(s - centered_order) *
+        centered_moment
+end
+moment
+end
+
+function moment_sine_power_pdf_test_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
+@assert which_f[1] == "sine-power density"
+@assert s >= 0
+m = materialize_integer_spec_fn(which_f[3])
+sine_power_raw_moment_test_fn(T, s, m)
+end
+
 
 @testset "CustomGaussQuadrature.jl" begin
 
@@ -263,6 +331,33 @@ stieltjes_custom_gauss_quad_all_fn(n, μ₀(BigFloat, which_f), stieltjes_a_vec,
 @test length(stieltjes_weights) == n
 @test all(stieltjes_nodes .>= 0)
 @test all(stieltjes_weights .> 0)
+
+#------------------------------------------------
+# Regression test for stieltjes_lnf_new_scr.jl with finite endpoints
+
+setprecision(BigFloat, 256, base=2);
+m = 5;
+n = 4;
+which_f = ["sine-power density", [0, 1], m];
+
+nodes_moment_sine, weights_moment_sine =
+custom_gauss_quad_all_fn(moment_sine_power_pdf_test_fn, which_f, n);
+
+@eval Main begin
+    which_f = ["sine-power density", [0, 1], 5]
+    n = 4
+    lnf_typed_fn = lnf_sine_power_pdf_test_fn
+    mu0 = 1
+end
+include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
+
+@test length(Main.stieltjes_nodes) == n
+@test length(Main.stieltjes_weights) == n
+@test all(Main.stieltjes_nodes .>= 0)
+@test all(Main.stieltjes_nodes .<= 1)
+@test all(Main.stieltjes_weights .> 0)
+@test all(isapprox.(Main.stieltjes_nodes, nodes_moment_sine; rtol=1.0e-13, atol=1.0e-13))
+@test all(isapprox.(Main.stieltjes_weights, weights_moment_sine; rtol=1.0e-13, atol=1.0e-13))
 
 #------------------------------------------------
 # Regression test for the stored generalized normal weight function

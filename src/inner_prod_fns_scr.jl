@@ -126,7 +126,8 @@ end
 ln_ϕ′ = ln_ϕ′_fn(T, y::AbstractFloat, a::AbstractFloat, b::AbstractFloat)
 
 Returns log(ϕ′(y)) computed using type T floating point arithmetic,
-when it is NOT the case that both a and b are finite. Here   
+Here   
+ln_ϕ′(y) = log((b - a)/2)                  if -∞ < a < b < ∞
 ln_ϕ′(y) = log(2) - 2 log(1 + y)                if -∞ = a < b < ∞
 ln_ϕ′(y) = log(2) - 2 log(1 - y)                if -∞ < a < b = ∞
 ln_ϕ′(y) = log(1 + y²) - 2 log(1 - y²)          if -∞ = a < b = ∞ 
@@ -141,7 +142,8 @@ function ln_ϕ′_fn(T, y::AbstractFloat, a::AbstractFloat, b::AbstractFloat)
     a_is_neg_inf = isinf(a) && signbit(a)
     b_is_pos_inf = isinf(b) && !signbit(b)
     if a_is_finite && b_is_finite
-        throw(DomainError([a,b], "a and b are both finite"))
+        out = log((b - a) / T_2)
+        return(out)
     elseif a_is_neg_inf && b_is_finite
         out = log(T_2) - T_2 * log(T_1 + y)
         return(out)
