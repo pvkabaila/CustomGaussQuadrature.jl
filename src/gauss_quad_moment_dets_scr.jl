@@ -441,7 +441,7 @@ function step1a_fn(moment_fn, which_f, n::Integer)
                                               try
                                               setprecision(BigFloat, 392, base=2)
                                               a_vec_b_vec_μ₀_fn(BigFloat, moment_fn, which_f, n)  
-                                              finally
+                                              catch
                                               throw(DomainError(n, " too large"))
                                               end
                                           end
