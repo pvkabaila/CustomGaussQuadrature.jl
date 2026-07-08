@@ -952,7 +952,7 @@ J_n = \left[
 \sqrt{\beta_1} & \alpha_1 & \sqrt{\beta_2} & 0 & \ddots & \vdots \\
 0 & \sqrt{\beta_2} & \alpha_2 & \sqrt{\beta_3} & 0  & 0\\
 0 & \ddots & \ddots & \ddots & \ddots & 0\\
-\vdots & \ddots & & \sqrt{\beta_{n-1}} & \alpha_{n-2} & \sqrt{\beta_{n-1}} \\
+\vdots & \ddots & & \sqrt{\beta_{n-2}} & \alpha_{n-2} & \sqrt{\beta_{n-1}} \\
 0 & \dots & 0 & 0 & \sqrt{\beta_{n-1}} & \alpha_{n-1} 
 \end{array}
 \right].
