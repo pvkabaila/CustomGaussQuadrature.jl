@@ -77,13 +77,13 @@ use `custom_gauss_quad_all_fn`. Its main inputs are:
 - `which_f` — identifies the weight function (see above).
 - `n` — the number of Gauss quadrature nodes.
 
-**Built-in** weight function scaled chi pdf with parameter `m` = 160 & number of nodes `n` = 5:
+**Built-in** weight function scaled chi pdf with parameter `m` = 160 & number of nodes `n` = 3:
 
 ```julia
 m = 160
 which_f = ["scaled chi pdf", [0, Inf], m]
 
-n = 5
+n = 3
 nodes, weights = custom_gauss_quad_all_fn(moment_stored_fn, which_f, n)
 
 nodes = convert(Vector{Float64}, nodes)
