@@ -126,12 +126,12 @@ and the constant `mu0`. For a pdf, use `mu0 = 1`; use a string only for a finite
 non-integer constant whose decimal value matters. These scripts are invoked via `include()`.
 The older `stieltjes_*` output names remain available as compatibility aliases.
 
-**Built-in** weight function scaled chi pdf with parameter `m` = 160 & number of nodes `n` = 33:
+**Built-in** weight function scaled chi pdf with parameter `m` = 160 & number of nodes `n` = 3:
 
 ```julia
 m = 160
 which_f = ["scaled chi pdf", [0, Inf], m]
-n = 33
+n = 3
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 # Evaluation of nodes_stieltjes and weights_stieltjes:
