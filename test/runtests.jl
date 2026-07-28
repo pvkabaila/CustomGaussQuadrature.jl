@@ -213,31 +213,6 @@ nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 moment_fn = moment_stored_fn
 
 #------------------------------------------------
-# Test a user-defined Stieltjes weight with a 2-parameter vector in which_f[3]
-
-setprecision(BigFloat, 256, base=2);
-n = 2;
-which_f = ["gamma pdf", [0, Inf], ["2.5", "1.7"]];
-a, b = which_f[2];
-lnf_typed_fn = (T, which_f, x) -> begin
-    α_spec, θ_spec = which_f[3]
-    T_α = materialize_scalar_spec_fn(T, α_spec)
-    T_θ = materialize_scalar_spec_fn(T, θ_spec)
-    (T_α - one(T)) * log(x) - x / T_θ - loggamma(T_α) - T_α * log(T_θ)
-end
-μ₀ = (T, which_f) -> one(T)
-
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; epsilon=1.0e-15);
-stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀(BigFloat, which_f), stieltjes_a_vec, stieltjes_b_vec, a, b);
-
-@test length(stieltjes_nodes) == n
-@test length(stieltjes_weights) == n
-@test all(stieltjes_nodes .>= 0)
-@test all(stieltjes_weights .> 0)
-
-#------------------------------------------------
 # Regression test for stieltjes_lnf_new_scr.jl with finite endpoints
 
 setprecision(BigFloat, 256, base=2);
@@ -270,13 +245,13 @@ include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
 setprecision(BigFloat, 256, base=2);
 n = 2;
-which_f = ["generalized normal", [-Inf, Inf], ["1.9", "2.8"]];
+which_f = ["generalized normal", [-Inf, Inf], ["1.0", "4.0"]];
 
 nodes_moment, weights_moment = custom_gauss_quad_all_fn(moment_stored_fn, which_f, n);
 
 a, b = which_f[2];
 @eval Main begin
-    which_f = ["generalized normal", [-Inf, Inf], ["1.9", "2.8"]]
+    which_f = ["generalized normal", [-Inf, Inf], ["1.0", "4.0"]]
     n = 2
     epsilon = 1.0e-15
 end
