@@ -206,12 +206,6 @@ nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 @test all(nodes .>= 0)
 @test all(weights .> 0)
 
-#****************************************************
-#  Test of gauss_quad_stieltjes_scr.jl
-#****************************************************
-
-moment_fn = moment_stored_fn
-
 #------------------------------------------------
 # Regression test for stieltjes_lnf_new_scr.jl with finite endpoints
 
