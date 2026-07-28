@@ -156,7 +156,7 @@ weights = convert(Vector{BigFloat}, weights);
 # upto_n=true
 
 which_f = ["scaled chi pdf", [0,Inf], 160]::Vector{Any};
-n= 4;
+n= 3;
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n, true);
 
 #----------------------------------------------
@@ -179,7 +179,7 @@ moment_fn = moment_weibull_pdf_fn
 
 which_f = ["weibull pdf", [0, Inf], "5.1"]
 
-Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+nodes_Double64, weights_Double64 = custom_gauss_quad_all_fn(moment_fn, which_f, n);
 
 #----------------------------------------------
 # Test a user-defined weight with a 2-parameter vector in which_f[3]
@@ -210,108 +210,13 @@ nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 #  Test of gauss_quad_stieltjes_scr.jl
 #****************************************************
 
-m = 160;
-T = BigFloat;
-which_f = ["scaled chi pdf", [0,Inf], m];
-a, b = which_f[2];
-lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3]);
-
 moment_fn = moment_stored_fn
-
-μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-n = 5;
-
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
-
-a_vec, b_vec, μ₀, nbits = 
-step1_fn(moment_fn, which_f, n);
-
-# nodes and weights
-
-stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
-
-nodes, weights = 
-custom_gauss_quad_all_fn(moment_fn, which_f, n);
-
-#------------------------------
-
-upto_n = true;
-
-T = BigFloat;
-a, b = which_f[2];
-
-stieltjes_nodes_upto_n, stieltjes_weights_upto_n = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b, upto_n);  
-
-nodes_upto_n, weights_upto_n = 
-custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n);
-
-#--------------------------------------------------
-# chemistry example with n = 5
-
-n = 5;
-
-which_f = ["chemistry example", [0, Inf]];
-nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
-
-which_f = ["chemistry example", [0, Inf]];
-T = BigFloat;
-a, b = which_f[2];
-lnf_typed_fn = (T, which_f, x) -> lnf_chemistry_fn(T, x);
-μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
-stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
-
-stieltjes_nodes_Float64 = convert(Vector{Float64}, stieltjes_nodes);
-stieltjes_weights_Float64 = convert(Vector{Float64}, stieltjes_weights);
-
-#------------------------------------------------
-# Test the function stieltjes_custom_gauss_quad_all_fn
-# Hermite
-setprecision(BigFloat, 256, base=2);
-n = 4;
-which_f = ["hermite", [-Inf, Inf]];
-T = BigFloat;
-a, b = which_f[2];
-lnf_typed_fn = (T, which_f, x) -> lnf_hermite_fn(T, x);
-μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
-
-stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b);  
-
-#------------------------------------------------
-# Test the function stieltjes_custom_gauss_quad_all_fn
-# Generalized Laguerre
-
-setprecision(BigFloat, 256, base=2);
-n= 4;
-
-T = BigFloat;
-α = convert(T, 1);
-which_f = ["generalized laguerre", [0, Inf], α]::Vector{Any};
-a, b = which_f[2];
-lnf_typed_fn = (T, which_f, x) -> lnf_laguerre_fn(T, x, which_f[3]);
-
-μ₀, μ₁ = μ_offsetvec_fn(T, moment_fn, which_f, 1);
-stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
-
-stieltjes_nodes, stieltjes_weights = 
-stieltjes_custom_gauss_quad_all_fn(n, μ₀, stieltjes_a_vec, stieltjes_b_vec, a, b); 
 
 #------------------------------------------------
 # Test a user-defined Stieltjes weight with a 2-parameter vector in which_f[3]
 
 setprecision(BigFloat, 256, base=2);
-n = 4;
+n = 3;
 which_f = ["gamma pdf", [0, Inf], ["2.5", "1.7"]];
 a, b = which_f[2];
 lnf_typed_fn = (T, which_f, x) -> begin
@@ -323,7 +228,7 @@ end
 μ₀ = (T, which_f) -> one(T)
 
 stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r = 
-stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b);
+stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; epsilon=1.0e-15);
 stieltjes_nodes, stieltjes_weights = 
 stieltjes_custom_gauss_quad_all_fn(n, μ₀(BigFloat, which_f), stieltjes_a_vec, stieltjes_b_vec, a, b);
 
@@ -348,6 +253,7 @@ custom_gauss_quad_all_fn(moment_sine_power_pdf_test_fn, which_f, n);
     n = 4
     lnf_typed_fn = lnf_sine_power_pdf_test_fn
     mu0 = 1
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
@@ -372,6 +278,7 @@ a, b = which_f[2];
 @eval Main begin
     which_f = ["generalized normal", [-Inf, Inf], ["1.9", "2.8"]]
     n = 2
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 

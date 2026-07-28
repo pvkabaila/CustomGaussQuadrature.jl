@@ -8,6 +8,7 @@ pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 @eval Main begin
     which_f = ["hermite", [-Inf, Inf]]
     n = 3
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 
@@ -29,6 +30,7 @@ stored_r = Main.r
     n = 3
     lnf_typed_fn = lnf_user_hermite_fn
     mu0 = string(sqrt(big(pi)))
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 

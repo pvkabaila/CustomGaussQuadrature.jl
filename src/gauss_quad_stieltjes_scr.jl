@@ -287,7 +287,7 @@ end
 
 
 """
-a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=7, j_max=40, epsilon=1.0e-15)
+a_vec, b_vec, nbits, r = stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=7, j_max=80, epsilon=1.0e-17)
 
 Returns the vectors [a₁, ..., aₙ] = [α₀, ... , αₙ₋₁] and
 [b₁, ..., bₙ₋₁] = [√β₁, ... , √βₙ₋₁], together with the chosen
@@ -302,7 +302,7 @@ computations. For user-defined weights, which_f[3] may therefore be
 empty, scalar, or a container of several parameter specifications,
 provided lnf_typed_fn and μ₀ know how to interpret it.
 """
-function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=7, j_max=80, epsilon=1.0e-15)
+function stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, a, b; offset=7, j_max=80, epsilon=1.0e-17)
   try
   @assert n ≥ 2
   # Start with two consecutive trial values of r so the driver can measure how

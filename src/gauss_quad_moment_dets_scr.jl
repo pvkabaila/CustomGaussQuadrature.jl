@@ -577,7 +577,7 @@ end
 
 
 """
-nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n=false)
+nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n, upto_n=false)
 
 This function computes the custom-made Gauss quadrature nodes and 
 weights, for n nodes, moment_fn (the function for computing the 
@@ -641,7 +641,7 @@ function custom_gauss_quad_all_fn(moment_fn, which_f, n::Integer, upto_n::Bool=f
     weights = μ₀
     return([nodes, weights])
   end
-  a_vec, b_vec, μ₀, _ = step1_fn(moment_fn, which_f, n)
+  a_vec, b_vec, μ₀, nbits = step1_fn(moment_fn, which_f, n)
   nodes, weights = step2_fn(Double64, which_f, n, a_vec, b_vec, μ₀)
 
   if upto_n == false
@@ -650,7 +650,7 @@ function custom_gauss_quad_all_fn(moment_fn, which_f, n::Integer, upto_n::Bool=f
     # its default value before exiting this
     # function. 
     setprecision(BigFloat, 256, base=2)
-    return([nodes, weights])
+    return([nodes, weights, nbits])
   end
   nodes_upto_n = Any[]
   weights_upto_n = Any[]
@@ -676,7 +676,7 @@ function custom_gauss_quad_all_fn(moment_fn, which_f, n::Integer, upto_n::Bool=f
   # function. 
   setprecision(BigFloat, 256, base=2)
 
-  [nodes_upto_n, weights_upto_n]
+  [nodes_upto_n, weights_upto_n, nbits]
 end
 
 

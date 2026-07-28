@@ -202,19 +202,34 @@ println("moment-determinants method for the stored scaled chi pdf.", "\n")
 
 m = 160;
 which_f = ["scaled chi pdf", [0, Inf], m];
-n = 33;
+# n = 33;
+# For this value of m, Kabaila & Perera (2023) consider n = 3
+n = 3
 
 println("which_f = ", which_f)
 println("number of Gauss quadrature nodes n = ", n, "\n")
 
-include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
-
+path_to_stieltjes_lnf_stored_scr = joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl")
+println("Stieltjes procedure warm-up run, ignore timing")
+@time include(path_to_stieltjes_lnf_stored_scr)
+println("r = ", r, "\n")
+println("Stieltjes procedure computation times for 3 runs, after a warm-up run")
+@time include(path_to_stieltjes_lnf_stored_scr)
+println("r = ", r, "\n")
+@time include(path_to_stieltjes_lnf_stored_scr)
+println("r = ", r, "\n")
+@time include(path_to_stieltjes_lnf_stored_scr)
 println("r = ", r, "\n")
 
 println("Use the moment-determinants method to compute the")
 println("custom Gauss quadrature nodes and weights.", "\n")
 moment_fn = moment_stored_fn;
-nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+println("moment determinants warm-up run, ignore timing")
+@time nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("Moment determinants computation times for 3 runs, after a warm-up run")
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
 
 println("The Stieltjes and moment-determinants Gauss rules are")
 println("compared below using the node differences and the")

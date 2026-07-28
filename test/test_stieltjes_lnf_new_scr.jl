@@ -237,9 +237,9 @@ function lnf_weibull_pdf_fn(::Type{T}, which_f, x::AbstractFloat) where {T<:Abst
 end
 
 
-k = "2.0"
+k = "3.1"
 which_f = ["weibull pdf", [0, Inf], k]
-n = 10
+n = 6
 
 println("which_f = ", which_f)
 println("n = ", n, "\n")
@@ -248,8 +248,20 @@ lnf_typed_fn = lnf_weibull_pdf_fn;
 mu0 = 1;
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
-include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
-
+path_to_stieltjes_lnf_new_scr = joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl")
+println("Stieltjes procedure warm-up run, ignore timing")
+@time include(path_to_stieltjes_lnf_new_scr)
+println("nbits_stieltjes =", nbits_stieltjes)
+println("r =", r, "\n")
+println("Stieltjes procedure computation times for 3 runs, after a warm-up run")
+@time include(path_to_stieltjes_lnf_new_scr)
+println("nbits_stieltjes =", nbits_stieltjes)
+println("r =", r, "\n")
+@time include(path_to_stieltjes_lnf_new_scr)
+println("nbits_stieltjes =", nbits_stieltjes)
+println("r =", r, "\n")
+@time include(path_to_stieltjes_lnf_new_scr)
+println("nbits_stieltjes =", nbits_stieltjes)
 println("r =", r, "\n")
 
 function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
@@ -265,8 +277,18 @@ function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:Abstrac
     gamma(T_1 + (T_s/T_k))
 end
 
+
 moment_fn = moment_weibull_pdf_fn
-nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n);
+println("moment determinants warm-up run, ignore timing")
+@time nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("nbits = ", nbits, "\n")
+println("Moment determinants computation times for 3 runs, after a warm-up run")
+@time nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("nbits = ", nbits, "\n")
+@time nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("nbits = ", nbits, "\n")
+@time nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("nbits = ", nbits, "\n")
 
 println("Compare the nodes and weights computed by the Stieltjes")
 println("procedure with the nodes and weights computed using the")

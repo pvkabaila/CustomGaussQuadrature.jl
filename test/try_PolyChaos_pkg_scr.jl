@@ -43,6 +43,7 @@ println("Example 1: weight is exp(-|x|ᵏ) for x ∈ (-∞, ∞), where the para
 # reused in later examples without accidental cross-example dependence.
 let
     which_f = ["exp(-abs(x)^k)", [-Inf, Inf], "0.5"]
+println("which_f = ", which_f)    
 # All example-specific data for this weight is stored in which_f.  The
 # Float64 value k below is derived from which_f only for the PolyChaos
 # weight closure.
@@ -51,6 +52,7 @@ k = materialize_scalar_spec_fn(Float64, which_f[3])
 @assert k > 0
 
 n = 5
+println("number of Gauss quadrature nodes n = ", n)
 
 println("Compare the PolyChaos Gauss rule with")
 println("CustomGaussQuadrature using moment determinants.", "\n")
@@ -179,7 +181,27 @@ measure = Measure("ex1_meas", x -> exp(-(abs(x)^k)), (a, b), true)
 # The function OrthoPoly uses the default value of Nquad = 10 * (n + 1)
 # I assign Nquad here so that I can print this value later
 Nquad = 10 * (n + 1);
+println("PolyChaos warm-up run, ignore timing")
 @time opq = OrthoPoly(
+    "ex1_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+println("PolyChaos computation times for 3 runs, after a warm-up run")
+@time OrthoPoly(
+    "ex1_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+@time OrthoPoly(
+    "ex1_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+@time OrthoPoly(
     "ex1_op",
     n,
     measure;
@@ -199,12 +221,16 @@ for i in 1:row_count
     weights_polychaos[i] = rule_polychaos[i, 2]
 end
 
+println("moment determinants warm-up run, ignore timing")
 @time nodes_momentdets_raw, weights_momentdets_raw =
     custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("Moment determinants computation times for 3 runs, after a warm-up run")
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
 nodes_momentdets = Float64[Float64(x) for x in nodes_momentdets_raw]
 weights_momentdets = Float64[Float64(w) for w in weights_momentdets_raw]
 
-println("n = ", n)
 println("Nquad = ", Nquad, "\n")
 
 println("        nodes_polychaos                 nodes_momentdets")
@@ -306,9 +332,11 @@ println("\n", "Example 2: weight is exp(-x³/3) for x > 0")
 # A let block gives this example its own local scope, as in Example 1.
 let
 which_f = ["chemistry example", [0, Inf]]
+println("which_f = ", which_f) 
 a, b = which_f[2]
 
 n = 15
+println("number of Gauss quadrature nodes n = ", n)
 
 println("Compare the PolyChaos Gauss rule with")
 println("CustomGaussQuadrature using moment determinants.", "\n")
@@ -324,7 +352,27 @@ moment_fn = moment_stored_fn
 measure = Measure("ex2_meas", x -> exp(-(x^3) / 3.0), (a, b), false)
 
 Nquad = 10 * (n + 1);
+println("PolyChaos warm-up run, ignore timing")
 @time opq = OrthoPoly(
+    "ex2_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+println("PolyChaos computation times for 3 runs, after a warm-up run")
+@time OrthoPoly(
+    "ex2_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+@time OrthoPoly(
+    "ex2_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+@time OrthoPoly(
     "ex2_op",
     n,
     measure;
@@ -341,12 +389,16 @@ for i in 1:row_count
     weights_polychaos[i] = rule_polychaos[i, 2]
 end
 
+println("moment determinants warm-up run, ignore timing")
 @time nodes_momentdets_raw, weights_momentdets_raw =
     custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("Moment determinants computation times for 3 runs, after a warm-up run")
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
 nodes_momentdets = Float64[Float64(x) for x in nodes_momentdets_raw]
 weights_momentdets = Float64[Float64(w) for w in weights_momentdets_raw]
 
-println("n = ", n)
 println("Nquad = ", Nquad, "\n")
 
 println("        nodes_polychaos                 nodes_momentdets")
@@ -375,9 +427,13 @@ println("\n", "Example 3: scaled chi pdf with m = 160")
 let
 m = 160    
 which_f = ["scaled chi pdf", [0,Inf], m]
+println("which_f = ", which_f) 
 a, b = which_f[2]
 
-n = 33
+# n = 33
+# For this value of m, Kabaila & Perera (2023) consider n = 3
+n = 3
+println("number of Gauss quadrature nodes n = ", n)
 
 println("Compare the PolyChaos Gauss rule with")
 println("CustomGaussQuadrature using moment determinants.", "\n")
@@ -398,7 +454,27 @@ measure = Measure(
 )
 
 Nquad = 10 * (n + 1);
+println("PolyChaos warm-up run, ignore timing")
 @time opq = OrthoPoly(
+    "ex3_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+println("PolyChaos computation times for 3 runs, after a warm-up run")
+@time OrthoPoly(
+    "ex3_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+@time OrthoPoly(
+    "ex3_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+@time OrthoPoly(
     "ex3_op",
     n,
     measure;
@@ -415,12 +491,125 @@ for i in 1:row_count
     weights_polychaos[i] = rule_polychaos[i, 2]
 end
 
+println("moment determinants warm-up run, ignore timing")
 @time nodes_momentdets_raw, weights_momentdets_raw =
     custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("Moment determinants computation times for 3 runs, after a warm-up run")
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
 nodes_momentdets = Float64[Float64(x) for x in nodes_momentdets_raw]
 weights_momentdets = Float64[Float64(w) for w in weights_momentdets_raw]
 
-println("n = ", n)
+println("Nquad = ", Nquad, "\n")
+
+println("        nodes_polychaos                 nodes_momentdets")
+for i in 1:n
+    @printf("%2d   %.16e   %.16e\n", i, nodes_polychaos[i], nodes_momentdets[i])
+end
+print("\n")
+
+println("       weights_polychaos               weights_momentdets")
+for i in 1:n
+    @printf("%2d   %.16e   %.16e\n", i, weights_polychaos[i], weights_momentdets[i])
+end
+print("\n")
+
+println("maximum(abs.(nodes_polychaos .- nodes_momentdets)) = ",
+    maximum(abs.(nodes_polychaos .- nodes_momentdets)))
+
+println("maximum(abs.((weights_polychaos .- weights_momentdets) ./ weights_momentdets)) = ",
+    maximum(abs.((weights_polychaos .- weights_momentdets) ./ weights_momentdets)), "\n")
+end
+
+
+println("\n", "Example 4: Weibull pdf with scale parameter 1 and shape k = 3.1")
+
+# A let block gives this example its own local scope, as in Examples 1, 2, and 3.
+let
+k = "3.1"
+which_f = ["weibull pdf", [0, Inf], k]
+println("which_f = ", which_f)
+a, b = which_f[2]
+
+n = 6
+println("number of Gauss quadrature nodes n = ", n)
+
+println("Compare the PolyChaos Gauss rule with")
+println("CustomGaussQuadrature using moment determinants.", "\n")
+
+# For the Weibull pdf with scale parameter 1 and shape parameter k,
+#
+#   f(x; k) = k x^(k - 1) exp(-x^k),    x >= 0,
+#
+# the s-th raw moment is
+#
+#   mu_s = Gamma(1 + s/k).
+moment_fn = function (::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    @assert s >= 0
+    T_k = materialize_scalar_spec_fn(T, which_f[3])
+    @assert T_k > zero(T)
+    T_s = convert(T, s)
+    return gamma(one(T) + T_s / T_k)
+end
+
+k_float64 = materialize_scalar_spec_fn(Float64, which_f[3])
+measure = Measure(
+    "ex4_meas",
+    x -> k_float64 * x^(k_float64 - 1) * exp(-(x^k_float64)),
+    (a, b),
+    false,
+)
+
+Nquad = 10 * (n + 1);
+println("PolyChaos warm-up run, ignore timing")
+@time opq = OrthoPoly(
+    "ex4_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+println("PolyChaos computation times for 3 runs, after a warm-up run")
+@time OrthoPoly(
+    "ex4_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+@time OrthoPoly(
+    "ex4_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+@time OrthoPoly(
+    "ex4_op",
+    n,
+    measure;
+    addQuadrature = true,
+)
+
+rule_polychaos = nw(opq)
+
+row_count = size(rule_polychaos, 1)
+nodes_polychaos = Vector{Float64}(undef, row_count)
+weights_polychaos = Vector{Float64}(undef, row_count)
+for i in 1:row_count
+    nodes_polychaos[i] = rule_polychaos[i, 1]
+    weights_polychaos[i] = rule_polychaos[i, 2]
+end
+
+println("moment determinants warm-up run, ignore timing")
+@time nodes_momentdets_raw, weights_momentdets_raw =
+    custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("Moment determinants computation times for 3 runs, after a warm-up run")
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+@time custom_gauss_quad_all_fn(moment_fn, which_f, n)
+nodes_momentdets = Float64[Float64(x) for x in nodes_momentdets_raw]
+weights_momentdets = Float64[Float64(w) for w in weights_momentdets_raw]
+
 println("Nquad = ", Nquad, "\n")
 
 println("        nodes_polychaos                 nodes_momentdets")

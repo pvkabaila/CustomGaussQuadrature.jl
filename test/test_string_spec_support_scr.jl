@@ -69,6 +69,7 @@ pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 @eval Main begin
     which_f = ["generalized laguerre", [0, Inf], 1.0]
     n = 4
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 
@@ -78,6 +79,7 @@ stored_numeric_weights = copy(Main.stieltjes_weights)
 @eval Main begin
     which_f = ["generalized laguerre", ["0", "Inf"], "1.0"]
     n = 4
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
 
@@ -97,6 +99,7 @@ include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
     n = 3
     lnf_typed_fn = lnf_user_weibull_spec_fn
     mu0 = 1
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
@@ -108,6 +111,7 @@ user_numeric_weights = copy(Main.stieltjes_weights)
     n = 3
     lnf_typed_fn = lnf_user_weibull_spec_fn
     mu0 = "1"
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
@@ -119,6 +123,7 @@ include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
     n = 3
     lnf_typed_fn = lnf_user_weibull_spec_fn
     mu0 = 1
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
@@ -143,6 +148,7 @@ include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
     n = 3
     lnf_typed_fn = lnf_user_inverse_gamma_spec_fn
     mu0 = 1
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
@@ -154,6 +160,7 @@ inverse_gamma_numeric_weights = copy(Main.stieltjes_weights)
     n = 3
     lnf_typed_fn = lnf_user_inverse_gamma_spec_fn
     mu0 = "1"
+    epsilon = 1.0e-15
 end
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
@@ -162,12 +169,20 @@ include(joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl"))
 
 moment_fn = moment_stored_fn
 which_f = ["scaled chi pdf", [0, Inf], 160]
-n = 5
+n = 3
 lnf_typed_fn = (T, which_f, x) -> ln_scaled_chi_pdf_fn(T, x, which_f[3])
 μ₀, μ₁ = μ_offsetvec_fn(BigFloat, moment_fn, which_f, 1)
 
 stieltjes_a_vec, stieltjes_b_vec, stieltjes_nbits, r =
-    stieltjes_a_vec_b_vec_final_fn(n, μ₀, lnf_typed_fn, which_f, which_f[2][1], which_f[2][2])
+    stieltjes_a_vec_b_vec_final_fn(
+        n,
+        μ₀,
+        lnf_typed_fn,
+        which_f,
+        which_f[2][1],
+        which_f[2][2];
+        epsilon=1.0e-15,
+    )
 
 stieltjes_nodes_upto_n, stieltjes_weights_upto_n =
     stieltjes_custom_gauss_quad_all_fn(
