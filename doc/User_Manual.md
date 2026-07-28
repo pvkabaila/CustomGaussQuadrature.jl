@@ -263,10 +263,10 @@ for $s = 0, 1, 2, \dots$.
 This formula has been implemented in the function `moment_stored_fn`.
 
 The following commands compute the nodes and weights, as 
-`Double64` vectors for a 33-point Gauss quadrature rule. 
+`Double64` vectors for a 3-point Gauss quadrature rule. 
 ```julia
 	moment_fn = moment_stored_fn
-    n = 33
+    n = 3
     nodes_momentdets_ex1, weights_momentdets_ex1 = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 ```
 
@@ -633,7 +633,7 @@ following example.
 
 Consider the same weight function as in **Example 1**.
 For this stored weight function, with positive integer parameter `m` set to 160
-and number of Gauss quadrature nodes `n` set to 33,
+and number of Gauss quadrature nodes `n` set to 3,
 we use the high-level stored Stieltjes driver
 `stieltjes_lnf_stored_scr.jl`
 to carry out both **Step 1** and **Step 2**.
@@ -641,7 +641,7 @@ to carry out both **Step 1** and **Step 2**.
 ```julia
 m = 160
 which_f = ["scaled chi pdf", [0, Inf], m]
-n = 33
+n = 3
 
 pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
 include(joinpath(pkg_dir, "src", "stieltjes_lnf_stored_scr.jl"))
