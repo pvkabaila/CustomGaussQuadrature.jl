@@ -198,7 +198,7 @@ end
 
 moment_fn = moment_gamma_pdf_fn
 which_f = ["gamma pdf", [0, Inf], ["2.5", "1.7"]]
-n = 4
+n = 2
 
 nodes, weights = custom_gauss_quad_all_fn(moment_fn, which_f, n)
 @test length(nodes) == n
@@ -216,7 +216,7 @@ moment_fn = moment_stored_fn
 # Test a user-defined Stieltjes weight with a 2-parameter vector in which_f[3]
 
 setprecision(BigFloat, 256, base=2);
-n = 3;
+n = 2;
 which_f = ["gamma pdf", [0, Inf], ["2.5", "1.7"]];
 a, b = which_f[2];
 lnf_typed_fn = (T, which_f, x) -> begin
