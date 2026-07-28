@@ -39,7 +39,9 @@ and weights.
 
 In the classical case there are simple formulae for the recursion coefficients, making **Step 1** trivial. In the non-classical case Step 1 is difficult. The treatise of Gautschi (2004) describes several methods for this computation that differ widely in both complexity and sensitivity to roundoff errors. However, **Step 2** remains the same for both classical and non-classical cases. We carry out **Step 2** by computing the eigenvalues and eigenvectors of a symmetric tridiagonal matrix using the package `GenericLinearAlgebra.jl`.
 
-`CustomGaussQuadrature` aims to deliver about double precision accuracy in the computed Gauss rule for subsequent extensive `Float64` computations. 
+`CustomGaussQuadrature` aims to deliver 
+Gauss rule nodes and weights with absolute and relative errors, respectively, of about $10^{-16}$
+for subsequent extensive `Float64` computations. 
 
 ## Installation
 
