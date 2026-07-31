@@ -239,7 +239,8 @@ end
 
 k = "3.1"
 which_f = ["weibull pdf", [0, Inf], k]
-n = 6
+# n = 6
+n = 14
 
 println("which_f = ", which_f)
 println("n = ", n, "\n")

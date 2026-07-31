@@ -246,10 +246,10 @@ end
 print("\n")
 
 println("maximum(abs.(nodes_polychaos .- nodes_momentdets)) = ",
-    maximum(abs.(nodes_polychaos .- nodes_momentdets)))
+    maximum(abs.(nodes_polychaos .- nodes_momentdets_raw)))
 
 println("maximum(abs.((weights_polychaos .- weights_momentdets) ./ weights_momentdets)) = ",
-    maximum(abs.((weights_polychaos .- weights_momentdets) ./ weights_momentdets)), "\n")
+    maximum(abs.((weights_polychaos .- weights_momentdets_raw) ./ weights_momentdets_raw)), "\n")
 
 
 # The Stieltjes comparison below is disabled in Example 1 because it takes too
@@ -532,7 +532,8 @@ which_f = ["weibull pdf", [0, Inf], k]
 println("which_f = ", which_f)
 a, b = which_f[2]
 
-n = 6
+# n = 6
+n = 14
 println("number of Gauss quadrature nodes n = ", n)
 
 println("Compare the PolyChaos Gauss rule with")
