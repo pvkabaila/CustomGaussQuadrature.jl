@@ -442,7 +442,7 @@ function stieltjes_custom_gauss_quad_all_fn(n::Integer, μ₀, a_vec, b_vec,
   push!(weights_upto_n, weights_1)
   for q in 2:(n-1)
     a_vec_q = a_vec[1:q]
-    b_vec_q = b_vec[1:q]
+    b_vec_q = b_vec[1:q-1]
     nodes_q, weights_q =  stieltjes_step2_fn(q, μ₀, a_vec_q, b_vec_q, a, b)
     push!(nodes_upto_n, nodes_q)
     push!(weights_upto_n, weights_q)
