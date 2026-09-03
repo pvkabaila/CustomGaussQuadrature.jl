@@ -239,7 +239,83 @@ end
 
 k = "3.1"
 which_f = ["weibull pdf", [0, Inf], k]
-# n = 6
+
+println("\n", "------------------------------------------------------")
+n = 6
+
+println("which_f = ", which_f)
+println("n = ", n, "\n")
+
+lnf_typed_fn = lnf_weibull_pdf_fn;
+mu0 = 1;
+
+pkg_dir = dirname(dirname(pathof(CustomGaussQuadrature)))
+path_to_stieltjes_lnf_new_scr = joinpath(pkg_dir, "src", "stieltjes_lnf_new_scr.jl")
+println("Stieltjes procedure warm-up run, ignore timing")
+@time include(path_to_stieltjes_lnf_new_scr)
+println("nbits_stieltjes =", nbits_stieltjes)
+println("r =", r, "\n")
+println("Stieltjes procedure computation times for 3 runs, after a warm-up run")
+@time include(path_to_stieltjes_lnf_new_scr)
+println("nbits_stieltjes =", nbits_stieltjes)
+println("r =", r, "\n")
+@time include(path_to_stieltjes_lnf_new_scr)
+println("nbits_stieltjes =", nbits_stieltjes)
+println("r =", r, "\n")
+@time include(path_to_stieltjes_lnf_new_scr)
+println("nbits_stieltjes =", nbits_stieltjes)
+println("r =", r, "\n")
+
+function moment_weibull_pdf_fn(::Type{T}, which_f, s::Integer) where {T<:AbstractFloat}
+    @assert which_f[1] == "weibull pdf"
+    T_k = materialize_scalar_spec_fn(T, which_f[3])
+    @assert T_k > convert(T, 0)
+    @assert s ≥ 0
+    if s == 0
+      return(convert(T, 1))
+    end
+    T_1 = convert(T, 1)
+    T_s = convert(T, s)
+    gamma(T_1 + (T_s/T_k))
+end
+
+
+moment_fn = moment_weibull_pdf_fn
+println("moment determinants warm-up run, ignore timing")
+@time nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("nbits = ", nbits, "\n")
+println("Moment determinants computation times for 3 runs, after a warm-up run")
+@time nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("nbits = ", nbits, "\n")
+@time nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("nbits = ", nbits, "\n")
+@time nodes, weights, nbits = custom_gauss_quad_all_fn(moment_fn, which_f, n)
+println("nbits = ", nbits, "\n")
+
+println("Compare the nodes and weights computed by the Stieltjes")
+println("procedure with the nodes and weights computed using the")
+println("moment determinant method.", "\n")
+diff_nodes = stieltjes_nodes - nodes;
+rel_diff_weights = (stieltjes_weights - weights) ./ weights;
+
+diff_nodes = convert(Vector{Float64}, diff_nodes);
+rel_diff_weights = convert(Vector{Float64}, rel_diff_weights);
+
+println("      stieltjes_nodes - nodes    (stieltjes_weights - weights)./weights")
+for i in 1:lastindex(diff_nodes)
+	@printf "%2d     " i
+	@printf "%.16e     " diff_nodes[i]
+    @printf "%.16e  \n" rel_diff_weights[i]
+end
+
+print("\n")
+println("maximum(abs.(stieltjes_nodes - nodes)) = ", 
+convert(Float64, maximum(abs.(diff_nodes))))
+println("maximum(abs.((stieltjes_weights - weights) ./ weights)) = ", 
+convert(Float64, maximum(abs.(rel_diff_weights))))
+
+
+println("\n", "------------------------------------------------------")
 n = 14
 
 println("which_f = ", which_f)
@@ -312,6 +388,7 @@ println("maximum(abs.(stieltjes_nodes - nodes)) = ",
 convert(Float64, maximum(abs.(diff_nodes))))
 println("maximum(abs.((stieltjes_weights - weights) ./ weights)) = ", 
 convert(Float64, maximum(abs.(rel_diff_weights))))
+
 
 
 println("\n", "------------------------------------------------------")
